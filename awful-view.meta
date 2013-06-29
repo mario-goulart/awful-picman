@@ -1,0 +1,7 @@
+((synopsis "awful-view")
+ (author "Mario Domenech Goulart")
+ (category web)
+ (license "BSD")
+ (depends awful sql-de-lite)
+ (test-depends)
+ (foreign-depends))

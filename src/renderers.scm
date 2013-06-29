@@ -1,0 +1,26 @@
+(define (render-thumbnail-link dir thumbnail-filename dimension)
+  `(a (@ (href ,(make-pathname (list (thumbnails-web-dir)
+                                     (->string dimension)
+                                     dir)
+                               thumbnail-filename)))
+      ,thumbnail-filename))
+
+(define (render-dir-link dir dirname)
+  (let ((web-path (make-pathname (list (pics-web-dir) dir)
+                                 dirname)))
+    `(a (@ (href ,web-path)) ,dirname)))
+
+(define (render-thumbnail dir thumbnail-filename dimension)
+  `(img (@ (src ,(make-pathname (list (thumbnails-web-dir)
+                                      (->string dimension)
+                                      dir)
+                                thumbnail-filename)))))
+
+(define (render-directory-content dir)
+  (debug "render-directory-content: dir: ~a" dir)
+  `(ul
+    ,(map (lambda (f)
+            `(li ,(if (directory? (make-pathname dir f))
+                      (render-dir-link dir f)
+                      (render-thumbnail dir f (default-thumbnail-dimension)))))
+          (directory dir))))

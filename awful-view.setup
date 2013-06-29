@@ -1,0 +1,7 @@
+;; -*- scheme -*-
+(compile -d2 -O0 awful-view.scm)
+
+(install-program
+ 'awful-view
+ '("awful-view")
+ '((version "0.0.1")))
