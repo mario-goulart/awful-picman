@@ -37,3 +37,11 @@
                      arg))
                   args)))
     (and val (irregex-match-substring val 1))))
+
+(define-record dir-stat num-dirs num-images num-files)
+
+(define (get-dir-stat dir)
+  (let ((content (glob (make-pathname dir "*"))))
+    (make-dir-stat (length (filter directory? content))
+                   (length (filter image-file? content))
+                   (length (remove directory? content)))))

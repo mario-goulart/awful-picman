@@ -1,4 +1,3 @@
-(define thumbnails/max-dimensions (make-parameter '(400 700)))
 (define verbose? (make-parameter #f))
 (define pics-web-dir (make-parameter "/pics"))
 (define thumbnails-web-dir (make-parameter "/thumbnails"))
@@ -6,6 +5,13 @@
 (define dot-dirname ".awful-view")
 (define thumbnails-dirname "thumbnails")
 (define db-filename "awful-view.db")
+
+(define assets-install-dir
+  (make-pathname (list (installation-prefix)
+                       "lib"
+                       "chicken"
+                       (number->string (##sys#fudge 42)))
+                 "awful-view"))
 
 (define root-dir (or (find-root-dir (current-directory))
                      "."))
@@ -30,30 +36,37 @@
                   (create-directory dir 'with-parents)))
               (thumbnails/max-dimensions))))
 
-(define (initialize-metadata-dir)
+(define (initialize-metadata-dir force?)
   (create-directory metadata-dir)
   (create-thumbnails-dirs ".")
-  (initialize-database (make-pathname metadata-dir db-filename)))
+  (parameterize ((setup-verbose-mode (verbose?))
+                 (run-verbose (verbose?)))
+    (for-each (lambda (asset)
+                (copy-file (make-pathname assets-install-dir asset)
+                           (make-pathname metadata-dir asset)
+                           prefix: metadata-dir))
+              '("js" "css" "img")))
+  (initialize-database (make-pathname metadata-dir db-filename) force?))
 
-(define (initialize-database db-file)
-  (define sql #<#EOF
-    sql goes here
-EOF
-)
-  #f)
-
-(define (initialize #!optional recursive?)
+(define (initialize #!optional recursive? force?)
   (info "Initializing ~a ..." (current-directory))
-  (initialize-metadata-dir)
+  (unless (memq (thumbnails/zoom-dimension)
+                (thumbnails/max-dimensions))
+    (thumbnails/max-dimensions
+     (append (thumbnails/max-dimensions)
+             (list (thumbnails/zoom-dimension)))))
+  (initialize-metadata-dir force?)
   (process-dir "." recursive?))
 
 (define (process-dir dir recursive?)
   (debug "Processing ~a" dir)
   (let ((image-files (filter image-file? (glob (make-pathname dir "*")))))
+    (debug "Image files: ~S" image-files)
     ;; Generate thumbnails for images in the current directory
     (for-each (lambda (image-file)
                 (for-each (lambda (dimension)
-                            (image->thumbnail image-file dimension))
+                            (image->thumbnail image-file dimension)
+                            (db/maybe-insert-file! (drop-path-prefix root-dir image-file)))
                           (thumbnails/max-dimensions)))
               image-files)
     (when recursive?
@@ -67,13 +80,16 @@ EOF
 (define (awful-view)
 
   (enable-sxml #t)
-
+  (enable-db)
+  
   (define (thumbnail-matcher req-path)
     (debug "req-path: ~a" req-path)
     (and (string-prefix? (make-absolute-pathname #f thumbnails-dirname)
                          req-path)
          (image-file? req-path)
-         (let ((thumbnail (make-pathname metadata-dir req-path)))
+         (let ((thumbnail
+                (make-pathname metadata-dir
+                               (maybe-replace-thumbnail-extension req-path))))
            (and (file-exists? thumbnail)
                 (list req-path thumbnail)))))
 
@@ -82,9 +98,23 @@ EOF
       (lambda ()
         (parameterize ((root-path (pathname-directory thumbnail)))
           (send-static-file (pathname-strip-directory thumbnail))))))
-  
+
+  (define (assets-matcher req-path)
+    (debug "assets-matcher: ~a" req-path)
+    (and (or (string-prefix? "/css" req-path)
+             (string-prefix? "/js" req-path)
+             (string-prefix? "/img" req-path))
+         (list req-path)))
+
+  (define-page assets-matcher
+    (lambda (file)
+      (lambda ()
+        (parameterize ((root-path (make-pathname metadata-dir
+                                                 (pathname-directory file))))
+          (send-static-file (pathname-strip-directory file))))))
+
   (define-page (irregex (string-append (pics-web-dir) "(/.*)*"))
-    (lambda (path)
+    (lambda (path)      
       (let ((dir (drop-path-prefix (pics-web-dir) path)))
         (when (or (equal? dir "/")
                   (equal? dir ""))
@@ -95,8 +125,14 @@ EOF
               (process-dir dir #f)
               (render-directory-content dir))
             (lambda ()
-              (send-status 404 "Not found"))))))
-
+              (send-status 404 "Not found")))))
+    charset: "utf-8"
+    doctype: "<!DOCTYPE html>"
+    use-ajax: "/js/jquery.min.js"
+    headers: `(,(include-javascript "/js/bootstrap.min.js"))
+    css: '("/css/bootstrap.min.css"
+           "/css/awful-view.css"))
+  
   (define-page (main-page-path)
     (lambda ()
       (redirect-to (pics-web-dir))))
@@ -118,9 +154,12 @@ EOF
     (verbose? #t))
 
   (debug "metadata-dir: ~a" metadata-dir)
+
+  (db-credentials (make-pathname metadata-dir db-filename))
   
   (when (member "--init" args)
-    (initialize (and (member "--recursive" args))))
+    (initialize (and (member "--recursive" args) #t)
+                (and (member "--force" args) #t)))
 
   (unless (directory-exists? metadata-dir)
     (fprintf (current-error-port)

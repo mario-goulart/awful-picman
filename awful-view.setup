@@ -1,7 +1,16 @@
 ;; -*- scheme -*-
 (compile -d2 -O0 awful-view.scm)
 
+(define awful-view-version "0.0.1")
+
 (install-program
  'awful-view
  '("awful-view")
- '((version "0.0.1")))
+ `((version ,awful-view-version)))
+
+(install-extension
+ 'awful-view-assets
+ '(("js"  "awful-view/js")
+   ("css" "awful-view/css")
+   ("img" "awful-view/img"))
+ `((version ,awful-view-version)))
