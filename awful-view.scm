@@ -9,6 +9,7 @@
 (include "src/image")
 (include "src/utils")
 (include "src/db")
+(include "src/dispatcher")
 (include "src/awful-view")
 
 ) ;; end module

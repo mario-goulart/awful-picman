@@ -58,7 +58,34 @@
           (id ,(string-append "zoom-out-" id)))
        (i (@ (class "icon-zoom-out"))))))
 
-(define (render-thumbnail dir thumbnail-filename dimension)
+
+(define (render-image-modal dir id image-filename)
+  `(div (@ (id ,(string-append "modal-" id))
+           (class "modal hide")
+           (role "dialog")
+           (tabindex "-1")
+           (aria-labelledby ,image-filename))
+        (div (@ (class "modal-header"))
+             ,(render-modal-toolbar id)
+             (button (@ (type "button")
+                        (class "close")
+                        (data-dismiss "modal")
+                        (aria-hidden "true"))
+                     ×))
+
+        (div (@ (class "modal-body"))
+             (div (@ (class "row"))
+                  (div (@ (class "span12 pic-container"))
+                       (img (@ (src ,(make-pathname
+                                      (list (thumbnails-web-dir)
+                                            (->string (thumbnails/zoom-dimension))
+                                            dir)
+                                      image-filename))
+                               (id ,(string-append "pic-" id)))))
+                     (div (@ (class "span2"))
+                          (td ,(render-pic-form id)))))))
+
+(define (render-thumbnail dir thumbnail-filename dimension prev next)
   (let ((id (string->sha1sum thumbnail-filename)))
     `(;; Link
       (a (@ (href ,(string-append "#modal-" id))
@@ -69,30 +96,7 @@
                                             dir)
                                       thumbnail-filename)))))
       ;; Modal
-      (div (@ (id ,(string-append "modal-" id))
-              (class "modal hide")
-              (role "dialog")
-              (tabindex "-1")
-              (aria-labelledby ,thumbnail-filename))
-           (div (@ (class "modal-header"))
-                ,(render-modal-toolbar id)
-                (button (@ (type "button")
-                           (class "close")
-                           (data-dismiss "modal")
-                           (aria-hidden "true"))
-                        ×))
-
-           (div (@ (class "modal-body"))
-                (div (@ (class "row"))
-                     (div (@ (class "span12 pic-container"))
-                          (img (@ (src ,(make-pathname
-                                         (list (thumbnails-web-dir)
-                                               (->string (thumbnails/zoom-dimension))
-                                               dir)
-                                         thumbnail-filename))
-                                  (id ,(string-append "pic-" id)))))
-                     (div (@ (class "span2"))
-                          (td ,(render-pic-form id)))))))))
+      ,(render-image-modal dir id thumbnail-filename))))
 
 (define (render-pic-form pic-id)
   (define (id thing)
@@ -111,6 +115,13 @@
                ,(id "submit")
                (class "btn save-pic-info"))))))
 
+(define (render-other-file-type filename)
+  (let ((size (default-thumbnail-dimension)))
+    `(div (@ (class "other-file-type")
+             (style ,(sprintf "height: ~a; width: ~a" size size)))
+          (img (@ (src "/img/unknown.png") (alt ,filename)))
+          (p ,filename))))
+
 (define (render-directory-content dir)
   (add-javascript
    "
@@ -125,19 +136,56 @@ $('.zoom-out').on('click', function() {
 });
 ")
   (debug "render-directory-content: dir: ~a" dir)
-  (let* ((items (sort (directory dir)
-                      (lambda (f _)
-                        (directory? (make-pathname dir f)))))
-         (rows (chop items 4)))
+
+  (define-record item type file idx)
+
+  (define (make-dir path)
+    (make-item 'dir (pathname-strip-directory path) 'dummy))
+
+  (define (make-other path)
+    (make-item 'other (pathname-strip-directory path) 'dummy))
+
+  (define make-image
+    (let ((idx -1))
+      (lambda (path)
+        (set! idx (+ idx 1))
+        (make-item 'image (pathname-strip-directory path) idx))))
+
+  (let* ((items (glob (make-pathname dir "*")))
+         (dirs (map make-dir (filter directory? items)))
+         (images (map make-image (filter image-file? items)))
+         (other (map make-other
+                     (remove (lambda (i)
+                               (or (directory? i)
+                                   (image-file? i)))
+                             items)))
+         (num-images (length images))
+         (dim (default-thumbnail-dimension))
+         (rows (chop (append dirs images other) 4)) ;; FIXME: param thumbnails-per-row
+         (next-thumb (lambda (current)
+                       (let ((idx (item-idx current)))
+                         (if (= idx (- num-images 1))
+                             #f
+                             (item-file (list-ref images (+ idx 1)))))))
+         (prev-thumb (lambda (current)
+                       (let ((idx (item-idx current)))
+                         (if (zero? idx)
+                             #f
+                             (item-file (list-ref images (- idx 1))))))))
     `(,(render-top-bar)
       ,(render-breadcrumbs dir)
       ,@(map (lambda (row)
                `(div (@ (class "row"))
-                     ,@(map (lambda (f)
+                     ,@(map (lambda (i)
                               `(div (@ (class "span4"))
-                                    ,(if (directory? (make-pathname dir f))
-                                         (render-dir-link dir f)
-                                         (render-thumbnail dir f (default-thumbnail-dimension)))))
+                                    ,(case (item-type i)
+                                       ((dir) (render-dir-link dir (item-file i)))
+                                       ((image) (render-thumbnail dir
+                                                                  (item-file i)
+                                                                  dim
+                                                                  (prev-thumb i)
+                                                                  (next-thumb i)))
+                                       (else (render-other-file-type (item-file i))))))
                             row)))
              rows))))
 
