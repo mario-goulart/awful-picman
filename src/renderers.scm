@@ -138,11 +138,20 @@
                      default: (db-pic-day db-pic)
                      class: "input-2digits")
          (h5 "Tags")
-         (input (@ (type "text")
-                   ,(id "tags")
-                   (class "tags")
-                   (data-provide "typeahead")
-                   (value ,(string-intersperse (db-pic-tags db-pic) ", "))))
+         ,(let* ((tags (db-pic-tags db-pic))
+                 (len-tags (length tags))
+                 (get-tag (lambda (idx)
+                            (if (< idx len-tags)
+                                (list-ref tags idx)
+                                ""))))
+            (map (lambda (i)
+                   `((input (@ (type "text")
+                               ,(id (conc "tags-" i))
+                               (class "tags")
+                               (data-provide "typeahead")
+                               (value ,(get-tag i))))
+                     (br)))
+                 (iota (max-tags/pic))))
          (h5 "Filename")
          (p (code ,(db-pic-path db-pic)))
          (br)
@@ -265,14 +274,23 @@ $('.tags').typeahead({
   (ajax "/insert-update-pic" ".save-pic-info" 'click
         update-pic-info!
         prelude: "var pic_id = $(this).attr('id').replace(/^submit-/, '');"
+        traditional?: #t
         arguments: `((path   . "$('#path-' + pic_id).val()")
                      (descr  . "$('#descr-' + pic_id).val()")
                      (decade . "$('#decade-' + pic_id).val()")
                      (year   . "$('#year-' + pic_id).val()")
                      (month  . "$('#month-' + pic_id).val()")
                      (day    . "$('#day-' + pic_id).val()")
-                     (tags   . "$('#tags-' + pic_id).val()")
-                     (id     . "pic_id"))
+                     (id     . "pic_id")
+                     (tags   . ,(sprintf
+                                 "JSON.stringify(~a)"
+                                 (string-append
+                                  "[" (string-intersperse
+                                       (map (lambda (i)
+                                              (sprintf "$('#tags-~a-' + pic_id).val()" i))
+                                            (iota (max-tags/pic)))
+                                       ", ")
+                                  "]"))))
         success: (string-append
                   "$('#ro-' + pic_id).html(response);"
                   "set_pic_info_ro(pic_id);"))

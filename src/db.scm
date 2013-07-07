@@ -104,7 +104,7 @@ create table tags (
                      (maybe-string-null->false ($ 3))
                      (maybe-string-null->false ($ 4))
                      (maybe-string-null->false ($ 5))
-                     (if (null? tags) '() (car tags))))
+                     (if (null? tags) '() (map car tags))))
       (make-db-pic #f path "" #f #f #f #f '())))
 
 (define (db-tags)
