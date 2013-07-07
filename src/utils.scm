@@ -38,10 +38,40 @@
                   args)))
     (and val (irregex-match-substring val 1))))
 
-(define-record dir-stat num-dirs num-images num-files)
+(define-record dir-stat num-dirs num-pics num-files)
 
 (define (get-dir-stat dir)
   (let ((content (glob (make-pathname dir "*"))))
     (make-dir-stat (length (filter directory? content))
                    (length (filter image-file? content))
                    (length (remove directory? content)))))
+
+(define (combo-box id options #!key (first-empty? #t) default class)
+  `(select (@ (id ,id)
+              (name ,id)
+              ,(if class
+                   `(class ,class)
+                   '()))
+           ,@(map (lambda (opt)
+                    (let ((val (if (pair? opt)
+                                   (car opt)
+                                   opt))
+                          (text (cond ((list? opt)
+                                       (cadr opt))
+                                      ((pair? opt)
+                                       (cdr opt))
+                                      (else opt))))
+                      `(option (@ (value ,val)
+                                  ,(if (and default (equal? val default))
+                                       '(selected)
+                                       '()))
+                               ,text)))
+                  (if first-empty?
+                      (cons "" options)
+                      options))))
+
+(define (current-year)
+  (+ 1900 (vector-ref (seconds->local-time) 5)))
+
+(define (current-decade)
+  (- (current-year) (modulo (current-year) 10)))

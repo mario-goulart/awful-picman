@@ -63,6 +63,10 @@
     css: '("/css/bootstrap.min.css"
            "/css/awful-view.css"))
   
+
+  ;;
+  ;; /
+  ;;
   (define-page (main-page-path)
     (lambda ()
       (redirect-to (pics-web-dir))))

@@ -6,44 +6,96 @@
     (let ((db (open-database db-file)))
       (exec (sql db "
 create table files (
-    file_id integer primary key autoincrement,
+    pic_id integer primary key autoincrement,
     path text,
     descr text,
+    decade integer,
     year integer,
     month integer,
     day integer)"))
       (exec (sql db "
 create table tags (
-    file_id,
+    pic_id,
     tag text)"))
       (close-database db))))
 
 (define (db-query db-conn q #!key (values '()))
-  (apply query (append (list
-                        (map-rows (lambda (data) data))
-                        (sql db-conn q))
+  (apply query (append (list (map-rows (lambda (data) data))
+                             (sql db-conn q))
                        values)))
 
-(define (db/maybe-insert-file! path #!key (descr "")
-                                          (year "")
-                                          (month "")
-                                          (day "")
-                                          (tags '()))
+(define (insert-tags! db pic-id tags)
+  (for-each (lambda (tag)
+              (db-query db "insert into tags (pic_id, tag) values (?, ?)"
+                        values: (list pic-id tag)))
+            (or tags '())))
+
+(define (update-pic-data! db pic-id descr decade year month day tags)
+  ;; This is ugly:
+  (when descr
+    (db-query db "update files set descr=? where pic_id=?"
+              values: (list descr pic-id)))
+  (when decade
+    (db-query db "update files set decade=? where pic_id=?"
+              values: (list decade pic-id)))
+  (when year
+    (db-query db "update files set year=? where pic_id=?"
+              values: (list year pic-id)))
+  (when month
+    (db-query db "update files set month=? where pic_id=?"
+              values: (list month pic-id)))
+  (when day
+    (db-query db "update files set day=? where pic_id=?"
+              values: (list day pic-id)))
+  ;; update tags
+  (db-query db "delete from tags where pic_id=?"
+            values: (list pic-id))
+  (insert-tags! db pic-id tags))
+
+(define (insert-pic-data! db path descr decade year month day tags)
+  (db-query db "insert into files (path, descr, decade, year, month, day) values (?, ?, ?, ?, ?, ?)"
+            values: (list path
+                          (or descr "")
+                          (or decade "")
+                          (or year "")
+                          (or month "")
+                          (or day "")))
+  (let ((pic-id (last-insert-rowid db)))
+    (insert-tags! db pic-id tags)))
+
+(define (insert/update-pic! path #!key descr
+                                       decade
+                                       year
+                                       month
+                                       day
+                                       tags)
   ;; This procedure doesn't use awful-sql-de-lite stuff because it can
   ;; be called before awful is started
   (call-with-database (db-credentials)
     (lambda (db)
       (with-transaction db
         (lambda ()
-          (let ((inserted?
-                 (not (null? (db-query db "select path from files where path=?"
-                                       values: (list path))))))
-            (unless inserted?
-              (db-query db "insert into files (path, descr, year, month, day) values (?, ?, ?, ?, ?)"
-                        values: (list path descr year month day))
-              (let ((file-id (last-insert-rowid db)))
-                (for-each (lambda (tag)
-                            (db-query db "insert into tags (file_id, tag) values (?, ?)"
-                                      values: (list file-id tag)))
-                          tags))))
+          (or (and-let* ((data (db-query db "select pic_id from files where path=?"
+                                         values: (list path)))
+                         ((not (null? data)))
+                         (pic-id (caar data)))
+                ;; pic is in db.  Update its data.
+                (update-pic-data! db pic-id descr decade year month day tags))
+
+              ;; pic is NOT in db.  Add it.
+              (insert-pic-data! db path descr decade year month day tags))
           #t)))))
+
+(define-record db-pic id path descr decade year month day tags)
+
+(define (get-pic-from-db path)
+  (or (and-let* ((data* ($db "select pic_id, descr, decade, year, month, day from files where path=?"
+                             values: (list path)))
+                 ((not (null? data*)))
+                 (data (car data*))
+                 (id (car data))
+                 ($ (lambda (pos) (list-ref data pos)))
+                 (tags ($db "select tag from tags where pic_id=?"
+                            values: (list id))))
+        (make-db-pic id path ($ 1) ($ 2) ($ 3) ($ 4) ($ 5) tags))
+      (make-db-pic #f path "" #f #f #f #f '())))

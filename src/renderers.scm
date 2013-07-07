@@ -32,7 +32,7 @@
       (else (sprintf "~a ~as" count obj))))
   (let ((stat (get-dir-stat dir)))
     `(small ,(string-intersperse
-              (list (describe (dir-stat-num-images stat) "image")
+              (list (describe (dir-stat-num-pics stat) "pic")
                     (describe (dir-stat-num-dirs stat) "folder")
                     (describe (dir-stat-num-files stat) "file"))
               ", "))))
@@ -59,12 +59,53 @@
        (i (@ (class "icon-zoom-out"))))))
 
 
-(define (render-image-modal dir id image-filename)
+(define (render-modal-pic-form pic-path pic-id)
+  (define (id thing)
+    (list 'id (string-append thing "-" pic-id)))
+  (let ((db-pic (get-pic-from-db pic-path)))
+    (debug "pic path=~a descr=~a decade=~a year=~a month=~a tags=~S"
+           pic-path
+           (db-pic-descr db-pic)
+           (db-pic-decade db-pic)
+           (db-pic-year db-pic)
+           (db-pic-month db-pic)
+           (db-pic-tags db-pic))
+    `(div
+      (fieldset
+       (label "Description")
+       (textarea (@ ,(id "descr")) ,(db-pic-descr db-pic))
+       (label "Date (decade/year/month/day)")
+       ,(combo-box (string-append "decade-" pic-id)
+                   (iota (+ 1 (/ (- (current-decade) (start-decade)) 10))
+                         (start-decade)
+                         10)
+                   default: (db-pic-decade db-pic)
+                   class: "input-4digits")
+       ,(combo-box (string-append "year-" pic-id) (iota 10)
+                   default: (db-pic-year db-pic)
+                   class: "input-1digit")
+       ,(combo-box (string-append "month-" pic-id) (iota 12 1)
+                   month: (db-pic-month db-pic)
+                   class: "input-2digits")
+       ,(combo-box (string-append "day-" pic-id) (iota 31 1)
+                   default: (db-pic-day db-pic)
+                   class: "input-2digits")
+       (br)
+       (label "Tags")
+       (input (@ (type "text") ,(id "tags"))
+              ,(string-intersperse (db-pic-tags db-pic) ", "))
+       (br)
+       (input (@ (type "hidden") ,(id "path") (value ,pic-path)))
+       (input (@ (type "submit")
+                 ,(id "submit")
+                 (class "btn save-pic-info")))))))
+
+(define (render-pic-modal dir id pic-filename)
   `(div (@ (id ,(string-append "modal-" id))
            (class "modal hide")
            (role "dialog")
            (tabindex "-1")
-           (aria-labelledby ,image-filename))
+           (aria-labelledby ,pic-filename))
         (div (@ (class "modal-header"))
              ,(render-modal-toolbar id)
              (button (@ (type "button")
@@ -80,10 +121,11 @@
                                       (list (thumbnails-web-dir)
                                             (->string (thumbnails/zoom-dimension))
                                             dir)
-                                      image-filename))
+                                      pic-filename))
                                (id ,(string-append "pic-" id)))))
                      (div (@ (class "span2"))
-                          (td ,(render-pic-form id)))))))
+                          (td
+                           ,(render-modal-pic-form (make-pathname dir pic-filename) id)))))))
 
 (define (render-thumbnail dir thumbnail-filename dimension prev next)
   (let ((id (string->sha1sum thumbnail-filename)))
@@ -96,24 +138,7 @@
                                             dir)
                                       thumbnail-filename)))))
       ;; Modal
-      ,(render-image-modal dir id thumbnail-filename))))
-
-(define (render-pic-form pic-id)
-  (define (id thing)
-    (list 'id (string-append thing "-" pic-id)))
-  `(form
-    (fieldset
-     (label "Description")
-     (textarea (@ ,(id "description")))
-     (label "Date")
-     (input (@ (type "date") ,(id "date")))
-     (br)
-     (label "Tags")
-     (input (@ (type "text") ,(id "tags")))
-     (br)
-     (input (@ (type "submit")
-               ,(id "submit")
-               (class "btn save-pic-info"))))))
+      ,(render-pic-modal dir id thumbnail-filename))))
 
 (define (render-other-file-type filename)
   (let ((size (default-thumbnail-dimension)))
@@ -135,6 +160,19 @@ $('.zoom-out').on('click', function() {
    img.css('width', parseInt(img.css('width').replace(/px$/, '')) - 15);
 });
 ")
+
+  ;; Handle the modal pic form
+  (ajax "/insert-update-pic" ".save-pic-info" 'click
+        update-pic-info!
+        prelude: "var pic_id = $(this).attr('id').replace(/^submit-/, '');"
+        arguments: `((path   . "$('#path-' + pic_id).val()")
+                     (descr  . "$('#descr-' + pic_id).val()")
+                     (decade . "$('#decade-' + pic_id).val()")
+                     (year   . "$('#year-' + pic_id).val()")
+                     (month  . "$('#month-' + pic_id).val()")
+                     (day    . "$('#day-' + pic_id).val()")
+                     (tags   . "$('#tags-' + pic_id).val()")))
+
   (debug "render-directory-content: dir: ~a" dir)
 
   (define-record item type file idx)
@@ -145,46 +183,46 @@ $('.zoom-out').on('click', function() {
   (define (make-other path)
     (make-item 'other (pathname-strip-directory path) 'dummy))
 
-  (define make-image
+  (define make-pic
     (let ((idx -1))
       (lambda (path)
         (set! idx (+ idx 1))
-        (make-item 'image (pathname-strip-directory path) idx))))
+        (make-item 'pic (pathname-strip-directory path) idx))))
 
   (let* ((items (glob (make-pathname dir "*")))
          (dirs (map make-dir (filter directory? items)))
-         (images (map make-image (filter image-file? items)))
+         (pics (map make-pic (filter image-file? items)))
          (other (map make-other
                      (remove (lambda (i)
                                (or (directory? i)
                                    (image-file? i)))
                              items)))
-         (num-images (length images))
+         (num-pics (length pics))
          (dim (default-thumbnail-dimension))
-         (rows (chop (append dirs images other) 4)) ;; FIXME: param thumbnails-per-row
+         (rows (chop (append dirs pics other) 4)) ;; FIXME: param thumbnails-per-row
          (next-thumb (lambda (current)
                        (let ((idx (item-idx current)))
-                         (if (= idx (- num-images 1))
+                         (if (= idx (- num-pics 1))
                              #f
-                             (item-file (list-ref images (+ idx 1)))))))
+                             (item-file (list-ref pics (+ idx 1)))))))
          (prev-thumb (lambda (current)
                        (let ((idx (item-idx current)))
                          (if (zero? idx)
                              #f
-                             (item-file (list-ref images (- idx 1))))))))
+                             (item-file (list-ref pics (- idx 1))))))))
     `(,(render-top-bar)
       ,(render-breadcrumbs dir)
       ,@(map (lambda (row)
                `(div (@ (class "row"))
                      ,@(map (lambda (i)
-                              `(div (@ (class "span4"))
+                              `(div (@ (class "span4")) ;; FIXME: depends on thumbnails-per-row
                                     ,(case (item-type i)
                                        ((dir) (render-dir-link dir (item-file i)))
-                                       ((image) (render-thumbnail dir
-                                                                  (item-file i)
-                                                                  dim
-                                                                  (prev-thumb i)
-                                                                  (next-thumb i)))
+                                       ((pic) (render-thumbnail dir
+                                                                (item-file i)
+                                                                dim
+                                                                (prev-thumb i)
+                                                                (next-thumb i)))
                                        (else (render-other-file-type (item-file i))))))
                             row)))
              rows))))

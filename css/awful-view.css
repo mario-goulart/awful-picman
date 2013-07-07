@@ -51,3 +51,17 @@ body {
 .pic-container {
     overflow: auto;
 }
+
+.input-4digits {
+    font-size: 8pt;
+    width: 65px;
+}
+
+.input-2digits {
+    font-size: 8pt;
+    width: 50px;
+}
+.input-1digit {
+    font-size: 8pt;
+    width: 45px;
+}
