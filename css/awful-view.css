@@ -69,3 +69,7 @@ body {
 .pic-info-rw {
     display: none;
 }
+
+.dir-content {
+    margin: 5px;
+}

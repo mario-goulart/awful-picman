@@ -52,11 +52,6 @@
 
 (define (initialize #!optional recursive? force?)
   (info "Initializing ~a ..." (current-directory))
-  (unless (memq (thumbnails/zoom-dimension)
-                (thumbnails/max-dimensions))
-    (thumbnails/max-dimensions
-     (append (thumbnails/max-dimensions)
-             (list (thumbnails/zoom-dimension)))))
   (initialize-metadata-dir force?)
   (process-dir "." recursive?))
 
@@ -98,6 +93,12 @@
   (debug "metadata-dir: ~a" metadata-dir)
 
   (db-credentials (make-pathname metadata-dir db-filename))
+
+  (unless (memq (thumbnails/zoom-dimension)
+                (thumbnails/max-dimensions))
+    (thumbnails/max-dimensions
+     (append (thumbnails/max-dimensions)
+             (list (thumbnails/zoom-dimension)))))
   
   (when (member "--init" args)
     (initialize (and (member "--recursive" args) #t)

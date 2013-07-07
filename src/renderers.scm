@@ -56,7 +56,15 @@
     (a (@ (href "#")
           (class "zoom-out btn")
           (id ,(string-append "zoom-out-" id)))
-       (i (@ (class "icon-zoom-out"))))))
+       (i (@ (class "icon-zoom-out"))))
+    (a (@ (href "#")
+          (class "prev-pic btn")
+          (id ,(string-append "btn-prev-pic-" id)))
+       (i (@ (class "icon-chevron-left"))))
+    (a (@ (href "#")
+          (class "next-pic btn")
+          (id ,(string-append "btn-next-pic-" id)))
+       (i (@ (class "icon-chevron-right"))))))
 
 (define (render-date decade year month day)
   (cond ((and decade year month day)
@@ -71,7 +79,7 @@
 
 (define (render-modal-pic-form/ro db-pic pic-id)
   (define (id thing)
-    (list 'id (string-append thing "-" pic-id)))  
+    (list 'id (string-append thing "-" pic-id)))
   `(div (@ ,(id "ro")
            (class "pic-info-ro"))
         (h5 "Description")
@@ -96,15 +104,21 @@
                    (onclick ,(sprintf "set_pic_info_rw('~a');" pic-id)))
                 "Edit")))
 
-(define (render-modal-pic-form/rw pic-id db-pic pic-id)
+(define (render-modal-pic-form/rw pic-id db-pic pic-id prev-id next-id)
   (define (id thing)
-    (list 'id (string-append thing "-" pic-id)))  
+    (list 'id (string-append thing "-" pic-id)))
   `(div (@ ,(id "rw")
            (class "pic-info-rw"))
         (fieldset
          (input (@ (type "hidden")
+                   ,(id "prev-pic")
+                   (value ,(or prev-id ""))))
+         (input (@ (type "hidden")
+                   ,(id "next-pic")
+                   (value ,(or next-id ""))))
+         (input (@ (type "hidden")
                    ,(id "path")
-                   (value ,(db-pic-path db-pic))))        
+                   (value ,(db-pic-path db-pic))))
          (h5 "Description")
          (textarea (@ ,(id "descr")) ,(db-pic-descr db-pic))
          (h5 "Date (decade/year/month/day)")
@@ -128,7 +142,7 @@
                    ,(id "tags")
                    (value ,(string-intersperse (db-pic-tags db-pic) ", "))))
          (h5 "Filename")
-         (p (code ,(db-pic-path db-pic)))         
+         (p (code ,(db-pic-path db-pic)))
          (br)
          (button (@ ,(id "submit")
                     (class "btn save-pic-info"))
@@ -138,8 +152,8 @@
                     (onclick ,(sprintf "set_pic_info_ro('~a');" pic-id))
                     (class "btn cancel-save-pic-info"))
                  "Cancel"))))
-  
-(define (render-modal-pic-form pic-path pic-id)
+
+(define (render-modal-pic-form pic-path pic-id prev-id next-id)
   (define (id thing)
     (list 'id (string-append thing "-" pic-id)))
   (let ((db-pic (get-pic-from-db pic-path)))
@@ -151,9 +165,9 @@
            (db-pic-month db-pic)
            (db-pic-tags db-pic))
     `(,(render-modal-pic-form/ro db-pic pic-id)
-      ,(render-modal-pic-form/rw pic-id db-pic pic-id))))
+      ,(render-modal-pic-form/rw pic-id db-pic pic-id prev-id next-id))))
 
-(define (render-pic-modal dir id pic-filename)
+(define (render-pic-modal dir id pic-filename prev-id next-id)
   `(div (@ (id ,(string-append "modal-" id))
            (class "modal hide")
            (role "dialog")
@@ -166,7 +180,6 @@
                         (data-dismiss "modal")
                         (aria-hidden "true"))
                      ×))
-
         (div (@ (class "modal-body"))
              (div (@ (class "row"))
                   (div (@ (class "span12 pic-container"))
@@ -178,10 +191,15 @@
                                (id ,(string-append "pic-" id)))))
                      (div (@ (class "span4"))
                           (td
-                           ,(render-modal-pic-form (make-pathname dir pic-filename) id)))))))
+                           ,(render-modal-pic-form (make-pathname dir pic-filename)
+                                                   id
+                                                   prev-id
+                                                   next-id)))))))
 
-(define (render-thumbnail dir thumbnail-filename dimension prev next)
-  (let ((id (string->sha1sum thumbnail-filename)))
+(define (render-thumbnail dir thumbnail-filename dimension prev-filename next-filename)
+  (let ((id (string->sha1sum thumbnail-filename))
+        (prev-id (and prev-filename (string->sha1sum prev-filename)))
+        (next-id (and next-filename (string->sha1sum next-filename))))
     `(;; Link
       (a (@ (href ,(string-append "#modal-" id))
             (data-toggle "modal"))
@@ -191,7 +209,7 @@
                                             dir)
                                       thumbnail-filename)))))
       ;; Modal
-      ,(render-pic-modal dir id thumbnail-filename))))
+      ,(render-pic-modal dir id thumbnail-filename prev-id next-id))))
 
 (define (render-other-file-type filename)
   (let ((size (default-thumbnail-dimension)))
@@ -211,6 +229,24 @@ $('.zoom-in').on('click', function() {
 $('.zoom-out').on('click', function() {
    var img = $('#pic-' + $(this).attr('id').replace(/^zoom-out-/, ''));
    img.css('width', parseInt(img.css('width').replace(/px$/, '')) - 15);
+});
+
+$('.next-pic').on('click', function() {
+   var id = $(this).attr('id').replace(/^btn-next-pic-/, '');
+   var next = $('#next-pic-' + id).val();
+   $('#modal-' + id).modal('hide');
+   if(next) {
+       $('#modal-' + next).modal('show');
+   }
+});
+
+$('.prev-pic').on('click', function() {
+   var id = $(this).attr('id').replace(/^btn-prev-pic-/, '');
+   var prev = $('#prev-pic-' + id).val();
+   $('#modal-' + id).modal('hide');
+   if(prev) {
+       $('#modal-' + prev).modal('show');
+   }
 });
 ")
 
@@ -269,20 +305,21 @@ $('.zoom-out').on('click', function() {
                              (item-file (list-ref pics (- idx 1))))))))
     `(,(render-top-bar)
       ,(render-breadcrumbs dir)
-      ,@(map (lambda (row)
-               `(div (@ (class "row"))
-                     ,@(map (lambda (i)
-                              `(div (@ (class "span4")) ;; FIXME: depends on thumbnails-per-row
-                                    ,(case (item-type i)
-                                       ((dir) (render-dir-link dir (item-file i)))
-                                       ((pic) (render-thumbnail dir
-                                                                (item-file i)
-                                                                dim
-                                                                (prev-thumb i)
-                                                                (next-thumb i)))
-                                       (else (render-other-file-type (item-file i))))))
-                            row)))
-             rows))))
+      (div (@ (class "dir-content"))
+           ,@(map (lambda (row)
+                    `(div (@ (class "row"))
+                          ,@(map (lambda (i)
+                                   `(div (@ (class "span4")) ;; FIXME: depends on thumbnails-per-row
+                                         ,(case (item-type i)
+                                            ((dir) (render-dir-link dir (item-file i)))
+                                            ((pic) (render-thumbnail dir
+                                                                     (item-file i)
+                                                                     dim
+                                                                     (prev-thumb i)
+                                                                     (next-thumb i)))
+                                            (else (render-other-file-type (item-file i))))))
+                                 row)))
+                  rows)))))
 
 (define (render-search-form)
   `(form (@ (class "navbar-search form-inline pull-right"))

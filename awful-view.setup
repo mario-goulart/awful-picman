@@ -1,5 +1,5 @@
 ;; -*- scheme -*-
-(compile -d2 -O0 awful-view.scm)
+(compile -stack-size 1m -d2 -O0 awful-view.scm)
 
 (define awful-view-version "0.0.1")
 
