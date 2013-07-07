@@ -140,6 +140,8 @@
          (h5 "Tags")
          (input (@ (type "text")
                    ,(id "tags")
+                   (class "tags")
+                   (data-provide "typeahead")
                    (value ,(string-intersperse (db-pic-tags db-pic) ", "))))
          (h5 "Filename")
          (p (code ,(db-pic-path db-pic)))
@@ -248,6 +250,15 @@ $('.prev-pic').on('click', function() {
        $('#modal-' + prev).modal('show');
    }
 });
+
+$('.tags').typeahead({
+    source: function (query, process) {
+        return $.get('/db/tags', { query: query }, function (data) {
+            return process(data);
+        });
+    }
+});
+
 ")
 
   ;; Handle the modal pic form

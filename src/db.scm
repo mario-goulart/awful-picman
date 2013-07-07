@@ -106,3 +106,6 @@ create table tags (
                      (maybe-string-null->false ($ 5))
                      (if (null? tags) '() (car tags))))
       (make-db-pic #f path "" #f #f #f #f '())))
+
+(define (db-tags)
+  (map car ($db "select distinct tag from tags order by tag")))

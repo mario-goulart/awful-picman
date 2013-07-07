@@ -2,7 +2,8 @@
 
   (enable-sxml #t)
   (enable-db)
-
+  (literal-script/style? #t)
+  
   ;;;
   ;;; Thumbnails
   ;;;
@@ -39,6 +40,18 @@
         (parameterize ((root-path (make-pathname metadata-dir
                                                  (pathname-directory file))))
           (send-static-file (pathname-strip-directory file))))))
+
+  ;;;
+  ;;; db
+  ;;;
+  (define-page "/db/tags"
+    (lambda ()
+      (awful-response-headers '((content-type "application/json")))
+      `(literal
+        ,(with-output-to-string
+           (lambda ()
+             (json-write (db-tags))))))
+    no-template: #t)
 
   ;;;
   ;;; Directories & other stuff
