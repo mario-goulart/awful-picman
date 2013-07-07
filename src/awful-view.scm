@@ -13,8 +13,10 @@
                        (number->string (##sys#fudge 42)))
                  "awful-view"))
 
-(define root-dir (or (find-root-dir (current-directory))
-                     "."))
+(define root-dir
+  (let ((d (find-root-dir (current-directory))))
+    (when d (change-directory d))
+    "."))
 
 (define metadata-dir
   (if root-dir
