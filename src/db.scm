@@ -97,5 +97,12 @@ create table tags (
                  ($ (lambda (pos) (list-ref data pos)))
                  (tags ($db "select tag from tags where pic_id=?"
                             values: (list id))))
-        (make-db-pic id path ($ 1) ($ 2) ($ 3) ($ 4) ($ 5) tags))
+        (make-db-pic id
+                     path
+                     ($ 1)
+                     (maybe-string-null->false ($ 2))
+                     (maybe-string-null->false ($ 3))
+                     (maybe-string-null->false ($ 4))
+                     (maybe-string-null->false ($ 5))
+                     (if (null? tags) '() (car tags))))
       (make-db-pic #f path "" #f #f #f #f '())))

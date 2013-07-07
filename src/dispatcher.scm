@@ -59,7 +59,8 @@
     charset: "utf-8"
     doctype: "<!DOCTYPE html>"
     use-ajax: "/js/jquery.min.js"
-    headers: `(,(include-javascript "/js/bootstrap.min.js"))
+    headers: `(,(include-javascript "/js/bootstrap.min.js"
+                                    "/js/awful-view.js"))
     css: '("/css/bootstrap.min.css"
            "/css/awful-view.css"))
   

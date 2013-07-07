@@ -75,3 +75,8 @@
 
 (define (current-decade)
   (- (current-year) (modulo (current-year) 10)))
+
+(define (maybe-string-null->false str)
+  (if (equal? str "")
+      #f
+      str))
