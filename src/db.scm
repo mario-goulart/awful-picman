@@ -17,6 +17,10 @@ create table files (
 create table tags (
     pic_id,
     tag text)"))
+      (exec (sql db "
+create table albums (
+    pic_id,
+    album text)"))
       (close-database db))))
 
 (define (db-query db-conn q #!key (values '()))
@@ -30,7 +34,13 @@ create table tags (
                         values: (list pic-id tag)))
             (or tags '())))
 
-(define (update-pic-data! db pic-id descr decade year month day tags)
+(define (insert-albums! db pic-id albums)
+  (for-each (lambda (album)
+              (db-query db "insert into albums (pic_id, album) values (?, ?)"
+                        values: (list pic-id album)))
+            (or albums '())))
+
+(define (update-pic-data! db pic-id descr decade year month day tags albums)
   ;; This is ugly:
   (when descr
     (db-query db "update files set descr=? where pic_id=?"
@@ -51,9 +61,15 @@ create table tags (
   (debug "======================================= tags: ~S" tags)
   (db-query db "delete from tags where pic_id=?"
             values: (list pic-id))
-  (insert-tags! db pic-id tags))
+  (insert-tags! db pic-id tags)
 
-(define (insert-pic-data! db path descr decade year month day tags)
+  ;; update albums
+  (debug "======================================= albums: ~S" albums)
+  (db-query db "delete from albums where pic_id=?"
+            values: (list pic-id))
+  (insert-albums! db pic-id albums))
+
+(define (insert-pic-data! db path descr decade year month day tags albums)
   (db-query db "insert into files (path, descr, decade, year, month, day) values (?, ?, ?, ?, ?, ?)"
             values: (list path
                           (or descr "")
@@ -62,14 +78,16 @@ create table tags (
                           (or month "")
                           (or day "")))
   (let ((pic-id (last-insert-rowid db)))
-    (insert-tags! db pic-id tags)))
+    (insert-tags! db pic-id tags)
+    (insert-albums! db pic-id albums)))
 
 (define (insert/update-pic! path #!key descr
                                        decade
                                        year
                                        month
                                        day
-                                       tags)
+                                       tags
+                                       albums)
   ;; This procedure doesn't use awful-sql-de-lite stuff because it can
   ;; be called before awful is started
   (call-with-database (db-credentials)
@@ -81,13 +99,13 @@ create table tags (
                          ((not (null? data)))
                          (pic-id (caar data)))
                 ;; pic is in db.  Update its data.
-                (update-pic-data! db pic-id descr decade year month day tags))
+                (update-pic-data! db pic-id descr decade year month day tags albums))
 
               ;; pic is NOT in db.  Add it.
-              (insert-pic-data! db path descr decade year month day tags))
+              (insert-pic-data! db path descr decade year month day tags albums))
           #t)))))
 
-(define-record db-pic id path descr decade year month day tags)
+(define-record db-pic id path descr decade year month day tags albums)
 
 (define (get-pic-from-db path)
   (or (and-let* ((data* ($db "select pic_id, descr, decade, year, month, day from files where path=?"
@@ -97,7 +115,9 @@ create table tags (
                  (id (car data))
                  ($ (lambda (pos) (list-ref data pos)))
                  (tags ($db "select tag from tags where pic_id=?"
-                            values: (list id))))
+                            values: (list id)))
+                 (albums ($db "select album from albums where pic_id=?"
+                              values: (list id))))
         (make-db-pic id
                      path
                      ($ 1)
@@ -105,8 +125,12 @@ create table tags (
                      (maybe-string-null->false ($ 3))
                      (maybe-string-null->false ($ 4))
                      (maybe-string-null->false ($ 5))
-                     (if (null? tags) '() (map car tags))))
-      (make-db-pic #f path "" #f #f #f #f '())))
+                     (if (null? tags) '() (map car tags))
+                     (if (null? albums) '() (map car albums))))
+      (make-db-pic #f path "" #f #f #f #f '() '())))
 
 (define (db-tags)
   (map car ($db "select distinct tag from tags order by tag")))
+
+(define (db-albums)
+  (map car ($db "select distinct album from albums order by album")))

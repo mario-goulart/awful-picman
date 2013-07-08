@@ -76,33 +76,6 @@
         (decade decade)
         (else "")))
 
-(define (render-modal-pic-form/ro db-pic pic-id)
-  (define (id thing)
-    (list 'id (string-append thing "-" pic-id)))
-  `(div (@ ,(id "ro")
-           (class "pic-info-ro"))
-        (h5 "Description")
-        (p ,(db-pic-descr db-pic))
-        (h5 "Date")
-        ,(render-date (db-pic-decade db-pic)
-                      (db-pic-year db-pic)
-                      (db-pic-month db-pic)
-                      (db-pic-day db-pic))
-        (h5 "Tags")
-        ,(if (null? (db-pic-tags db-pic))
-             ""
-             `(ul ,@(map (lambda (i)
-                           `(li ,i))
-                         (db-pic-tags db-pic))))
-        (h5 "Filename")
-        (p (code ,(db-pic-path db-pic)))
-        (br)
-        (button (@ (class "btn edit-pic-info")
-                   ;; Super ugly hack: events don't seem to work with
-                   ;; jQuery observers, so we hardcode them here
-                   (onclick ,(sprintf "set_pic_info_rw('~a');" pic-id)))
-                "Edit")))
-
 (define (render-dynamic-input type idx pic-id val)
   `(input (@ (type "text")
              (class ,(sprintf "~a-widget-~a ~a" type pic-id type))
@@ -132,6 +105,39 @@
                  (iota len-inputs))
             '(br)))
       ,(render-dynamic-input+ type pic-id))))
+
+(define (render-modal-pic-form/ro db-pic pic-id)
+  (define (id thing)
+    (list 'id (string-append thing "-" pic-id)))
+  `(div (@ ,(id "ro")
+           (class "pic-info-ro"))
+        (h5 "Description")
+        (p ,(db-pic-descr db-pic))
+        (h5 "Date")
+        ,(render-date (db-pic-decade db-pic)
+                      (db-pic-year db-pic)
+                      (db-pic-month db-pic)
+                      (db-pic-day db-pic))
+        (h5 "Albums")
+        ,(if (null? (db-pic-albums db-pic))
+             ""
+             `(ul ,@(map (lambda (i)
+                           `(li ,i))
+                         (db-pic-albums db-pic))))
+        (h5 "Tags")
+        ,(if (null? (db-pic-tags db-pic))
+             ""
+             `(ul ,@(map (lambda (i)
+                           `(li ,i))
+                         (db-pic-tags db-pic))))
+        (h5 "Filename")
+        (p (code ,(db-pic-path db-pic)))
+        (br)
+        (button (@ (class "btn edit-pic-info")
+                   ;; Super ugly hack: events don't seem to work with
+                   ;; jQuery observers, so we hardcode them here
+                   (onclick ,(sprintf "set_pic_info_rw('~a');" pic-id)))
+                "Edit")))
 
 (define (render-modal-pic-form/rw pic-id db-pic pic-id prev-id next-id)
   (define (id thing)
@@ -166,6 +172,8 @@
          ,(combo-box (string-append "day-" pic-id) (iota 31 1)
                      default: (db-pic-day db-pic)
                      class: "input-2digits")
+         (h5 "Albums")
+         ,(render-dynamic-inputs 'album pic-id (db-pic-albums db-pic))
          (h5 "Tags")
          ,(render-dynamic-inputs 'tag pic-id (db-pic-tags db-pic))
          (h5 "Filename")
@@ -326,12 +334,14 @@ get_pic_dynamic_inputs = function(type, pic_id) {
                      (month  . "$('#month-' + pic_id).val()")
                      (day    . "$('#day-' + pic_id).val()")
                      (id     . "pic_id")
-                     (tags   . "JSON.stringify(get_pic_dynamic_inputs('tag' + pic_id))"))
+                     (tags   . "JSON.stringify(get_pic_dynamic_inputs('tag', pic_id))")
+                     (albums . "JSON.stringify(get_pic_dynamic_inputs('album', pic_id))"))
         success: (string-append
                   "$('#ro-' + pic_id).html(response);"
                   "set_pic_info_ro(pic_id);"))
 
   (create-dynamic-input-ajax 'tag "/db/tags")
+  (create-dynamic-input-ajax 'album "/db/albums")
 
   (debug "render-directory-content: dir: ~a" dir)
 
@@ -400,7 +410,6 @@ get_pic_dynamic_inputs = function(type, pic_id) {
   `((div (@ (class "navbar navbar-inverse navbar-fixed-top"))
          (div (@ (class "navbar-inner"))
               (ul (@ (class "nav"))
-                  (li (a (@ (class "active") (href "/pics")) "By folder"))
-                  (li (a (@ (href "/by-year")) "By year"))
-                  (li (a (@ (href "/by-tag")) "By tag")))
+                  (li (a (@ (href "/albums")) "Albums"))
+                  (li (a (@ (class "active") (href "/pics")) "Folders")))
               ,(render-search-form)))))

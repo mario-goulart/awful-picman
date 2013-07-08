@@ -53,6 +53,15 @@
              (json-write (db-tags))))))
     no-template: #t)
 
+  (define-page "/db/albums"
+    (lambda ()
+      (awful-response-headers '((content-type "application/json")))
+      `(literal
+        ,(with-output-to-string
+           (lambda ()
+             (json-write (db-albums))))))
+    no-template: #t)
+  
   ;;;
   ;;; Directories & other stuff
   ;;;
