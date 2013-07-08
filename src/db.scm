@@ -48,6 +48,7 @@ create table tags (
     (db-query db "update files set day=? where pic_id=?"
               values: (list day pic-id)))
   ;; update tags
+  (debug "======================================= tags: ~S" tags)
   (db-query db "delete from tags where pic_id=?"
             values: (list pic-id))
   (insert-tags! db pic-id tags))

@@ -76,7 +76,6 @@
         (decade decade)
         (else "")))
 
-
 (define (render-modal-pic-form/ro db-pic pic-id)
   (define (id thing)
     (list 'id (string-append thing "-" pic-id)))
@@ -103,6 +102,36 @@
                    ;; jQuery observers, so we hardcode them here
                    (onclick ,(sprintf "set_pic_info_rw('~a');" pic-id)))
                 "Edit")))
+
+(define (render-tag-widget idx pic-id val)
+  `(input (@ (type "text")
+             (class ,(sprintf "tag-widget-~a" pic-id))
+             (id ,(sprintf "tag-~a-~a" idx pic-id))
+             (data-provide "typeahead")
+             (value ,val))))
+
+(define (render-tag+ pic-id)
+  `((span (@ (id ,(sprintf "tag-widget-placeholder-~a" pic-id))))
+    (a (@ (href "#")
+          (class "add-tag-widget")
+          (id ,(sprintf "add-tag-~a" pic-id)))
+       (span (@ (class "badge badge-info"))
+             "+"))))
+
+(define (render-tag-widgets/rw pic-id tags)
+  (let* ((len-tags (length tags))
+         (get-tag (lambda (idx)
+                    (if (< idx len-tags)
+                        (list-ref tags idx)
+                        ""))))
+    `(,(if (zero? len-tags)
+           (render-tag-widget 0 pic-id "")
+           (intersperse
+            (map (lambda (i)
+                   (render-tag-widget i pic-id (get-tag i)))
+                 (iota len-tags))
+            '(br)))
+      ,(render-tag+ pic-id))))
 
 (define (render-modal-pic-form/rw pic-id db-pic pic-id prev-id next-id)
   (define (id thing)
@@ -138,20 +167,8 @@
                      default: (db-pic-day db-pic)
                      class: "input-2digits")
          (h5 "Tags")
-         ,(let* ((tags (db-pic-tags db-pic))
-                 (len-tags (length tags))
-                 (get-tag (lambda (idx)
-                            (if (< idx len-tags)
-                                (list-ref tags idx)
-                                ""))))
-            (map (lambda (i)
-                   `((input (@ (type "text")
-                               ,(id (conc "tags-" i))
-                               (class "tags")
-                               (data-provide "typeahead")
-                               (value ,(get-tag i))))
-                     (br)))
-                 (iota (max-tags/pic))))
+         (div (@ (id ,(sprintf "tags-container-~a" pic-id)))
+              ,(render-tag-widgets/rw pic-id (db-pic-tags db-pic)))
          (h5 "Filename")
          (p (code ,(db-pic-path db-pic)))
          (br)
@@ -268,13 +285,23 @@ $('.tags').typeahead({
     }
 });
 
+get_max_tag_idx = function(pic_id) {
+    return Math.max.apply(Math, $.map($('.tag-widget-' + pic_id), function(i) {
+        return i.id.split('-')[1];
+    }));
+}
+
+get_pic_tags = function(pic_id) {
+    var elts = $.map($('.tag-widget-' + pic_id), function(i) { return i; });
+    return $.map(elts, function(i) { return $(i).val(); });
+}
+
 ")
 
   ;; Handle the modal pic form
   (ajax "/insert-update-pic" ".save-pic-info" 'click
         update-pic-info!
         prelude: "var pic_id = $(this).attr('id').replace(/^submit-/, '');"
-        traditional?: #t
         arguments: `((path   . "$('#path-' + pic_id).val()")
                      (descr  . "$('#descr-' + pic_id).val()")
                      (decade . "$('#decade-' + pic_id).val()")
@@ -282,18 +309,21 @@ $('.tags').typeahead({
                      (month  . "$('#month-' + pic_id).val()")
                      (day    . "$('#day-' + pic_id).val()")
                      (id     . "pic_id")
-                     (tags   . ,(sprintf
-                                 "JSON.stringify(~a)"
-                                 (string-append
-                                  "[" (string-intersperse
-                                       (map (lambda (i)
-                                              (sprintf "$('#tags-~a-' + pic_id).val()" i))
-                                            (iota (max-tags/pic)))
-                                       ", ")
-                                  "]"))))
+                     (tags   . "JSON.stringify(get_pic_tags(pic_id))"))
         success: (string-append
                   "$('#ro-' + pic_id).html(response);"
                   "set_pic_info_ro(pic_id);"))
+
+  (ajax "/add-tag" ".add-tag-widget" 'click
+        add-tag-widget
+        prelude: (string-append
+                  "var pic_id = $(this).attr('id').replace(/^add-tag-/, '');"
+                  "var next_tag = get_max_tag_idx(pic_id) + 1;")
+        arguments: `((pic-id . "pic_id")
+                     (next-idx . "next_tag"))
+        success: (string-append
+                  "$(response).insertBefore('#tag-widget-placeholder-' + pic_id);"
+                  "$('#tag-' + next_tag + '-' + pic_id).focus();"))
 
   (debug "render-directory-content: dir: ~a" dir)
 
