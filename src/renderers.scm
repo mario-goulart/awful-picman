@@ -103,35 +103,35 @@
                    (onclick ,(sprintf "set_pic_info_rw('~a');" pic-id)))
                 "Edit")))
 
-(define (render-tag-widget idx pic-id val)
+(define (render-dynamic-input type idx pic-id val)
   `(input (@ (type "text")
-             (class ,(sprintf "tag-widget-~a" pic-id))
-             (id ,(sprintf "tag-~a-~a" idx pic-id))
+             (class ,(sprintf "~a-widget-~a ~a" type pic-id type))
+             (id ,(sprintf "~a-~a-~a" type idx pic-id))
              (data-provide "typeahead")
              (value ,val))))
 
-(define (render-tag+ pic-id)
-  `((span (@ (id ,(sprintf "tag-widget-placeholder-~a" pic-id))))
+(define (render-dynamic-input+ type pic-id)
+  `((span (@ (id ,(sprintf "~a-widget-placeholder-~a" type pic-id))))
     (a (@ (href "#")
-          (class "add-tag-widget")
-          (id ,(sprintf "add-tag-~a" pic-id)))
+          (class ,(sprintf "add-~a-widget" type))
+          (id ,(sprintf "add-~a-~a" type pic-id)))
        (span (@ (class "badge badge-info"))
              "+"))))
 
-(define (render-tag-widgets/rw pic-id tags)
-  (let* ((len-tags (length tags))
-         (get-tag (lambda (idx)
-                    (if (< idx len-tags)
-                        (list-ref tags idx)
+(define (render-dynamic-inputs type pic-id inputs)
+  (let* ((len-inputs (length inputs))
+         (get-val (lambda (idx)
+                    (if (< idx len-inputs)
+                        (list-ref inputs idx)
                         ""))))
-    `(,(if (zero? len-tags)
-           (render-tag-widget 0 pic-id "")
+    `(,(if (zero? len-inputs)
+           (render-dynamic-input type 0 pic-id "")
            (intersperse
             (map (lambda (i)
-                   (render-tag-widget i pic-id (get-tag i)))
-                 (iota len-tags))
+                   (render-dynamic-input type i pic-id (get-val i)))
+                 (iota len-inputs))
             '(br)))
-      ,(render-tag+ pic-id))))
+      ,(render-dynamic-input+ type pic-id))))
 
 (define (render-modal-pic-form/rw pic-id db-pic pic-id prev-id next-id)
   (define (id thing)
@@ -167,8 +167,7 @@
                      default: (db-pic-day db-pic)
                      class: "input-2digits")
          (h5 "Tags")
-         (div (@ (id ,(sprintf "tags-container-~a" pic-id)))
-              ,(render-tag-widgets/rw pic-id (db-pic-tags db-pic)))
+         ,(render-dynamic-inputs 'tag pic-id (db-pic-tags db-pic))
          (h5 "Filename")
          (p (code ,(db-pic-path db-pic)))
          (br)
@@ -246,6 +245,32 @@
           (img (@ (src "/img/unknown.png") (alt ,filename)))
           (p ,filename))))
 
+(define (create-dynamic-input-ajax type typeahead-source)
+  (add-javascript
+   (sprintf "
+$('.~a').typeahead({
+    source: function (query, process) {
+        return $.get('~a', { query: query }, function (data) {
+            return process(data);
+        });
+    }
+});"
+            type typeahead-source))
+
+  (ajax "/add-dynamic_input" (sprintf ".add-~a-widget" type) 'click
+        (lambda ()
+          (with-request-variables (type pic-id next-idx)
+            (render-dynamic-input type next-idx pic-id "")))
+        prelude: (string-append
+                  (sprintf "var pic_id = $(this).attr('id').replace(/^add-~a-/, '');" type)
+                  (sprintf "var next = get_max_dynamic_input_idx('~a', pic_id) + 1;" type))
+        arguments: `((pic-id . "pic_id")
+                     (type . ,(sprintf "'~a'" type))
+                     (next-idx . "next"))
+        success: (string-append
+                  (sprintf "$(response).insertBefore('#~a-widget-placeholder-' + pic_id);" type)
+                  (sprintf "$('#~a-' + next + '-' + pic_id).focus();" type))))
+
 (define (render-directory-content dir)
   (add-javascript
    "
@@ -277,22 +302,14 @@ $('.prev-pic').on('click', function() {
    }
 });
 
-$('.tags').typeahead({
-    source: function (query, process) {
-        return $.get('/db/tags', { query: query }, function (data) {
-            return process(data);
-        });
-    }
-});
-
-get_max_tag_idx = function(pic_id) {
-    return Math.max.apply(Math, $.map($('.tag-widget-' + pic_id), function(i) {
+get_max_dynamic_input_idx = function(type, pic_id) {
+    return Math.max.apply(Math, $.map($('.' + type + '-widget-' + pic_id), function(i) {
         return i.id.split('-')[1];
     }));
 }
 
-get_pic_tags = function(pic_id) {
-    var elts = $.map($('.tag-widget-' + pic_id), function(i) { return i; });
+get_pic_dynamic_inputs = function(type, pic_id) {
+    var elts = $.map($('.' + type + '-widget-' + pic_id), function(i) { return i; });
     return $.map(elts, function(i) { return $(i).val(); });
 }
 
@@ -309,21 +326,12 @@ get_pic_tags = function(pic_id) {
                      (month  . "$('#month-' + pic_id).val()")
                      (day    . "$('#day-' + pic_id).val()")
                      (id     . "pic_id")
-                     (tags   . "JSON.stringify(get_pic_tags(pic_id))"))
+                     (tags   . "JSON.stringify(get_pic_dynamic_inputs('tag' + pic_id))"))
         success: (string-append
                   "$('#ro-' + pic_id).html(response);"
                   "set_pic_info_ro(pic_id);"))
 
-  (ajax "/add-tag" ".add-tag-widget" 'click
-        add-tag-widget
-        prelude: (string-append
-                  "var pic_id = $(this).attr('id').replace(/^add-tag-/, '');"
-                  "var next_tag = get_max_tag_idx(pic_id) + 1;")
-        arguments: `((pic-id . "pic_id")
-                     (next-idx . "next_tag"))
-        success: (string-append
-                  "$(response).insertBefore('#tag-widget-placeholder-' + pic_id);"
-                  "$('#tag-' + next_tag + '-' + pic_id).focus();"))
+  (create-dynamic-input-ajax 'tag "/db/tags")
 
   (debug "render-directory-content: dir: ~a" dir)
 
