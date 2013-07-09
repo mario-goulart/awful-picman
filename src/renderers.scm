@@ -37,10 +37,12 @@
                     (describe (dir-stat-num-files stat) "file"))
               ", "))))
 
-(define (render-dir-link dir dirname)
-  (let ((web-path (make-pathname (list (pics-web-dir) dir)
-                                 dirname))
-        (size (default-thumbnail-dimension)))
+(define (render-dir-link dir-obj)
+  (let* ((dir (thumb-dir dir-obj))
+         (dirname (thumb-filename dir-obj))
+         (web-path (make-pathname (list (pics-web-dir) dir)
+                                  dirname))
+         (size (default-thumbnail-dimension)))
     `(div (@ (class "dir")
              (style ,(sprintf "height: ~a; width: ~a" size size)))
           (a (@ (href ,web-path))
@@ -231,10 +233,12 @@
                                                    prev-id
                                                    next-id)))))))
 
-(define (render-thumbnail dir thumbnail-filename dimension prev-filename next-filename)
-  (let ((id (string->sha1sum thumbnail-filename))
-        (prev-id (and prev-filename (string->sha1sum prev-filename)))
-        (next-id (and next-filename (string->sha1sum next-filename))))
+(define (render-thumbnail thumb-obj dimension prev-filename next-filename)
+  (let* ((filename (thumb-filename thumb-obj))
+         (id (string->sha1sum filename))
+         (dir (thumb-dir thumb-obj))
+         (prev-id (and prev-filename (string->sha1sum prev-filename)))
+         (next-id (and next-filename (string->sha1sum next-filename))))
     `(;; Link
       (a (@ (href ,(string-append "#modal-" id))
             (data-toggle "modal"))
@@ -242,9 +246,9 @@
                  (src ,(make-pathname (list (thumbnails-web-dir)
                                             (->string dimension)
                                             dir)
-                                      thumbnail-filename)))))
+                                      filename)))))
       ;; Modal
-      ,(render-pic-modal dir id thumbnail-filename prev-id next-id))))
+      ,(render-pic-modal dir id filename prev-id next-id))))
 
 (define (render-other-file-type filename)
   (let ((size (default-thumbnail-dimension)))
@@ -279,7 +283,101 @@ $('.~a').typeahead({
                   (sprintf "$(response).insertBefore('#~a-widget-placeholder-' + pic_id);" type)
                   (sprintf "$('#~a-' + next + '-' + pic_id).focus();" type))))
 
-(define (render-directory-content dir)
+
+(define (render-album album)
+  (let* ((pics
+          ($db "select files.path from files, albums where album=? and files.pic_id=albums.pic_id"
+               values: (list album)))
+         (pic-paths (if (null? pics)
+                        '()
+                        (map car pics)))
+         (thumb-objs
+          (map (lambda (pic-path i)
+                 (make-thumb 'pic
+                             (pathname-directory pic-path)
+                             (pathname-strip-directory pic-path)
+                             i))
+               pic-paths
+               (iota (length pic-paths)))))
+    (render-thumbnails thumb-objs)))
+
+(define (render-album-content album)
+  ;; If album is #f, render all albums
+  (debug "render-album-content: album: ~a" album)
+  (if album
+      (render-album album)
+      (let ((albums (db-albums)))
+        `(ul ,@(map (lambda (album)
+                      (let ((count (db-album-pics-count album)))
+                        `(li (a (@ (href ,(string-append "/albums/" album)))
+                                ,album)
+                             ,(sprintf " (~a ~a)"
+                                       count
+                                       (if (> count 1)
+                                           "pictures"
+                                           "picture")))))
+                    albums)))))
+
+(define-record thumb type dir filename idx)
+
+(define (next-thumb current pics num-pics)
+  (let ((idx (thumb-idx current)))
+    (if (= idx (- num-pics 1))
+        #f
+        (thumb-filename (list-ref pics (+ idx 1))))))
+
+(define (prev-thumb current pics num-pics)
+  (let ((idx (thumb-idx current)))
+    (if (zero? idx)
+        #f
+        (thumb-filename (list-ref pics (- idx 1))))))
+
+(define (render-dir-content dir)
+
+  (define (make-dir path)
+    (make-thumb 'dir (pathname-directory path) (pathname-strip-directory path) 'dummy))
+
+  (define (make-other path)
+    (make-thumb 'other (pathname-directory path) (pathname-strip-directory path) 'dummy))
+
+  (define make-pic
+    (let ((idx -1))
+      (lambda (path)
+        (set! idx (+ idx 1))
+        (make-thumb 'pic (pathname-directory path) (pathname-strip-directory path) idx))))
+
+  (let* ((items (glob (make-pathname dir "*")))
+         (dirs (map make-dir (filter directory? items)))
+         (pics (map make-pic (filter image-file? items)))
+         (other (map make-other
+                     (remove (lambda (i)
+                               (or (directory? i)
+                                   (image-file? i)))
+                             items)))
+         (items (append dirs pics other)))
+    `(,(render-breadcrumbs dir)
+      ,(render-thumbnails items))))
+
+(define (render-thumbnails items)
+  (let ((rows (chop items 4))  ;; FIXME: param thumbnails-per-row
+        (dim (default-thumbnail-dimension))
+        (num-items (length items)))
+    `(div (@ (class "thumbnails-container"))
+          ,@(map (lambda (row)
+                   `(div (@ (class "row"))
+                         ,@(map (lambda (i)
+                                  `(div (@ (class "span4")) ;; FIXME: depends on thumbnails-per-row
+                                        ,(case (thumb-type i)
+                                           ((dir) (render-dir-link i))
+                                           ((pic) (render-thumbnail i
+                                                                    dim
+                                                                    (prev-thumb i items num-items)
+                                                                    (next-thumb i items num-items)))
+                                           (else (render-other-file-type (thumb-filename i))))))
+                                row)))
+                 rows))))
+
+(define (render-pics source renderer)
   (add-javascript
    "
 $('.zoom-in').on('click', function() {
@@ -343,60 +441,10 @@ get_pic_dynamic_inputs = function(type, pic_id) {
   (create-dynamic-input-ajax 'tag "/db/tags")
   (create-dynamic-input-ajax 'album "/db/albums")
 
-  (debug "render-directory-content: dir: ~a" dir)
+  (debug "render-pics: source: ~a" source)
+  `(,(render-top-bar)
+    ,(renderer source)))
 
-  (define-record item type file idx)
-
-  (define (make-dir path)
-    (make-item 'dir (pathname-strip-directory path) 'dummy))
-
-  (define (make-other path)
-    (make-item 'other (pathname-strip-directory path) 'dummy))
-
-  (define make-pic
-    (let ((idx -1))
-      (lambda (path)
-        (set! idx (+ idx 1))
-        (make-item 'pic (pathname-strip-directory path) idx))))
-
-  (let* ((items (glob (make-pathname dir "*")))
-         (dirs (map make-dir (filter directory? items)))
-         (pics (map make-pic (filter image-file? items)))
-         (other (map make-other
-                     (remove (lambda (i)
-                               (or (directory? i)
-                                   (image-file? i)))
-                             items)))
-         (num-pics (length pics))
-         (dim (default-thumbnail-dimension))
-         (rows (chop (append dirs pics other) 4)) ;; FIXME: param thumbnails-per-row
-         (next-thumb (lambda (current)
-                       (let ((idx (item-idx current)))
-                         (if (= idx (- num-pics 1))
-                             #f
-                             (item-file (list-ref pics (+ idx 1)))))))
-         (prev-thumb (lambda (current)
-                       (let ((idx (item-idx current)))
-                         (if (zero? idx)
-                             #f
-                             (item-file (list-ref pics (- idx 1))))))))
-    `(,(render-top-bar)
-      ,(render-breadcrumbs dir)
-      (div (@ (class "dir-content"))
-           ,@(map (lambda (row)
-                    `(div (@ (class "row"))
-                          ,@(map (lambda (i)
-                                   `(div (@ (class "span4")) ;; FIXME: depends on thumbnails-per-row
-                                         ,(case (item-type i)
-                                            ((dir) (render-dir-link dir (item-file i)))
-                                            ((pic) (render-thumbnail dir
-                                                                     (item-file i)
-                                                                     dim
-                                                                     (prev-thumb i)
-                                                                     (next-thumb i)))
-                                            (else (render-other-file-type (item-file i))))))
-                                 row)))
-                  rows)))))
 
 (define (render-search-form)
   `(form (@ (class "navbar-search form-inline pull-right"))

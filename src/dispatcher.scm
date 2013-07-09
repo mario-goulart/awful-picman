@@ -3,6 +3,23 @@
   (enable-sxml #t)
   (enable-db)
   (literal-script/style? #t)
+
+  ;;;
+  ;;; Page definer
+  ;;;
+  (define (define-pics-page matcher handler)
+    (define-page matcher
+      (case-lambda
+        (() handler)
+        ((path) (handler path))
+        (args (apply handler args)))
+      charset: "utf-8"
+      doctype: "<!DOCTYPE html>"
+      use-ajax: "/js/jquery.min.js"
+      headers: `(,(include-javascript "/js/bootstrap.min.js"
+                                      "/js/awful-view.js"))
+      css: '("/css/bootstrap.min.css"
+             "/css/awful-view.css")))
   
   ;;;
   ;;; Thumbnails
@@ -28,7 +45,6 @@
   ;;; Assets
   ;;;
   (define (assets-matcher req-path)
-    (debug "assets-matcher: ~a" req-path)
     (and (or (string-prefix? "/css" req-path)
              (string-prefix? "/js" req-path)
              (string-prefix? "/img" req-path))
@@ -61,12 +77,27 @@
            (lambda ()
              (json-write (db-albums))))))
     no-template: #t)
-  
+
+  ;;;
+  ;;; Albums
+  ;;;
+  (define (albums-matcher req-path)
+    (let ((parts (string-split req-path "/")))
+      (match parts
+        (("albums") (list #f))
+        (("albums" album) (list album))
+        (else #f))))
+
+  (define-pics-page albums-matcher
+    (lambda (album)
+      (debug "albums: ~a" album)
+      (render-pics album render-album-content)))
+
   ;;;
   ;;; Directories & other stuff
   ;;;
-  (define-page (irregex (string-append (pics-web-dir) "(/.*)*"))
-    (lambda (path)      
+  (define-pics-page (irregex (string-append (pics-web-dir) "(/.*)*"))
+    (lambda (path)
       (let ((dir (drop-path-prefix (pics-web-dir) path)))
         (when (or (equal? dir "/")
                   (equal? dir ""))
@@ -75,17 +106,9 @@
         (if (file-exists? dir)
             (begin
               (process-dir dir #f)
-              (render-directory-content dir))
+              (render-pics dir render-dir-content))
             (lambda ()
-              (send-status 404 "Not found")))))
-    charset: "utf-8"
-    doctype: "<!DOCTYPE html>"
-    use-ajax: "/js/jquery.min.js"
-    headers: `(,(include-javascript "/js/bootstrap.min.js"
-                                    "/js/awful-view.js"))
-    css: '("/css/bootstrap.min.css"
-           "/css/awful-view.css"))
-  
+              (send-status 404 "Not found"))))))
 
   ;;
   ;; /

@@ -134,3 +134,10 @@ create table albums (
 
 (define (db-albums)
   (map car ($db "select distinct album from albums order by album")))
+
+(define (db-album-pics-count album)
+  (let ((count ($db "select count(pic_id) from albums where album=?"
+                    values: (list album))))
+    (if (null? count)
+        0
+        (caar count))))
