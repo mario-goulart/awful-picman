@@ -61,7 +61,9 @@
     (for-each (lambda (image-file)
                 (for-each (lambda (dimension)
                             (image->thumbnail image-file dimension)
-                            (insert/update-pic! (drop-path-prefix root-dir image-file)))
+                            (insert/update-pic! (if (equal? dir root-dir)
+                                                    (drop-path-prefix root-dir image-file)
+                                                    image-file)))
                           (thumbnails/max-dimensions)))
               image-files)
     (when recursive?
