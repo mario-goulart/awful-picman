@@ -284,9 +284,7 @@ $('.~a').typeahead({
 
 
 (define (render-album album)
-  (let* ((pics
-          ($db "select pics.path from pics, albums where album=? and pics.pic_id=albums.pic_id"
-               values: (list album)))
+  (let* ((pics (db-album-pics album))
          (pic-paths (if (null? pics)
                         '()
                         (map car pics)))

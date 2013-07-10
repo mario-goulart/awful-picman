@@ -147,3 +147,7 @@ create table albums (
     (if (null? count)
         0
         (caar count))))
+
+(define (db-album-pics album)
+  ($db "select pics.path from pics, albums where album=? and pics.pic_id=albums.pic_id"
+       values: (list album)))
