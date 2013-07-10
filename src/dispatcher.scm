@@ -91,11 +91,12 @@
                      render-album-content))))
 
   ;;;
-  ;;; Directories & other stuff
+  ;;; Folders
   ;;;
   (define-pics-page (irregex (string-append (folders-web-dir) "(/.*)*"))
     (lambda (path)
       (let ((dir (drop-web-path-prefix (folders-web-dir) path)))
+        (debug "Folders handler: dir: ~a" dir)
         (if (file-exists? dir)
             (begin
               (process-dir dir #f)
