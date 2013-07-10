@@ -6,7 +6,7 @@
 (use irregex posix files srfi-1 srfi-13 extras data-structures setup-api ports)
 
 ;; Eggs
-(use awful-sql-de-lite imlib2 spiffy simple-sha1 sql-de-lite json matchable)
+(use awful-sql-de-lite imlib2 spiffy simple-sha1 sql-de-lite json)
 (use (rename awful (debug awful-debug)))
 
 (include "src/params")

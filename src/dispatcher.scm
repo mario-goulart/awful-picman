@@ -81,27 +81,21 @@
   ;;;
   ;;; Albums
   ;;;
-  (define (albums-matcher req-path)
-    (let ((parts (string-split req-path "/")))
-      (match parts
-        (("albums") (list #f)) ;; list albums
-        (("albums" album) (list album)) ;; render album
-        (else #f))))
-
-  (define-pics-page albums-matcher
-    (lambda (album)
-      (debug "albums: ~a" album)
-      (render-pics album render-album-content)))
+  (define-pics-page (irregex (string-append (albums-web-dir) "(/.*)*"))
+    (lambda (path)
+      (let ((album (drop-web-path-prefix (albums-web-dir) path)))
+        (debug "albums: ~a" album)
+        (render-pics (if (equal? album ".")
+                         #f ;; albums index
+                         album)
+                     render-album-content))))
 
   ;;;
   ;;; Directories & other stuff
   ;;;
   (define-pics-page (irregex (string-append (pics-web-dir) "(/.*)*"))
     (lambda (path)
-      (let ((dir (drop-path-prefix (pics-web-dir) path)))
-        (when (or (equal? dir "/")
-                  (equal? dir ""))
-          (set! dir "."))
+      (let ((dir (drop-web-path-prefix (pics-web-dir) path)))
         (if (file-exists? dir)
             (begin
               (process-dir dir #f)

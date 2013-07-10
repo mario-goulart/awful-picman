@@ -2,6 +2,6 @@
  (author "Mario Domenech Goulart")
  (category web)
  (license "BSD")
- (depends awful-sql-de-lite imlib2 matchable)
+ (depends awful-sql-de-lite imlib2)
  (test-depends)
  (foreign-depends))

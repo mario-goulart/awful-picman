@@ -20,6 +20,13 @@
            (substring p 1))
           (else p))))
 
+(define (drop-web-path-prefix prefix path)
+  (let ((dir (drop-path-prefix prefix path)))
+        (if (or (equal? dir "/")
+                (equal? dir ""))
+            "."
+            dir)))
+
 (define (debug fmt . args)
   (when (verbose?)
     (apply fprintf `(,(current-error-port) ,(string-append fmt "\n") ,@args))))
