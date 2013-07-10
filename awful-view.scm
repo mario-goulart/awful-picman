@@ -16,6 +16,6 @@
 (include "src/db")
 (include "src/ajax-handlers")
 (include "src/dispatcher")
-(include "src/awful-view")
+(include "src/main")
 
 ) ;; end module
