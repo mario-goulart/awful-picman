@@ -3,7 +3,7 @@
 ;;;
 (define pics-web-dir (make-parameter "/pics"))
 (define thumbnails-web-dir (make-parameter "/thumbnails"))
-
+(define albums-web-dir (make-parameter "/albums"))
 
 ;;;
 ;;; Image-related parameters

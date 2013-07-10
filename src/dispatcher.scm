@@ -45,9 +45,9 @@
   ;;; Assets
   ;;;
   (define (assets-matcher req-path)
-    (and (or (string-prefix? "/css" req-path)
-             (string-prefix? "/js" req-path)
-             (string-prefix? "/img" req-path))
+    (and (or (string-prefix? "/css/" req-path)
+             (string-prefix? "/js/" req-path)
+             (string-prefix? "/img/" req-path))
          (list req-path)))
 
   (define-page assets-matcher
