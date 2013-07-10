@@ -1,7 +1,3 @@
-(define verbose? (make-parameter #f))
-(define pics-web-dir (make-parameter "/pics"))
-(define thumbnails-web-dir (make-parameter "/thumbnails"))
-
 (define dot-dirname ".awful-view")
 (define thumbnails-dirname "thumbnails")
 (define db-filename "awful-view.db")
