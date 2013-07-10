@@ -1,7 +1,7 @@
 ;;;
 ;;; Web path-related parameters
 ;;;
-(define pics-web-dir (make-parameter "/pics"))
+(define folders-web-dir (make-parameter "/folders"))
 (define thumbnails-web-dir (make-parameter "/thumbnails"))
 (define albums-web-dir (make-parameter "/albums"))
 

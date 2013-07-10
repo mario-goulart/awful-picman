@@ -93,9 +93,9 @@
   ;;;
   ;;; Directories & other stuff
   ;;;
-  (define-pics-page (irregex (string-append (pics-web-dir) "(/.*)*"))
+  (define-pics-page (irregex (string-append (folders-web-dir) "(/.*)*"))
     (lambda (path)
-      (let ((dir (drop-web-path-prefix (pics-web-dir) path)))
+      (let ((dir (drop-web-path-prefix (folders-web-dir) path)))
         (if (file-exists? dir)
             (begin
               (process-dir dir #f)
@@ -108,5 +108,5 @@
   ;;
   (define-page (main-page-path)
     (lambda ()
-      (redirect-to (pics-web-dir))))
+      (redirect-to (folders-web-dir))))
   )

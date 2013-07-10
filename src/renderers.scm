@@ -1,11 +1,11 @@
 (define (render-breadcrumbs path)
 
-  (define home `(li (a (@ (href ,(pics-web-dir))) "Home")))
+  (define home `(li (a (@ (href ,(folders-web-dir))) "Home")))
 
   (define divider '(li (span (@ (class "divider")) ">")))
 
   (define (make-path parts)
-    (string-intersperse (cons (pics-web-dir) parts) "/"))
+    (string-intersperse (cons (folders-web-dir) parts) "/"))
 
   (define (link-breadcrumb parts #!key with-divider?)
     `(li (a (@ (href ,(make-path parts))) ,(last parts))
@@ -39,7 +39,7 @@
 (define (render-dir-link dir-obj)
   (let* ((dir (thumb-dir dir-obj))
          (dirname (thumb-filename dir-obj))
-         (web-path (make-pathname (list (pics-web-dir) dir)
+         (web-path (make-pathname (list (folders-web-dir) dir)
                                   dirname))
          (size (default-thumbnail-dimension)))
     `(div (@ (class "dir")
