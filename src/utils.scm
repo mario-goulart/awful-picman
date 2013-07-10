@@ -23,7 +23,7 @@
 (define (debug fmt . args)
   (when (verbose?)
     (apply fprintf `(,(current-error-port) ,(string-append fmt "\n") ,@args))))
-    
+
 (define (info fmt . args)
   (apply printf (cons (string-append fmt "\n") args)))
 

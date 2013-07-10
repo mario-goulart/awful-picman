@@ -84,8 +84,8 @@
   (define (albums-matcher req-path)
     (let ((parts (string-split req-path "/")))
       (match parts
-        (("albums") (list #f))
-        (("albums" album) (list album))
+        (("albums") (list #f)) ;; list albums
+        (("albums" album) (list album)) ;; render album
         (else #f))))
 
   (define-pics-page albums-matcher
@@ -102,7 +102,6 @@
         (when (or (equal? dir "/")
                   (equal? dir ""))
           (set! dir "."))
-        (debug "regex handler: dir: ~a" dir)
         (if (file-exists? dir)
             (begin
               (process-dir dir #f)

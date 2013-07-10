@@ -15,7 +15,7 @@
                            (day (nonempty as-string)))
     (let ((tags (json-array->list-wo-nulls tags))
           (albums (json-array->list-wo-nulls albums)))
-      (debug "================================ Form")
+      (debug "update-pic-info!: Form data:")
       (debug "  path=~a" path)
       (debug "  date=~a ~a ~a ~a" decade year month day)
       (debug "  descr=~S" descr)

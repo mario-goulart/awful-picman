@@ -23,7 +23,6 @@
                   (loop (butlast parts)
                         (cons (link-breadcrumb parts) bc)))))))
 
-
 (define (render-dir-stat dir)
   (define (describe count obj)
     (case count
@@ -417,9 +416,7 @@ get_max_dynamic_input_idx = function(type, pic_id) {
 get_pic_dynamic_inputs = function(type, pic_id) {
     var elts = $.map($('.' + type + '-widget-' + pic_id), function(i) { return i; });
     return $.map(elts, function(i) { return $(i).val(); });
-}
-
-")
+}")
 
   ;; Handle the modal pic form
   (ajax "/insert-update-pic" ".save-pic-info" 'click
@@ -444,7 +441,6 @@ get_pic_dynamic_inputs = function(type, pic_id) {
   (debug "render-pics: source: ~a" source)
   `(,(render-top-bar)
     ,(renderer source)))
-
 
 (define (render-search-form)
   `(form (@ (class "navbar-search form-inline pull-right"))

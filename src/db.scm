@@ -4,6 +4,8 @@
     (info "Initializing database ~a" db-file)
     (with-output-to-file db-file (cut display ""))
     (let ((db (open-database db-file)))
+
+      ;; Files table
       (exec (sql db "
 create table files (
     pic_id integer primary key autoincrement,
@@ -13,10 +15,14 @@ create table files (
     year integer,
     month integer,
     day integer)"))
+
+      ;; Tags table
       (exec (sql db "
 create table tags (
     pic_id,
     tag text)"))
+
+      ;; Albums table
       (exec (sql db "
 create table albums (
     pic_id,
@@ -58,13 +64,13 @@ create table albums (
     (db-query db "update files set day=? where pic_id=?"
               values: (list day pic-id)))
   ;; update tags
-  (debug "======================================= tags: ~S" tags)
+  (debug "update-pics-data!: tags: ~S" tags)
   (db-query db "delete from tags where pic_id=?"
             values: (list pic-id))
   (insert-tags! db pic-id tags)
 
   ;; update albums
-  (debug "======================================= albums: ~S" albums)
+  (debug "update-pics-data!: albums: ~S" albums)
   (db-query db "delete from albums where pic_id=?"
             values: (list pic-id))
   (insert-albums! db pic-id albums))
