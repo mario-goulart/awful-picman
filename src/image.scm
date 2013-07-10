@@ -1,5 +1,5 @@
 (define thumbnails/max-dimensions (make-parameter '(300)))
-(define thumbnails/zoom-dimension (make-parameter 2000))
+(define thumbnails/zoom-dimension (make-parameter 1700))
 
 (define default-thumbnail-extension
   ;; For when converting non-web image files to web image files
