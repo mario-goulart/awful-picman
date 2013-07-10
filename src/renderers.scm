@@ -414,7 +414,8 @@ get_max_dynamic_input_idx = function(type, pic_id) {
 get_pic_dynamic_inputs = function(type, pic_id) {
     var elts = $.map($('.' + type + '-widget-' + pic_id), function(i) { return i; });
     return $.map(elts, function(i) { return $(i).val(); });
-}")
+}
+")
 
   ;; Handle the modal pic form
   (ajax "/insert-update-pic" ".save-pic-info" 'click
