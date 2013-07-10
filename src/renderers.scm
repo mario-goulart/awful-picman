@@ -285,7 +285,7 @@ $('.~a').typeahead({
 
 (define (render-album album)
   (let* ((pics
-          ($db "select files.path from files, albums where album=? and files.pic_id=albums.pic_id"
+          ($db "select pics.path from pics, albums where album=? and pics.pic_id=albums.pic_id"
                values: (list album)))
          (pic-paths (if (null? pics)
                         '()

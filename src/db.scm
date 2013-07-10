@@ -5,9 +5,9 @@
     (with-output-to-file db-file (cut display ""))
     (let ((db (open-database db-file)))
 
-      ;; Files table
+      ;; Pics table
       (exec (sql db "
-create table files (
+create table pics (
     pic_id integer primary key autoincrement,
     path text,
     descr text,
@@ -49,19 +49,19 @@ create table albums (
 (define (update-pic-data! db pic-id descr decade year month day tags albums)
   ;; This is ugly:
   (when descr
-    (db-query db "update files set descr=? where pic_id=?"
+    (db-query db "update pics set descr=? where pic_id=?"
               values: (list descr pic-id)))
   (when decade
-    (db-query db "update files set decade=? where pic_id=?"
+    (db-query db "update pics set decade=? where pic_id=?"
               values: (list decade pic-id)))
   (when year
-    (db-query db "update files set year=? where pic_id=?"
+    (db-query db "update pics set year=? where pic_id=?"
               values: (list year pic-id)))
   (when month
-    (db-query db "update files set month=? where pic_id=?"
+    (db-query db "update pics set month=? where pic_id=?"
               values: (list month pic-id)))
   (when day
-    (db-query db "update files set day=? where pic_id=?"
+    (db-query db "update pics set day=? where pic_id=?"
               values: (list day pic-id)))
   ;; update tags
   (debug "update-pics-data!: tags: ~S" tags)
@@ -76,7 +76,7 @@ create table albums (
   (insert-albums! db pic-id albums))
 
 (define (insert-pic-data! db path descr decade year month day tags albums)
-  (db-query db "insert into files (path, descr, decade, year, month, day) values (?, ?, ?, ?, ?, ?)"
+  (db-query db "insert into pics (path, descr, decade, year, month, day) values (?, ?, ?, ?, ?, ?)"
             values: (list path
                           (or descr "")
                           (or decade "")
@@ -100,7 +100,7 @@ create table albums (
     (lambda (db)
       (with-transaction db
         (lambda ()
-          (or (and-let* ((data (db-query db "select pic_id from files where path=?"
+          (or (and-let* ((data (db-query db "select pic_id from pics where path=?"
                                          values: (list path)))
                          ((not (null? data)))
                          (pic-id (caar data)))
@@ -114,7 +114,7 @@ create table albums (
 (define-record db-pic id path descr decade year month day tags albums)
 
 (define (get-pic-from-db path)
-  (or (and-let* ((data* ($db "select pic_id, descr, decade, year, month, day from files where path=?"
+  (or (and-let* ((data* ($db "select pic_id, descr, decade, year, month, day from pics where path=?"
                              values: (list path)))
                  ((not (null? data*)))
                  (data (car data*))
