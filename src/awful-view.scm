@@ -6,6 +6,8 @@
 (define thumbnails-dirname "thumbnails")
 (define db-filename "awful-view.db")
 
+;; Where chicken-install will install static files served by the web
+;; server.  This stuff will be copied to the metadata dir on --init.
 (define assets-install-dir
   (make-pathname (list (installation-prefix)
                        "lib"
@@ -13,6 +15,8 @@
                        (number->string (##sys#fudge 42)))
                  "awful-view"))
 
+;; Change to the root dir (the directory which contains the
+;; metadata dir
 (define root-dir
   (let ((d (find-root-dir (current-directory))))
     (when d (change-directory d))
@@ -125,12 +129,14 @@ EOF
 
   (db-credentials (make-pathname metadata-dir db-filename))
 
+  ;; Add (thumbnails/max-dimensions) to the list of thumbnail
+  ;; dimensions (before initialize is called).
   (unless (memq (thumbnails/zoom-dimension)
                 (thumbnails/max-dimensions))
     (thumbnails/max-dimensions
      (append (thumbnails/max-dimensions)
              (list (thumbnails/zoom-dimension)))))
-  
+
   (when (member "--init" args)
     (initialize (and (member "--recursive" args) #t)
                 (and (member "--force" args) #t)))
@@ -141,16 +147,15 @@ EOF
               "Could not find a metadata directory.  "
               "Did you create it with --init?\n"))
     (exit 1))
-  
+
   (let ((dev-mode? (and (member "--development-mode" args) #t))
         (port (cmd-line-arg "--port" args)))
-    
-  (awful-start
-   (lambda ()
-     (load-apps '()) ;; to force development actions when
-                     ;; --development-mode is given on the command
-                     ;; line (maybe a bug in awful?)
-     (awful-view))
-   port: (and port (string->number port))
-   dev-mode?: dev-mode?)
-  ))
+
+    (awful-start
+     (lambda ()
+       (load-apps '()) ;; to force development actions when
+                       ;; --development-mode is given on the command
+                       ;; line (maybe a bug in awful?)
+       (awful-view))
+     port: (and port (string->number port))
+     dev-mode?: dev-mode?)))
