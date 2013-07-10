@@ -19,9 +19,7 @@
     "."))
 
 (define metadata-dir
-  (if root-dir
-      (make-pathname root-dir dot-dirname)
-      (make-pathname "." dot-dirname)))
+  (make-pathname "." dot-dirname))
 
 (define global-conf-dir
   (make-pathname (get-environment-variable "HOME") dot-dirname))
