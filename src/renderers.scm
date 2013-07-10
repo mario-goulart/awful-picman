@@ -454,6 +454,6 @@ get_pic_dynamic_inputs = function(type, pic_id) {
   `((div (@ (class "navbar navbar-inverse navbar-fixed-top"))
          (div (@ (class "navbar-inner"))
               (ul (@ (class "nav"))
-                  (li (a (@ (href "/albums")) "Albums"))
-                  (li (a (@ (class "active") (href "/pics")) "Folders")))
+                  (li (a (@ (href ,(albums-web-dir))) "Albums"))
+                  (li (a (@ (href ,(folders-web-dir))) "Folders")))
               ,(render-search-form)))))
