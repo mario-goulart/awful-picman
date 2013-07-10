@@ -74,9 +74,42 @@
 
 
 (define (usage #!optional exit-code)
-  (print "usage")
-  (when exit-code
-     (exit exit-code)))
+  (let ((this (pathname-strip-directory (program-name)))
+        (port (if (and exit-code (not (zero? exit-code)))
+                  (current-error-port)
+                  (current-output-port))))
+    (display #<#EOF
+Usage: #this [ <options> ]
+
+<options>:
+
+--init
+  Initialize the current directory to be used in subsequent runs of
+  this program.  It creates a directory (#dot-dirname) where metadata,
+  web server's static data and thumbnails are stored.  During the init
+  step, #this creates thumbnails for all images in the current directory.
+  If --recursive (see below) is not provided, it will not recur into
+  directories.
+
+--recursive
+  To be used with --init.  Indicates that #this is to recur into
+  directories.
+
+--development-mode
+  Put awful (the server) in development mode.
+
+--port=<port number>
+  Port for the web server to use.
+
+--force
+  --init will not overwrite the database file if it exists, unless this
+  option is provided.  In other words, --force makes #this overwrite
+  the database file when called with --init.
+
+EOF
+             port)
+    (when exit-code
+      (exit exit-code))))
 
 (let ((args (command-line-arguments)))
 
