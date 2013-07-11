@@ -1,11 +1,11 @@
-(define (render-breadcrumbs path)
+(define (render-breadcrumbs path root-label root-web-dir)
 
-  (define home `(li (a (@ (href ,(folders-web-dir))) "Home")))
+  (define home `(li (a (@ (href ,root-web-dir)) ,root-label)))
 
   (define divider '(li (span (@ (class "divider")) ">")))
 
   (define (make-path parts)
-    (string-intersperse (cons (folders-web-dir) parts) "/"))
+    (string-intersperse (cons root-web-dir parts) "/"))
 
   (define (link-breadcrumb parts #!key with-divider?)
     `(li (a (@ (href ,(make-path parts))) ,(last parts))
@@ -301,19 +301,20 @@ $('.~a').typeahead({
 (define (render-album-content album)
   ;; If album is #f, render all albums
   (debug "render-album-content: album: ~a" album)
-  (if album
-      (render-album album)
-      (let ((albums (db-albums)))
-        `(ul ,@(map (lambda (album)
-                      (let ((count (db-album-pics-count album)))
-                        `(li (a (@ (href ,(string-append "/albums/" album)))
-                                ,album)
-                             ,(sprintf " (~a ~a)"
-                                       count
-                                       (if (> count 1)
-                                           "pictures"
-                                           "picture")))))
-                    albums)))))
+  `(,(render-breadcrumbs (or album "/") "Albums" (albums-web-dir))
+    ,(if album
+         (render-album album)
+         (let ((albums (db-albums)))
+           `(ul ,@(map (lambda (album)
+                         (let ((count (db-album-pics-count album)))
+                           `(li (a (@ (href ,(string-append "/albums/" album)))
+                                   ,album)
+                                ,(sprintf " (~a ~a)"
+                                          count
+                                          (if (> count 1)
+                                              "pictures"
+                                              "picture")))))
+                       albums))))))
 
 (define-record thumb type dir filename idx)
 
@@ -352,7 +353,7 @@ $('.~a').typeahead({
                                    (image-file? i)))
                              items)))
          (items (append dirs pics other)))
-    `(,(render-breadcrumbs dir)
+    `(,(render-breadcrumbs dir "Folders" (folders-web-dir))
       ,(render-thumbnails items))))
 
 (define (render-thumbnails items)
