@@ -323,6 +323,13 @@ $('.~a').typeahead({
 
 (define-record thumb type dir filename idx)
 
+(define-record-printer (thumb obj out)
+  (fprintf out "#<thumb type=~a dir=~a filename=~a idx=~a>"
+           (thumb-type obj)
+           (thumb-dir obj)
+           (thumb-filename obj)
+           (thumb-idx obj)))
+
 (define (next-thumb current pics num-pics)
   (let ((idx (thumb-idx current)))
     (if (= idx (- num-pics 1))
