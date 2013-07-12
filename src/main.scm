@@ -55,15 +55,18 @@
 
 (define (process-dir dir recursive?)
   (debug "Processing ~a" dir)
-  (let ((image-files (filter image-file? (glob (make-pathname dir "*")))))
+  (let ((image-files (filter image-file? (glob (make-pathname dir "*"))))
+        (db-dir-filenames (db-dir-pics dir)))
     (debug "Image files: ~S" image-files)
     ;; Generate thumbnails for images in the current directory
     (for-each (lambda (image-file)
                 (for-each (lambda (dimension)
                             (image->thumbnail image-file dimension)
-                            (insert/update-pic! (if (equal? dir root-dir)
-                                                    (drop-path-prefix root-dir image-file)
-                                                    image-file)))
+                            (unless (member (pathname-strip-directory image-file)
+                                            db-dir-filenames)
+                              (insert/update-pic! (if (equal? dir root-dir)
+                                                      (drop-path-prefix root-dir image-file)
+                                                      image-file))))
                           (thumbnails/max-dimensions)))
               image-files)
     (when recursive?

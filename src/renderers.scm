@@ -289,10 +289,7 @@ $('.~a').typeahead({
 
 
 (define (render-album album)
-  (let* ((pics (db-album-pics album))
-         (pic-paths (if (null? pics)
-                        '()
-                        (map car pics)))
+  (let* ((pic-paths (db-album-pics album))
          (thumb-objs
           (map (lambda (pic-path i)
                  (make-thumb 'pic
