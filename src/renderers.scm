@@ -369,9 +369,12 @@ $('.~a').typeahead({
       ,(render-thumbnails items))))
 
 (define (render-thumbnails items)
-  (let ((rows (chop items 4))  ;; FIXME: param thumbnails-per-row
-        (dim (default-thumbnail-dimension))
-        (num-items (length items)))
+  (let* ((rows (chop items 4))  ;; FIXME: param thumbnails-per-row
+         (dim (default-thumbnail-dimension))
+         (pics (filter (lambda (item)
+                         (eq? (thumb-type item) 'pic))
+                       items))
+         (num-pics (length pics)))
     `(div (@ (class "thumbnails-container"))
           ,@(map (lambda (row)
                    `(div (@ (class "row"))
@@ -379,10 +382,11 @@ $('.~a').typeahead({
                                   `(div (@ (class "span4")) ;; FIXME: depends on thumbnails-per-row
                                         ,(case (thumb-type i)
                                            ((dir) (render-dir-link i))
-                                           ((pic) (render-thumbnail i
-                                                                    dim
-                                                                    (prev-thumb i items num-items)
-                                                                    (next-thumb i items num-items)))
+                                           ((pic)
+                                            (render-thumbnail i
+                                                              dim
+                                                              (prev-thumb i pics num-pics)
+                                                              (next-thumb i pics num-pics)))
                                            (else (render-other-file-type (thumb-filename i))))))
                                 row)))
                  rows))))
