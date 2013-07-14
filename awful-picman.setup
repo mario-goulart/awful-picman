@@ -1,0 +1,32 @@
+;; -*- scheme -*-
+(compile -d2 -O0 awful-picman.scm)
+
+(define awful-picman-version "0.0.1")
+
+;; i18n stuff
+(system* "csi -s bin/sgettext.scm src/*.scm > locale/awful-picman.pot")
+
+(for-each
+ (lambda (lang)
+   (let ((po (sprintf "locale/~a/LC_MESSAGES/awful-picman.po" lang)))
+     (unless (file-exists? po)
+       (with-output-to-file po (cut display "")))
+     (system*
+      (sprintf "msgmerge -s -U ~a locale/awful-picman.pot" po lang))
+     (system*
+      (sprintf "msgfmt ~a -o locale/~a/LC_MESSAGES/awful-picman.mo"
+               po lang))))
+ '(pt_BR))
+
+(install-program
+ 'awful-picman
+ '("awful-picman")
+ `((version ,awful-picman-version)))
+
+(install-extension
+ 'awful-picman-assets
+ '(("js"  "awful-picman/js")
+   ("css" "awful-picman/css")
+   ("img" "awful-picman/img")
+   ("locale" "awful-picman/locale"))
+ `((version ,awful-picman-version)))

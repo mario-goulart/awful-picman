@@ -1,6 +1,6 @@
-(define dot-dirname ".awful-view")
+(define dot-dirname ".awful-picman")
 (define thumbnails-dirname "thumbnails")
-(define db-filename "awful-view.db")
+(define db-filename "awful-picman.db")
 
 ;; Where chicken-install will install static files served by the web
 ;; server.  This stuff will be copied to the metadata dir on --init.
@@ -9,7 +9,7 @@
                        "lib"
                        "chicken"
                        (number->string (##sys#fudge 42)))
-                 "awful-view"))
+                 "awful-picman"))
 
 ;; Change to the root dir (the directory which contains the
 ;; metadata dir
@@ -138,10 +138,10 @@ EOF
 
   ;; Set _ for gettext
   (set! _ (let ()
-            (textdomain "awful-view")
-            ((make-gettext "awful-view"
+            (textdomain "awful-picman")
+            ((make-gettext "awful-picman"
                            (i18n-language)
-                           "./.awful-view/locale")
+                           "./.awful-picman/locale")
              'getter)))
 
   (db-credentials (make-pathname metadata-dir db-filename))
@@ -173,6 +173,6 @@ EOF
        (load-apps '()) ;; to force development actions when
                        ;; --development-mode is given on the command
                        ;; line (maybe a bug in awful?)
-       (awful-view))
+       (awful-picman))
      port: (and port (string->number port))
      dev-mode?: dev-mode?)))

@@ -18,7 +18,7 @@
 ;;; i18n
 ;;;
 (define language
-  ;; if not set, awful-view will try to use LANG and LC_ALL
+  ;; if not set, awful-picman will try to use LANG and LC_ALL
   ;; environment variables
   (make-parameter #f))
 

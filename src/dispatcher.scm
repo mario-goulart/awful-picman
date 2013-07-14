@@ -1,4 +1,4 @@
-(define (awful-view)
+(define (awful-picman)
 
   (enable-sxml #t)
   (enable-db)
@@ -17,9 +17,9 @@
       doctype: "<!DOCTYPE html>"
       use-ajax: "/js/jquery.min.js"
       headers: `(,(include-javascript "/js/bootstrap.min.js"
-                                      "/js/awful-view.js"))
+                                      "/js/awful-picman.js"))
       css: '("/css/bootstrap.min.css"
-             "/css/awful-view.css")))
+             "/css/awful-picman.css")))
   
   ;;;
   ;;; Thumbnails

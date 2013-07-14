@@ -1,4 +1,4 @@
-(module awful-view ()
+(module awful-picman ()
 
 (import chicken scheme)
 

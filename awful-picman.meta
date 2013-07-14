@@ -1,5 +1,5 @@
 ;; -*- scheme -*-
-((synopsis "awful-view")
+((synopsis "awful-picman")
  (author "Mario Domenech Goulart")
  (category web)
  (license "BSD")
