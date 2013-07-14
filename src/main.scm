@@ -24,6 +24,14 @@
 (define global-conf-dir
   (make-pathname (get-environment-variable "HOME") dot-dirname))
 
+;; gettext stuff
+(define (i18n-language)
+  (or (language)
+      (get-environment-variable "LANG")
+      (get-environment-variable "LC_ALL")))
+
+(define _)
+
 (define (create-thumbnails-dirs path)
   ;; path is relative to metadata-dir
   (let ((thumbs-dir (make-pathname (list dot-dirname path)
@@ -45,7 +53,7 @@
                 (copy-file (make-pathname assets-install-dir asset)
                            (make-pathname metadata-dir asset)
                            prefix: metadata-dir))
-              '("js" "css" "img")))
+              '("js" "css" "img" "locale")))
   (initialize-database (make-pathname metadata-dir db-filename) force?))
 
 (define (initialize #!optional recursive? force?)
@@ -127,6 +135,14 @@ EOF
     (verbose? #t))
 
   (debug "metadata-dir: ~a" metadata-dir)
+
+  ;; Set _ for gettext
+  (set! _ (let ()
+            (textdomain "awful-view")
+            ((make-gettext "awful-view"
+                           (i18n-language)
+                           "./.awful-view/locale")
+             'getter)))
 
   (db-credentials (make-pathname metadata-dir db-filename))
 

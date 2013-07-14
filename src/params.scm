@@ -14,6 +14,13 @@
   ;; For when converting non-web image files to web image files
   (make-parameter "jpg"))
 
+;;;
+;;; i18n
+;;;
+(define language
+  ;; if not set, awful-view will try to use LANG and LC_ALL
+  ;; environment variables
+  (make-parameter #f))
 
 ;;;
 ;;; Assorted parameters

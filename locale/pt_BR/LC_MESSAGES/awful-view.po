@@ -1,0 +1,57 @@
+msgid ""
+msgstr ""
+"Last-Translator: Mario Domenech Goulart\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+#: src/renderers.scm
+msgid "Albums"
+msgstr "Álbuns"
+
+#: src/renderers.scm
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: src/renderers.scm
+msgid "Date"
+msgstr "Data"
+
+#: src/renderers.scm
+msgid "Date (decade/year/month/day)"
+msgstr "Data (década/ano/ms/dia)"
+
+#: src/renderers.scm
+msgid "Description"
+msgstr "Descrição"
+
+#: src/renderers.scm
+msgid "Edit"
+msgstr "Editar"
+
+#: src/renderers.scm
+msgid "Filename"
+msgstr "Arquivo"
+
+#: src/renderers.scm
+msgid "Folders"
+msgstr "Pastas"
+
+#: src/renderers.scm
+msgid "Submit"
+msgstr "Enviar"
+
+#: src/renderers.scm
+msgid "Tags"
+msgstr "Marcadores"
+
+#: src/renderers.scm
+msgid "file"
+msgstr "arquivo"
+
+#: src/renderers.scm
+msgid "folder"
+msgstr "pasta"
+
+#: src/renderers.scm
+msgid "pic"
+msgstr "imagem"

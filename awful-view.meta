@@ -1,7 +1,8 @@
+;; -*- scheme -*-
 ((synopsis "awful-view")
  (author "Mario Domenech Goulart")
  (category web)
  (license "BSD")
- (depends awful-sql-de-lite imlib2)
+ (depends awful-sql-de-lite imlib2 free-gettext)
  (test-depends)
  (foreign-depends))

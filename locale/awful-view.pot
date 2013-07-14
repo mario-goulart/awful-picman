@@ -1,0 +1,52 @@
+#: src/renderers.scm
+msgid "Folders"
+msgstr ""
+
+#: src/renderers.scm
+msgid "Cancel"
+msgstr ""
+
+#: src/renderers.scm
+msgid "Submit"
+msgstr ""
+
+#: src/renderers.scm
+msgid "Date (decade/year/month/day)"
+msgstr ""
+
+#: src/renderers.scm
+msgid "Edit"
+msgstr ""
+
+#: src/renderers.scm
+msgid "Filename"
+msgstr ""
+
+#: src/renderers.scm
+msgid "Tags"
+msgstr ""
+
+#: src/renderers.scm
+msgid "Albums"
+msgstr ""
+
+#: src/renderers.scm
+msgid "Date"
+msgstr ""
+
+#: src/renderers.scm
+msgid "Description"
+msgstr ""
+
+#: src/renderers.scm
+msgid "file"
+msgstr ""
+
+#: src/renderers.scm
+msgid "folder"
+msgstr ""
+
+#: src/renderers.scm
+msgid "pic"
+msgstr ""
+
