@@ -131,6 +131,9 @@ EOF
             (member "-h" args))
      (usage 0))
 
+  (load-global-conf)
+  (load-local-conf)
+
   (when (member "--verbose" args)
     (verbose? #t))
 
