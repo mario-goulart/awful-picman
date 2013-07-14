@@ -1,7 +1,13 @@
 ;; -*- scheme -*-
-(compile -d2 -O0 awful-picman.scm)
 
 (define awful-picman-version "0.0.1")
+
+;; Compile modules
+(compile -J -s -d2 -O0 awful-picman-params.scm)
+(compile -s -d2 -O0 awful-picman-params.import.scm)
+
+;; Compile the executable
+(compile -d2 -O0 awful-picman.scm)
 
 ;; i18n stuff
 (system* "csi -s bin/sgettext.scm src/*.scm > locale/awful-picman.pot")
@@ -21,6 +27,11 @@
 (install-program
  'awful-picman
  '("awful-picman")
+ `((version ,awful-picman-version)))
+
+(install-extension
+ 'awful-picman-params
+ '("awful-picman-params.import.so" "awful-picman-params.so")
  `((version ,awful-picman-version)))
 
 (install-extension

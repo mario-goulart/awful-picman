@@ -1,3 +1,24 @@
+(module awful-picman-params
+
+;;; Exported symbols
+(;; Web path-related parameters
+ folders-web-dir thumbnails-web-dir albums-web-dir
+
+ ;; Image-related parameters
+ thumbnails/max-dimensions
+ thumbnails/zoom-dimension
+ default-thumbnail-extension
+
+ ;; i18n
+ language
+
+ ;; Misc
+ verbose?
+ start-decade
+)
+
+(import chicken scheme)
+
 ;;;
 ;;; Web path-related parameters
 ;;;
@@ -27,3 +48,5 @@
 ;;;
 (define verbose? (make-parameter #f))
 (define start-decade (make-parameter 1900))
+
+) ;; end module
