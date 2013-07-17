@@ -210,7 +210,7 @@
 
 (define (render-pic-modal dir id pic-filename prev-id next-id)
   `(div (@ (id ,(string-append "modal-" id))
-           (class "modal hide")
+           (class "modal hide pic-modal")
            (role "dialog")
            (tabindex "-1")
            (aria-labelledby ,pic-filename))
@@ -221,7 +221,7 @@
                         (data-dismiss "modal")
                         (aria-hidden "true"))
                      ×))
-        (div (@ (class "modal-body"))
+        (div (@ (class "modal-body pic-modal-body"))
              (div (@ (class "row"))
                   (div (@ (class "span12 pic-container"))
                        (img (@ (src ,(make-pathname
@@ -300,6 +300,79 @@ $('.~a').typeahead({
                (iota (length pic-paths)))))
     (render-thumbnails thumb-objs)))
 
+(define (render-album-modal album album-id)
+  `(div (@ (id ,(conc "album-modal-" album-id))
+           (class "modal hide")
+           (role "dialog")
+           (tabindex "-1")
+           (aria-labelledby ,(db-album-title album)))
+        (div (@ (class "modal-header"))
+             (button (@ (type "button")
+                        (class "close")
+                        (data-dismiss "modal")
+                        (aria-hidden "true"))
+                     ×)
+             (h3 ,(db-album-title album)))
+        (div (@ (class "modal-body"))
+             (h4 ,(_ "Description"))
+             (textarea (@ (id ,(conc "album-descr-" album-id)))
+                       ,(db-album-descr album))
+             (hr)
+             (p ,(_ "Remove album?")
+                (literal "&nbsp;")
+                (input (@ (type "checkbox")
+                          (id ,(conc "album-remove-" album-id)))))
+             (br)
+             (button (@ (id ,(conc "update-album-info-" album-id))
+                        (class "btn update-album-info"))
+                     ,(_ "Submit"))
+             (button (@ (id "album-cancel")
+                        (data-dismiss "modal")
+                        (class "btn cancel-save-pic-info"))
+                     ,(_ "Cancel")))))
+
+(define (render-albums albums)
+
+  (ajax "/update-album-info" ".update-album-info" 'click
+        update-album-info!
+        prelude: "var album_id = $(this).attr('id').replace(/^update-album-info-/, '');"
+        arguments: `((album-id . "album_id")
+                     (remove?  . "$('#album-remove-' + album_id).is(':checked')")
+                     (descr    . "$('#album-descr-' + album_id).val()"))
+        success: (string-append
+                  "if ($('#album-remove-' + album_id).is(':checked'))"
+                  "    $('#album-item-' + album_id).remove();"
+                  "$('#album-modal-' + album_id).modal('hide');"))
+
+  `(,@(map (lambda (album)
+             (let ((album-id (db-album-id album)))
+               (render-album-modal album album-id)))
+           albums)
+
+    (ul
+     ,@(filter-map
+        (lambda (album)
+          (let* ((title (db-album-title album))
+                 (album-id (db-album-id album))
+                 (count (db-album-pics-count album-id)))
+            (if (> count 0)
+                `(li (@ (id ,(conc "album-item-" album-id)))
+                     (a (@ (href ,(string-append "/albums/" title)))
+                        ,title)
+                     ,(sprintf " (~a ~a)"
+                               count
+                               (if (> count 1)
+                                   (_ "pictures")
+                                   (_ "picture")))
+                     (literal "&nbsp;")
+                     (a (@ (href ,(sprintf "#album-modal-~a" album-id))
+                           (data-toggle "modal"))
+                        (span (@ (class "icon-edit")))))
+                (begin
+                  (db-remove-album! album-id)
+                  #f))))
+        albums))))
+
 (define (render-album-content album)
   ;; If album is #f, render all albums
   (debug "render-album-content: album: ~a" album)
@@ -307,16 +380,9 @@ $('.~a').typeahead({
     ,(if album
          (render-album album)
          (let ((albums (db-albums)))
-           `(ul ,@(map (lambda (album)
-                         (let ((count (db-album-pics-count album)))
-                           `(li (a (@ (href ,(string-append "/albums/" album)))
-                                   ,album)
-                                ,(sprintf " (~a ~a)"
-                                          count
-                                          (if (> count 1)
-                                              "pictures"
-                                              "picture")))))
-                       albums))))))
+           (if (null? albums)
+               (_ "No albums")
+               (render-albums albums))))))
 
 (define-record thumb type dir filename idx)
 

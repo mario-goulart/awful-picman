@@ -75,7 +75,7 @@
       `(literal
         ,(with-output-to-string
            (lambda ()
-             (json-write (db-albums))))))
+             (json-write (map db-album-title (db-albums)))))))
     no-template: #t)
 
   ;;;

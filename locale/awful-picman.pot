@@ -3,6 +3,22 @@ msgid "Folders"
 msgstr ""
 
 #: src/renderers.scm
+msgid "No albums"
+msgstr ""
+
+#: src/renderers.scm
+msgid "picture"
+msgstr ""
+
+#: src/renderers.scm
+msgid "pictures"
+msgstr ""
+
+#: src/renderers.scm
+msgid "Remove album?"
+msgstr ""
+
+#: src/renderers.scm
 msgid "Cancel"
 msgstr ""
 

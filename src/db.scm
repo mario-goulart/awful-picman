@@ -26,8 +26,15 @@ create table tags (
       ;; Albums table
       (exec (sql db "
 create table albums (
-    pic_id,
-    album text)"))
+    album_id integer primary key autoincrement,
+    title text,
+    descr text)"))
+
+      ;; Albums & pics
+      (exec (sql db "
+create table albums_pics (
+    pic_id integer,
+    album_id integer)"))
       (close-database db))))
 
 (define (db-query db-conn q #!key (values '()))
@@ -42,10 +49,19 @@ create table albums (
             (or tags '())))
 
 (define (insert-albums! db pic-id albums)
-  (for-each (lambda (album)
-              (db-query db "insert into albums (pic_id, album) values (?, ?)"
-                        values: (list pic-id album)))
-            (or albums '())))
+  (for-each
+   (lambda (album)
+     (let ((db-album (db-query db "select album_id from albums where title=?"
+                               values: (list album))))
+       (when (null? db-album)
+         (db-query db "insert into albums (title) values (?)"
+                   values: (list album)))
+       (let ((album-id
+              (caar (db-query db "select album_id from albums where title=?"
+                              values: (list album)))))
+         (db-query db "insert into albums_pics (pic_id, album_id) values (?, ?)"
+                   values: (list pic-id album-id)))))
+   (or albums '())))
 
 (define (update-pic-data! db pic-id descr decade year month day tags albums)
   ;; This is ugly:
@@ -72,7 +88,7 @@ create table albums (
 
   ;; update albums
   (debug "update-pics-data!: albums: ~S" albums)
-  (db-query db "delete from albums where pic_id=?"
+  (db-query db "delete from albums_pics where pic_id=?"
             values: (list pic-id))
   (insert-albums! db pic-id albums))
 
@@ -131,7 +147,9 @@ create table albums (
                    ($ (lambda (pos) (list-ref data pos)))
                    (tags ($db "select tag from tags where pic_id=?"
                               values: (list id)))
-                   (albums ($db "select album from albums where pic_id=?"
+                   (albums ($db (string-append
+                                 "select albums.title from albums, albums_pics where "
+                                 "albums_pics.pic_id=? and albums.album_id=albums_pics.album_id")
                                 values: (list id))))
           (make-db-pic id
                        dir
@@ -148,12 +166,24 @@ create table albums (
 (define (db-tags)
   (map car ($db "select distinct tag from tags order by tag")))
 
-(define (db-albums)
-  (map car ($db "select distinct album from albums order by album")))
+(define-record db-album id title descr)
 
-(define (db-album-pics-count album)
-  (let ((count ($db "select count(pic_id) from albums where album=?"
-                    values: (list album))))
+
+;;;
+;;; Albums
+;;;
+
+(define (db-albums)
+  (map (lambda (album/descr)
+         (apply make-db-album album/descr))
+       ($db "select distinct album_id, title, descr from albums order by title")))
+
+(define (db-album-pics-count album-id)
+  (let ((count
+         ($db (string-append
+               "select count(albums_pics.pic_id) from albums, albums_pics where "
+               "albums_pics.album_id=albums.album_id and albums.album_id=?")
+              values: (list album-id))))
     (if (null? count)
         0
         (caar count))))
@@ -161,7 +191,11 @@ create table albums (
 (define (db-album-pics album)
   (map (lambda (dir/f)
          (make-pathname (car dir/f) (cadr dir/f)))
-       ($db "select pics.dir, pics.filename from pics, albums where album=? and pics.pic_id=albums.pic_id"
+       ($db (string-append
+             "select pics.dir, pics.filename from pics, albums, albums_pics "
+             "where albums.title=? and "
+             "albums.album_id=albums_pics.album_id and "
+             "pics.pic_id=albums_pics.pic_id")
             values: (list album))))
 
 (define (db-dir-pics dir)
@@ -169,3 +203,11 @@ create table albums (
      (lambda (db)
        (map car (db-query db "select filename from pics where dir=?"
                           values: (list dir))))))
+
+(define (db-remove-album! album-id)
+  ($db "delete from albums where album_id=?"
+       values: (list album-id)))
+
+(define (db-update-album! album-id descr)
+  ($db "update albums set descr=? where album_id=?"
+       values: (list descr album-id)))

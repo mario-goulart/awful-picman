@@ -37,6 +37,14 @@ msgid "Folders"
 msgstr "Pastas"
 
 #: src/renderers.scm
+msgid "No albums"
+msgstr "Nenhum álbum"
+
+#: src/renderers.scm
+msgid "Remove album?"
+msgstr "Remover álbum?"
+
+#: src/renderers.scm
 msgid "Submit"
 msgstr "Enviar"
 
@@ -54,4 +62,12 @@ msgstr "pasta"
 
 #: src/renderers.scm
 msgid "pic"
-msgstr "imagem"
+msgstr "foto"
+
+#: src/renderers.scm
+msgid "picture"
+msgstr "foto"
+
+#: src/renderers.scm
+msgid "pictures"
+msgstr "fotos"

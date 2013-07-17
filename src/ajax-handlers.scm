@@ -29,3 +29,11 @@
                                month: month
                                day: day)
       (render-modal-pic-form/ro (get-pic-from-db path) id))))
+
+(define (update-album-info!)
+  (with-request-variables (album-id
+                           (descr (nonempty as-string))
+                           (remove? (nonempty as-boolean)))
+    (if remove?
+        (db-remove-album! album-id)
+        (db-update-album! album-id descr))))
