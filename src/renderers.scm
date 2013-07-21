@@ -342,6 +342,8 @@ $('.~a').typeahead({
         success: (string-append
                   "if ($('#album-remove-' + album_id).is(':checked'))"
                   "    $('#album-item-' + album_id).remove();"
+                  "else"
+                  "    $('#album-link-descr-' + album_id).html($('#album-descr-' + album_id).val());"
                   "$('#album-modal-' + album_id).modal('hide');"))
 
   `(,@(map (lambda (album)
