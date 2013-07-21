@@ -179,12 +179,18 @@ create table albums_pics (
 (define (db-tags)
   (map car ($db "select distinct tag from tags order by tag")))
 
-(define-record db-album id title descr)
-
 
 ;;;
 ;;; Albums
 ;;;
+
+(define-record db-album id title descr)
+
+(define-record-printer (db-album obj out)
+  (fprintf out "#<db-album id=~a title=~a descr=~a>"
+           (db-album-id obj)
+           (db-album-title obj)
+           (db-album-descr obj)))
 
 (define (db-albums)
   (map (lambda (album/descr)
