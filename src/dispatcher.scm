@@ -4,6 +4,14 @@
   (enable-db)
   (literal-script/style? #t)
 
+  (page-access-control
+   (lambda (dummy)
+     (equal? "localhost"
+             (ip->hostname
+              (list->u8vector
+               (map string->number
+                    (string-split (remote-address) ".")))))))
+
   ;;;
   ;;; Page definer
   ;;;
