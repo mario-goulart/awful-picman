@@ -331,6 +331,35 @@ $('.~a').typeahead({
                         (class "btn cancel-save-pic-info"))
                      ,(_ "Cancel")))))
 
+
+(define (render-album-link album)
+  (let* ((title (db-album-title album))
+         (descr (db-album-descr album))
+         (album-id (db-album-id album))
+         (count (db-album-pics-count album-id)))
+    (if (> count 0)
+        `(li (@ (id ,(conc "album-item-" album-id)))
+             (a (@ (href ,(string-append "/albums/" title)))
+                ,title)
+             ,(sprintf " (~a ~a)"
+                       count
+                       (if (> count 1)
+                           (_ "pictures")
+                           (_ "picture")))
+             (literal "&nbsp;")
+             (span (@ (id ,(conc "album-link-descr-" album-id))
+                      (class "album-link-descr"))
+                   ,(if (and descr (not (null? descr)))
+                        descr
+                        ""))
+             (literal "&nbsp;")
+             (a (@ (href ,(conc "#album-modal-" album-id))
+                   (data-toggle "modal"))
+                (span (@ (class "icon-edit")))))
+        (begin
+          (db-remove-album! album-id)
+          #f))))
+
 (define (render-albums albums)
 
   (ajax "/update-album-info" ".update-album-info" 'click
@@ -351,29 +380,7 @@ $('.~a').typeahead({
                (render-album-modal album album-id)))
            albums)
 
-    (ul
-     ,@(filter-map
-        (lambda (album)
-          (let* ((title (db-album-title album))
-                 (album-id (db-album-id album))
-                 (count (db-album-pics-count album-id)))
-            (if (> count 0)
-                `(li (@ (id ,(conc "album-item-" album-id)))
-                     (a (@ (href ,(string-append "/albums/" title)))
-                        ,title)
-                     ,(sprintf " (~a ~a)"
-                               count
-                               (if (> count 1)
-                                   (_ "pictures")
-                                   (_ "picture")))
-                     (literal "&nbsp;")
-                     (a (@ (href ,(sprintf "#album-modal-~a" album-id))
-                           (data-toggle "modal"))
-                        (span (@ (class "icon-edit")))))
-                (begin
-                  (db-remove-album! album-id)
-                  #f))))
-        albums))))
+    (ul ,@(filter-map render-album-link albums))))
 
 (define (render-album-content album)
   ;; If album is #f, render all albums
