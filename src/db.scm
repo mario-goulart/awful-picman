@@ -133,6 +133,19 @@ create table albums_pics (
 
 (define-record db-pic id dir filename descr decade year month day tags albums)
 
+(define-record-printer (db-pic obj out)
+  (fprintf out "#<db-pic id=~a dir=~a filename=~a descr=~a decade=~a year=~a month=~a day=~a tags=~S albums=~S>"
+           (db-pic-id obj)
+           (db-pic-dir obj)
+           (db-pic-filename obj)
+           (db-pic-descr obj)
+           (db-pic-decade obj)
+           (db-pic-year obj)
+           (db-pic-month obj)
+           (db-pic-day obj)
+           (db-pic-tags obj)
+           (db-pic-albums obj)))
+
 (define (db-pic-path db-pic)
   (make-pathname (db-pic-dir db-pic) (db-pic-filename db-pic)))
 
