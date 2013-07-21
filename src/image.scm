@@ -26,7 +26,7 @@
 (define (maybe-replace-thumbnail-extension thumbnail)
   (if (non-web-image-file? thumbnail)
       (pathname-replace-extension thumbnail
-                                  (default-thumbnail-extension))
+                                  (thumbnails/default-extension))
       thumbnail))
 
 (define (image-scale/proportional image max-dimension)
@@ -63,7 +63,7 @@
                 (> (image-height image) dimension))
             (begin
               (when (non-web-image-file? image-file)
-                (image-format-set! image (default-thumbnail-extension)))
+                (image-format-set! image (thumbnails/default-extension)))
               (image-save (image-scale/proportional image dimension)
                           thumbnail))
             (file-copy image-file

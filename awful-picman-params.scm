@@ -7,7 +7,7 @@
  ;; Image-related parameters
  thumbnails/max-dimensions
  thumbnails/zoom-dimension
- default-thumbnail-extension
+ thumbnails/default-extension
 
  ;; i18n
  language
@@ -31,7 +31,7 @@
 ;;;
 (define thumbnails/max-dimensions (make-parameter '(300)))
 (define thumbnails/zoom-dimension (make-parameter 1700))
-(define default-thumbnail-extension
+(define thumbnails/default-extension
   ;; For when converting non-web image files to web image files
   (make-parameter "jpg"))
 
