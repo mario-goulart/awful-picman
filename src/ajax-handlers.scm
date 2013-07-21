@@ -32,7 +32,7 @@
 
 (define (update-album-info!)
   (with-request-variables (album-id
-                           (descr (nonempty as-string))
+                           descr
                            (remove? (nonempty as-boolean)))
     (if remove?
         (db-remove-album! album-id)
