@@ -12,7 +12,9 @@ msgstr "Álbuns"
 msgid ""
 "All the selected pictures will have their metadata overwritten with the data "
 "filled here."
-msgstr "Todas as fotos selecionadas terão suas informações sobrescritas pelas preenchidas neste formulário."
+msgstr ""
+"Todas as fotos selecionadas terão suas informações sobrescritas pelas "
+"preenchidas neste formulário."
 
 #: src/renderers.scm
 msgid "Batch edit"
@@ -93,6 +95,10 @@ msgstr "arquivo"
 #: src/renderers.scm
 msgid "folder"
 msgstr "pasta"
+
+#: src/renderers.scm
+msgid "no "
+msgstr "nenhuma "
 
 #: src/renderers.scm
 msgid "pic"

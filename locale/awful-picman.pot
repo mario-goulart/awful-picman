@@ -98,3 +98,7 @@ msgstr ""
 msgid "pic"
 msgstr ""
 
+#: src/renderers.scm
+msgid "no "
+msgstr ""
+

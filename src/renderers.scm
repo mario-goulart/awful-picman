@@ -31,7 +31,7 @@
 (define (render-dir-stat dir)
   (define (describe count obj)
     (case count
-      ((0) (string-append "no " obj))
+      ((0) (string-append (_ "no ") obj))
       ((1) (string-append "1 " obj))
       (else (sprintf "~a ~as" count obj))))
   (let ((stat (get-dir-stat dir)))
