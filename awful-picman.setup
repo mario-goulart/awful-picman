@@ -1,13 +1,21 @@
 ;; -*- scheme -*-
+(use posix)
 
 (define awful-picman-version "0.0.1")
 
+(define debug? (get-environment-variable "AWFUL_PICMAN_DEBUG"))
+
+(define csc-options
+  (if debug?
+      '(-S -O0 -d2)
+      '(-O3 -d0)))
+
 ;; Compile modules
-(compile -J -s -d2 -O0 awful-picman-params.scm)
-(compile -s -d2 -O0 awful-picman-params.import.scm)
+(compile -J -s ,@csc-options awful-picman-params.scm)
+(compile -s ,@csc-options awful-picman-params.import.scm)
 
 ;; Compile the executable
-(compile -d2 -O0 awful-picman.scm)
+(compile ,@csc-options awful-picman.scm)
 
 ;; i18n stuff
 (system* "csi -s bin/sgettext.scm src/*.scm > locale/awful-picman.pot")
