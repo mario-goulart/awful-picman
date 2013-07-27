@@ -9,6 +9,16 @@ msgid "Albums"
 msgstr "Álbuns"
 
 #: src/renderers.scm
+msgid ""
+"All the selected pictures will have their metadata overwritten with the data "
+"filled here."
+msgstr "Todas as fotos selecionadas terão suas informações sobrescritas pelas preenchidas neste formulário."
+
+#: src/renderers.scm
+msgid "Batch edit"
+msgstr "Edição em massa"
+
+#: src/renderers.scm
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -29,6 +39,10 @@ msgid "Edit"
 msgstr "Editar"
 
 #: src/renderers.scm
+msgid "Edit selected thumbnails template"
+msgstr "Editar dados a serem aplicados a fotos selecionadas"
+
+#: src/renderers.scm
 msgid "Filename"
 msgstr "Arquivo"
 
@@ -45,12 +59,32 @@ msgid "Remove album?"
 msgstr "Remover álbum?"
 
 #: src/renderers.scm
+msgid "Select all"
+msgstr "Selecionar todas"
+
+#: src/renderers.scm
 msgid "Submit"
 msgstr "Enviar"
 
 #: src/renderers.scm
 msgid "Tags"
 msgstr "Marcadores"
+
+#: src/renderers.scm
+msgid "Template data for selected pictures"
+msgstr "Dados a serem aplicados a fotos selecionadas"
+
+#: src/renderers.scm
+msgid "Toggle selection"
+msgstr "Inverter seleção"
+
+#: src/renderers.scm
+msgid "Unselect all"
+msgstr "Desselecionar todas"
+
+#: src/renderers.scm
+msgid "Warning:"
+msgstr "Atenção:"
 
 #: src/renderers.scm
 msgid "file"

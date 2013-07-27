@@ -96,7 +96,7 @@
         (render-pics (if (equal? album ".")
                          #f ;; albums index
                          album)
-                     render-album-content))))
+                     'album))))
 
   ;;;
   ;;; Folders
@@ -108,7 +108,7 @@
         (if (file-exists? dir)
             (begin
               (process-dir dir #f)
-              (render-pics dir render-dir-content))
+              (render-pics dir 'folder))
             (lambda ()
               (send-status 404 "Not found"))))))
 

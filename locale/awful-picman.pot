@@ -1,4 +1,36 @@
 #: src/renderers.scm
+msgid "Edit selected thumbnails template"
+msgstr ""
+
+#: src/renderers.scm
+msgid "Toggle selection"
+msgstr ""
+
+#: src/renderers.scm
+msgid "Unselect all"
+msgstr ""
+
+#: src/renderers.scm
+msgid "Select all"
+msgstr ""
+
+#: src/renderers.scm
+msgid "Batch edit"
+msgstr ""
+
+#: src/renderers.scm
+msgid "All the selected pictures will have their metadata overwritten with the data filled here."
+msgstr ""
+
+#: src/renderers.scm
+msgid "Warning:"
+msgstr ""
+
+#: src/renderers.scm
+msgid "Template data for selected pictures"
+msgstr ""
+
+#: src/renderers.scm
 msgid "Folders"
 msgstr ""
 

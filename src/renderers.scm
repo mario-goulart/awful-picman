@@ -82,12 +82,15 @@
         (decade decade)
         (else "")))
 
-(define (render-dynamic-input type idx pic-id val)
-  `(input (@ (type "text")
-             (class ,(sprintf "~a-widget-~a ~a" type pic-id type))
-             (id ,(sprintf "~a-~a-~a" type idx pic-id))
-             (data-provide "typeahead")
-             (value ,val))))
+(define (render-dynamic-input type idx pic-id val #!optional prepend-br?)
+  `(,(if prepend-br?
+         '(br)
+         '())
+    (input (@ (type "text")
+              (class ,(sprintf "~a-widget-~a ~a" type pic-id type))
+              (id ,(sprintf "~a-~a-~a" type idx pic-id))
+              (data-provide "typeahead")
+              (value ,val)))))
 
 (define (render-dynamic-input+ type pic-id)
   `((span (@ (id ,(sprintf "~a-widget-placeholder-~a" type pic-id))))
@@ -145,7 +148,7 @@
                    (onclick ,(sprintf "set_pic_info_rw('~a');" pic-id)))
                 ,(_ "Edit"))))
 
-(define (render-modal-pic-form/rw pic-id db-pic pic-id prev-id next-id)
+(define (render-modal-pic-form/rw pic-id db-pic prev-id next-id #!optional template?)
   (define (id thing)
     (list 'id (string-append thing "-" pic-id)))
   `(div (@ ,(id "rw")
@@ -182,15 +185,21 @@
          ,(render-dynamic-inputs 'album pic-id (db-pic-albums db-pic))
          (h5 ,(_ "Tags"))
          ,(render-dynamic-inputs 'tag pic-id (db-pic-tags db-pic))
-         (h5 ,(_ "Filename"))
-         (p (code ,(db-pic-path db-pic)))
+         ,(if template?
+              '()
+              `((h5 ,(_ "Filename"))
+                (p (code ,(db-pic-path db-pic)))))
          (br)
          (button (@ ,(id "submit")
-                    (class "btn save-pic-info"))
+                    (class ,(string-append "btn "
+                                           (if template?
+                                               "batch-save-pic-info"
+                                               "save-pic-info"))))
                  ,(_ "Submit"))
          (button (@ ,(id "cancel")
-                    ;; Another ugly hack
-                    (onclick ,(sprintf "set_pic_info_ro('~a');" pic-id))
+                    ,(if template?
+                         '(data-dismiss "modal")
+                         `(onclick ,(sprintf "set_pic_info_ro('~a');" pic-id)))
                     (class "btn cancel-save-pic-info"))
                  ,(_ "Cancel")))))
 
@@ -206,7 +215,7 @@
            (db-pic-month db-pic)
            (db-pic-tags db-pic))
     `(,(render-modal-pic-form/ro db-pic pic-id)
-      ,(render-modal-pic-form/rw pic-id db-pic pic-id prev-id next-id))))
+      ,(render-modal-pic-form/rw pic-id db-pic prev-id next-id))))
 
 (define (render-pic-modal dir id pic-filename prev-id next-id)
   `(div (@ (id ,(string-append "modal-" id))
@@ -237,7 +246,7 @@
                                                    prev-id
                                                    next-id)))))))
 
-(define (render-thumbnail thumb-obj dimension prev-filename next-filename)
+(define (render-thumbnail thumb-obj dimension prev-filename next-filename mode)
   (let* ((filename (thumb-filename thumb-obj))
          (id (string->sha1sum filename))
          (dir (thumb-dir thumb-obj))
@@ -247,10 +256,16 @@
       (a (@ (href ,(string-append "#modal-" id))
             (data-toggle "modal"))
          (img (@ (class "thumb")
+                 (id ,(string-append "thumb-" id))
                  (src ,(make-pathname (list (thumbnails-web-dir)
                                             (->string dimension)
                                             dir)
                                       filename)))))
+      ,(if (eq? mode 'album)
+           '()
+           `(input (@ (class "thumb-select")
+                      (id ,(conc "thumb-select-" id))
+                      (type "checkbox"))))
       ;; Modal
       ,(render-pic-modal dir id filename prev-id next-id))))
 
@@ -262,21 +277,24 @@
           (p ,filename))))
 
 (define (create-dynamic-input-ajax type typeahead-source)
-  (add-javascript
-   (sprintf "
-$('.~a').typeahead({
-    source: function (query, process) {
-        return $.get('~a', { query: query }, function (data) {
-            return process(data);
-        });
-    }
-});"
-            type typeahead-source))
 
-  (ajax "/add-dynamic_input" (sprintf ".add-~a-widget" type) 'click
+  (define typeahead-source-js
+    (sprintf
+     "source: function (query, process) {
+         return $.get('~a', { query: query }, function (data) {
+             return process(data);
+         });
+     }"
+     typeahead-source))
+
+  (add-javascript
+   (sprintf "$('.~a').typeahead({~a});"
+            type typeahead-source-js))
+
+  (ajax "/add-dynamic-input" (sprintf ".add-~a-widget" type) 'click
         (lambda ()
           (with-request-variables (type pic-id next-idx)
-            (render-dynamic-input type next-idx pic-id "")))
+            (render-dynamic-input type next-idx pic-id "" 'prepend-br)))
         prelude: (string-append
                   (sprintf "var pic_id = $(this).attr('id').replace(/^add-~a-/, '');" type)
                   (sprintf "var next = get_max_dynamic_input_idx('~a', pic_id) + 1;" type))
@@ -285,6 +303,8 @@ $('.~a').typeahead({
                      (next-idx . "next"))
         success: (string-append
                   (sprintf "$(response).insertBefore('#~a-widget-placeholder-' + pic_id);" type)
+                  (sprintf "$('#~a-' + next + '-' + pic_id).typeahead({~a});"
+                           type typeahead-source-js)
                   (sprintf "$('#~a-' + next + '-' + pic_id).focus();" type))))
 
 
@@ -298,7 +318,7 @@ $('.~a').typeahead({
                              i))
                pic-paths
                (iota (length pic-paths)))))
-    (render-thumbnails thumb-objs)))
+    (render-thumbnails thumb-objs 'album)))
 
 (define (render-album-modal album album-id)
   `(div (@ (id ,(conc "album-modal-" album-id))
@@ -438,9 +458,9 @@ $('.~a').typeahead({
                              items)))
          (items (append dirs pics other)))
     `(,(render-breadcrumbs dir (_ "Folders") (folders-web-dir))
-      ,(render-thumbnails items))))
+      ,(render-thumbnails items 'folder))))
 
-(define (render-thumbnails items)
+(define (render-thumbnails items mode)
   (let* ((rows (chop items 4))  ;; FIXME: param thumbnails-per-row
          (dim (default-thumbnail-dimension))
          (pics (filter (lambda (item)
@@ -458,12 +478,13 @@ $('.~a').typeahead({
                                             (render-thumbnail i
                                                               dim
                                                               (prev-thumb i pics num-pics)
-                                                              (next-thumb i pics num-pics)))
+                                                              (next-thumb i pics num-pics)
+                                                              mode))
                                            (else (render-other-file-type (thumb-filename i))))))
                                 row)))
                  rows))))
 
-(define (render-pics source renderer)
+(define (render-pics source mode)
   (add-javascript
    "
 $('.zoom-in').on('click', function() {
@@ -523,12 +544,42 @@ get_pic_dynamic_inputs = function(type, pic_id) {
                   "$('#ro-' + pic_id).html(response);"
                   "set_pic_info_ro(pic_id);"))
 
+  ;; Handle modal for template pic data
+  (ajax "/batch-insert-update-pic" ".batch-save-pic-info" 'click
+        batch-update-pic-info!
+        prelude: #<<EOF
+var template_data = {
+    "descr": $('#descr-pic-template').val(),
+    "decade": $('#decade-pic-template').val(),
+    "year": $('#year-pic-template').val(),
+    "month": $('#month-pic-template').val(),
+    "day": $('#day-pic-template').val(),
+    "tags": JSON.stringify(get_pic_dynamic_inputs('tag', 'pic-template')),
+    "albums": JSON.stringify(get_pic_dynamic_inputs('album', 'pic-template')),
+    };
+EOF
+        arguments: `((template-data . "JSON.stringify(template_data)")
+                     (pics . ,(string-append
+                               "JSON.stringify($.map($('.thumb-select'), function(elt, i) {"
+                               "    var pic_id = elt.id.replace(/^thumb-select-/, '');"
+                               "    if (elt.checked)"
+                               "        return [pic_id, $('#thumb-' + pic_id).attr('src')];"
+                               "    else"
+                               "        return null;"
+                               "}))")))
+        success: "window.location.reload(true);") ;; FIXME: this is horrible
+
   (create-dynamic-input-ajax 'tag "/db/tags")
   (create-dynamic-input-ajax 'album "/db/albums")
 
   (debug "render-pics: source: ~a" source)
-  `(,(render-top-bar)
-    ,(renderer source)))
+  `(,(render-top-bar mode)
+    ,(case mode
+       ((album) (render-album-content source))
+       ((folder) `(,(render-pic-template-modal)
+                   ,(render-dir-content source)))
+       (else (error 'render-pics
+                    (sprintf "Unknown mode: ~a" mode))))))
 
 (define (render-search-form)
   `(form (@ (class "navbar-search form-inline pull-right"))
@@ -538,10 +589,98 @@ get_pic_dynamic_inputs = function(type, pic_id) {
                     (class "btn-small"))
                  "Search")))
 
-(define (render-top-bar)
+
+(define (render-pic-template-modal)
+  `(div (@ (id "modal-pic-template")
+           (class "modal hide")
+           (role "dialog")
+           (tabindex "-1")
+           (aria-labelledby "pic-template"))
+        (div (@ (class "modal-header"))
+             (button (@ (type "button")
+                        (class "close")
+                        (data-dismiss "modal")
+                        (aria-hidden "true"))
+                     ×)
+             (h4 ,(_ "Template data for selected pictures")))
+        (div (@ (class "modal-body"))
+             (div (@ (class "alert"))
+                  (button (@ (type "button")
+                             (class "close")
+                             (data-dismiss "alert"))
+                          (literal "&times;"))
+                  (strong ,(_ "Warning:")) " "
+                  ,(_ "All the selected pictures will have their metadata overwritten with the data filled here."))
+             ,(let ((pic-template (make-db-pic "pic-template" "" "" "" #f #f #f #f '() '())))
+                (render-modal-pic-form/rw "pic-template" pic-template #f #f 'template)))))
+
+(define (render-thumb-toolbar)
+  (add-javascript "
+$('#thumb-select-all').on('click', function() {
+    $('.thumb-select').each(function(i, elt) {
+        elt.checked = true;
+    });
+});
+
+$('#thumb-unselect-all').on('click', function() {
+    $('.thumb-select').each(function(i, elt) {
+        elt.checked = false;
+    });
+});
+
+$('#thumb-toggle-selection').on('click', function() {
+    $('.thumb-select').each(function(i, elt) {
+            elt.checked = !elt.checked;
+    });
+});
+
+$('#thumb-template').click(function() {
+    $('#modal-pic-template').modal('show');
+    $('#rw-pic-template').show();
+});
+
+$('.dropdown-toggle').dropdown();
+")
+  (define (render-item id title icon)
+    `(li (a (@ (href "#")
+               (id ,id)
+               (title ,title)
+               (class "thumb-toolbar-item presentation"))
+            ((i (@ (class ,icon)))
+             (literal "&nbsp")
+             ,title))))
+
+  `((ul (@ (class "nav pull-right thumb-toolbar"))
+        (li (@ (class "dropdown"))
+            (a (@ (class "dropdown-toggle")
+                  (data-toggle "dropdown")
+                  (href "#"))
+               ,(_ "Batch edit"))
+            (ul (@ (class "dropdown-menu")
+                   (role "menu")
+                   (aria-labelledby "dLabel"))
+                ,(render-item "thumb-select-all"
+                              (_ "Select all")
+                              "icon-check")
+                ,(render-item "thumb-unselect-all"
+                              (_ "Unselect all")
+                              "icon-share")
+                ,(render-item "thumb-toggle-selection"
+                              (_ "Toggle selection")
+                              "icon-retweet")
+                (li (@ (class "divider")))
+                ,(render-item "thumb-template"
+                              (_ "Edit selected thumbnails template")
+                              "icon-edit"))))))
+
+(define (render-top-bar mode)
   `((div (@ (class "navbar navbar-inverse navbar-fixed-top"))
          (div (@ (class "navbar-inner"))
               (ul (@ (class "nav"))
                   (li (a (@ (href ,(albums-web-dir))) ,(_ "Albums")))
                   (li (a (@ (href ,(folders-web-dir))) ,(_ "Folders"))))
-              ,(render-search-form)))))
+                  (li ,(if (eq? mode 'folder)
+                           (render-thumb-toolbar)
+                           '())))
+         ;; ,(render-search-form) ;; FIXME: not implemented yet
+         )))

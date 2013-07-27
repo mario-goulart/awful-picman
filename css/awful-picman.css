@@ -32,6 +32,20 @@ body {
     margin: 5px;
 }
 
+.thumbnails-container .thumb-select {
+    margin-top: -50px;
+    margin-left: 7px;
+}
+
+.thumb-toolbar {
+    margin-right: 30px;
+    line-height: 40px;
+}
+
+.thumb-toolbar .thumb-toolbar-item {
+    margin-right: 8px;
+}
+
 .pic-modal {
   position: fixed;
   top: 0;
@@ -72,4 +86,8 @@ body {
 
 .thumbnails-container {
     margin: 5px;
+}
+
+#modal-pic-template .modal-body{
+    min-height: 480px;
 }
