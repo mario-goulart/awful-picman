@@ -171,6 +171,7 @@ EOF
   (let ((dev-mode? (and (member "--development-mode" args) #t))
         (port (cmd-line-arg "--port" args)))
 
+    (info "Starting the server on port ~a." (or port (server-port)))
     (awful-start
      (lambda ()
        (load-apps '()) ;; to force development actions when
