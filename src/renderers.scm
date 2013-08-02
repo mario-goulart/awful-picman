@@ -47,8 +47,7 @@
          (web-path (make-pathname (list (folders-web-dir) dir)
                                   dirname))
          (size (default-thumbnail-dimension)))
-    `(div (@ (class "dir")
-             (style ,(sprintf "height: ~a; width: ~a" size size)))
+    `(div (@ (class "dir"))
           (a (@ (href ,web-path))
              (img (@ (src "/img/dir.png") (alt ,dirname))))
           (p (a (@ (href ,web-path)) ,dirname))
@@ -255,8 +254,7 @@
     `(;; Link
       (a (@ (href ,(string-append "#modal-" id))
             (data-toggle "modal"))
-         (img (@ (class "thumb")
-                 (id ,(string-append "thumb-" id))
+         (img (@ (id ,(string-append "thumb-" id))
                  (src ,(make-pathname (list (thumbnails-web-dir)
                                             (->string dimension)
                                             dir)
@@ -271,8 +269,7 @@
 
 (define (render-other-file-type filename)
   (let ((size (default-thumbnail-dimension)))
-    `(div (@ (class "other-file-type")
-             (style ,(sprintf "height: ~a; width: ~a" size size)))
+    `(div (@ (class "other-file-type"))
           (img (@ (src "/img/unknown.png") (alt ,filename)))
           (p ,filename))))
 
@@ -461,28 +458,23 @@
       ,(render-thumbnails items 'folder))))
 
 (define (render-thumbnails items mode)
-  (let* ((rows (chop items 4))  ;; FIXME: param thumbnails-per-row
-         (dim (default-thumbnail-dimension))
+  (let* ((dim (default-thumbnail-dimension))
          (pics (filter (lambda (item)
                          (eq? (thumb-type item) 'pic))
                        items))
          (num-pics (length pics)))
-    `(div (@ (class "thumbnails-container"))
-          ,@(map (lambda (row)
-                   `(div (@ (class "row"))
-                         ,@(map (lambda (i)
-                                  `(div (@ (class "span4")) ;; FIXME: depends on thumbnails-per-row
-                                        ,(case (thumb-type i)
-                                           ((dir) (render-dir-link i))
-                                           ((pic)
-                                            (render-thumbnail i
-                                                              dim
-                                                              (prev-thumb i pics num-pics)
-                                                              (next-thumb i pics num-pics)
-                                                              mode))
-                                           (else (render-other-file-type (thumb-filename i))))))
-                                row)))
-                 rows))))
+    `(div (@ (id "thumbnails"))
+          ,@(map (lambda (i)
+                   `(div (@ (class "thumb"))
+                     ,(case (thumb-type i)
+                        ((dir) (render-dir-link i))
+                        ((pic) (render-thumbnail i
+                                                 dim
+                                                 (prev-thumb i pics num-pics)
+                                                 (next-thumb i pics num-pics)
+                                                 mode))
+                        (else (render-other-file-type (thumb-filename i))))))
+                 items))))
 
 (define (render-pics source mode)
   (add-javascript
