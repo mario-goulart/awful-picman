@@ -1,104 +1,109 @@
-#: src/renderers.scm
-msgid "Edit selected thumbnails template"
-msgstr ""
-
-#: src/renderers.scm
-msgid "Toggle selection"
-msgstr ""
-
-#: src/renderers.scm
-msgid "Unselect all"
-msgstr ""
-
-#: src/renderers.scm
-msgid "Select all"
-msgstr ""
-
-#: src/renderers.scm
-msgid "Batch edit"
-msgstr ""
-
-#: src/renderers.scm
-msgid "All the selected pictures will have their metadata overwritten with the data filled here."
-msgstr ""
-
-#: src/renderers.scm
-msgid "Warning:"
-msgstr ""
-
-#: src/renderers.scm
-msgid "Template data for selected pictures"
-msgstr ""
-
-#: src/renderers.scm
-msgid "Folders"
-msgstr ""
-
-#: src/renderers.scm
-msgid "No albums"
-msgstr ""
-
-#: src/renderers.scm
-msgid "picture"
-msgstr ""
-
-#: src/renderers.scm
-msgid "pictures"
-msgstr ""
-
-#: src/renderers.scm
-msgid "Remove album?"
-msgstr ""
-
-#: src/renderers.scm
-msgid "Cancel"
-msgstr ""
-
-#: src/renderers.scm
-msgid "Submit"
-msgstr ""
-
-#: src/renderers.scm
-msgid "Date (decade/year/month/day)"
-msgstr ""
-
-#: src/renderers.scm
-msgid "Edit"
-msgstr ""
-
-#: src/renderers.scm
-msgid "Filename"
-msgstr ""
-
-#: src/renderers.scm
-msgid "Tags"
-msgstr ""
-
-#: src/renderers.scm
-msgid "Albums"
-msgstr ""
-
-#: src/renderers.scm
-msgid "Date"
-msgstr ""
-
-#: src/renderers.scm
-msgid "Description"
-msgstr ""
-
-#: src/renderers.scm
+#: src/renderers/folder.scm
 msgid "file"
 msgstr ""
 
-#: src/renderers.scm
+#: src/renderers/folder.scm
 msgid "folder"
 msgstr ""
 
-#: src/renderers.scm
+#: src/renderers/folder.scm
 msgid "pic"
 msgstr ""
 
-#: src/renderers.scm
+#: src/renderers/folder.scm
 msgid "no "
+msgstr ""
+
+#: src/renderers/folder.scm
+#: src/renderers/common.scm
+msgid "Folders"
+msgstr ""
+
+#: src/renderers/common.scm
+msgid "Edit selected thumbnails template"
+msgstr ""
+
+#: src/renderers/common.scm
+msgid "Toggle selection"
+msgstr ""
+
+#: src/renderers/common.scm
+msgid "Unselect all"
+msgstr ""
+
+#: src/renderers/common.scm
+msgid "Select all"
+msgstr ""
+
+#: src/renderers/common.scm
+msgid "Batch edit"
+msgstr ""
+
+#: src/renderers/common.scm
+msgid "All the selected pictures will have their metadata overwritten with the data filled here."
+msgstr ""
+
+#: src/renderers/common.scm
+msgid "Warning:"
+msgstr ""
+
+#: src/renderers/common.scm
+msgid "Template data for selected pictures"
+msgstr ""
+
+#: src/renderers/common.scm
+msgid "Date (decade/year/month/day)"
+msgstr ""
+
+#: src/renderers/common.scm
+msgid "Edit"
+msgstr ""
+
+#: src/renderers/common.scm
+msgid "Filename"
+msgstr ""
+
+#: src/renderers/common.scm
+msgid "Tags"
+msgstr ""
+
+#: src/renderers/common.scm
+msgid "Date"
+msgstr ""
+
+#: src/renderers/album.scm
+msgid "No albums"
+msgstr ""
+
+#: src/renderers/common.scm
+#: src/renderers/album.scm
+msgid "Albums"
+msgstr ""
+
+#: src/renderers/album.scm
+msgid "picture"
+msgstr ""
+
+#: src/renderers/album.scm
+msgid "pictures"
+msgstr ""
+
+#: src/renderers/common.scm
+#: src/renderers/album.scm
+msgid "Cancel"
+msgstr ""
+
+#: src/renderers/common.scm
+#: src/renderers/album.scm
+msgid "Submit"
+msgstr ""
+
+#: src/renderers/album.scm
+msgid "Remove album?"
+msgstr ""
+
+#: src/renderers/common.scm
+#: src/renderers/album.scm
+msgid "Description"
 msgstr ""
 

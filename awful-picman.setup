@@ -19,7 +19,7 @@
 (compile ,@csc-options awful-picman.scm)
 
 ;; i18n stuff
-(system* "csi -s bin/sgettext.scm src/*.scm > locale/awful-picman.pot")
+(system* "csi -s bin/sgettext.scm src/*.scm src/renderers/*.scm > locale/awful-picman.pot")
 
 (for-each
  (lambda (lang)

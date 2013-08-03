@@ -4,11 +4,11 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 
-#: src/renderers.scm
+#: src/renderers/common.scm src/renderers/album.scm
 msgid "Albums"
 msgstr "Álbuns"
 
-#: src/renderers.scm
+#: src/renderers/common.scm
 msgid ""
 "All the selected pictures will have their metadata overwritten with the data "
 "filled here."
@@ -16,98 +16,98 @@ msgstr ""
 "Todas as fotos selecionadas terão suas informações sobrescritas pelas "
 "preenchidas neste formulário."
 
-#: src/renderers.scm
+#: src/renderers/common.scm
 msgid "Batch edit"
 msgstr "Edição em massa"
 
-#: src/renderers.scm
+#: src/renderers/common.scm src/renderers/album.scm
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: src/renderers.scm
+#: src/renderers/common.scm
 msgid "Date"
 msgstr "Data"
 
-#: src/renderers.scm
+#: src/renderers/common.scm
 msgid "Date (decade/year/month/day)"
 msgstr "Data (década/ano/ms/dia)"
 
-#: src/renderers.scm
+#: src/renderers/common.scm src/renderers/album.scm
 msgid "Description"
 msgstr "Descrição"
 
-#: src/renderers.scm
+#: src/renderers/common.scm
 msgid "Edit"
 msgstr "Editar"
 
-#: src/renderers.scm
+#: src/renderers/common.scm
 msgid "Edit selected thumbnails template"
 msgstr "Editar dados a serem aplicados a fotos selecionadas"
 
-#: src/renderers.scm
+#: src/renderers/common.scm
 msgid "Filename"
 msgstr "Arquivo"
 
-#: src/renderers.scm
+#: src/renderers/folder.scm src/renderers/common.scm
 msgid "Folders"
 msgstr "Pastas"
 
-#: src/renderers.scm
+#: src/renderers/album.scm
 msgid "No albums"
 msgstr "Nenhum álbum"
 
-#: src/renderers.scm
+#: src/renderers/album.scm
 msgid "Remove album?"
 msgstr "Remover álbum?"
 
-#: src/renderers.scm
+#: src/renderers/common.scm
 msgid "Select all"
 msgstr "Selecionar todas"
 
-#: src/renderers.scm
+#: src/renderers/common.scm src/renderers/album.scm
 msgid "Submit"
 msgstr "Salvar"
 
-#: src/renderers.scm
+#: src/renderers/common.scm
 msgid "Tags"
 msgstr "Marcadores"
 
-#: src/renderers.scm
+#: src/renderers/common.scm
 msgid "Template data for selected pictures"
 msgstr "Dados a serem aplicados a fotos selecionadas"
 
-#: src/renderers.scm
+#: src/renderers/common.scm
 msgid "Toggle selection"
 msgstr "Inverter seleção"
 
-#: src/renderers.scm
+#: src/renderers/common.scm
 msgid "Unselect all"
 msgstr "Desselecionar todas"
 
-#: src/renderers.scm
+#: src/renderers/common.scm
 msgid "Warning:"
 msgstr "Atenção:"
 
-#: src/renderers.scm
+#: src/renderers/folder.scm
 msgid "file"
 msgstr "arquivo"
 
-#: src/renderers.scm
+#: src/renderers/folder.scm
 msgid "folder"
 msgstr "pasta"
 
-#: src/renderers.scm
+#: src/renderers/folder.scm
 msgid "no "
 msgstr "nenhuma "
 
-#: src/renderers.scm
+#: src/renderers/folder.scm
 msgid "pic"
 msgstr "foto"
 
-#: src/renderers.scm
+#: src/renderers/album.scm
 msgid "picture"
 msgstr "foto"
 
-#: src/renderers.scm
+#: src/renderers/album.scm
 msgid "pictures"
 msgstr "fotos"

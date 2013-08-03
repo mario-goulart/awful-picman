@@ -14,7 +14,11 @@
 (use awful-picman-params)
 
 (include "src/conf")
-(include "src/renderers")
+(include "src/renderers/breadcrumbs")
+(include "src/renderers/dynamic-input")
+(include "src/renderers/common")
+(include "src/renderers/folder")
+(include "src/renderers/album")
 (include "src/image")
 (include "src/utils")
 (include "src/db")
