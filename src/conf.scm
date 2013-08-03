@@ -8,5 +8,7 @@
       (load conf-file))))
 
 (define (load-local-conf)
-  (when (file-read-access? conf-filename)
-    (load conf-filename)))
+  (let ((conf-file (make-pathname metadata-dir
+                                  conf-filename)))
+    (when (file-read-access? conf-filename)
+      (load conf-filename))))
