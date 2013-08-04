@@ -50,7 +50,8 @@
         #f
         (thumb-filename (list-ref pics (- idx 1))))))
 
-(define (render-dir-content dir)
+
+(define (paginate-folder dir-items page-num)
 
   (define (make-dir path)
     (make-thumb 'dir (pathname-directory path) (pathname-strip-directory path) 'dummy))
@@ -58,20 +59,27 @@
   (define (make-other path)
     (make-thumb 'other (pathname-directory path) (pathname-strip-directory path) 'dummy))
 
-  (define make-pic
-    (let ((idx -1))
-      (lambda (path)
-        (set! idx (+ idx 1))
-        (make-thumb 'pic (pathname-directory path) (pathname-strip-directory path) idx))))
+  (define (make-pic path idx)
+    (make-thumb 'pic (pathname-directory path) (pathname-strip-directory path) idx))
 
-  (let* ((items (glob (make-pathname dir "*")))
-         (dirs (map make-dir (filter directory? items)))
-         (pics (map make-pic (filter image-file? items)))
+  (let* ((offset (* page-num (thumbnails/page)))
+         (page-items (slice dir-items offset (+ offset (thumbnails/page))))
+         (dirs (map make-dir (filter directory? page-items)))
+         (pics (let ((pics (filter image-file? page-items)))
+                 (map make-pic pics (iota (length pics)))))
          (other (map make-other
                      (remove (lambda (i)
                                (or (directory? i)
                                    (image-file? i)))
-                             items)))
-         (items (append dirs pics other)))
+                             page-items)))
+         (thumbs (append dirs pics other)))
+    thumbs))
+
+
+(define (render-dir-content dir page-num)
+  (let* ((dir-items (list-directory dir))
+         (num-dir-items (length dir-items))
+         (thumbs (paginate-folder dir-items page-num)))
     `(,(render-breadcrumbs dir (_ "Folders") (folders-web-dir))
-      ,(render-thumbnails items 'folder))))
+      ,(render-thumbnails thumbs 'folder)
+      ,(render-pagination-links num-dir-items page-num))))

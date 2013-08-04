@@ -1,14 +1,21 @@
-(define (render-album album)
+(define (paginate-album album-pic-paths page-num)
+  (let* ((offset (* page-num (thumbnails/page)))
+         (page-pic-paths
+          (slice album-pic-paths offset (+ offset (thumbnails/page)))))
+    (map (lambda (pic-path i)
+           (make-thumb 'pic
+                       (pathname-directory pic-path)
+                       (pathname-strip-directory pic-path)
+                       i))
+         page-pic-paths
+         (iota (length page-pic-paths)))))
+
+(define (render-album album page-num)
   (let* ((pic-paths (db-album-pics album))
-         (thumb-objs
-          (map (lambda (pic-path i)
-                 (make-thumb 'pic
-                             (pathname-directory pic-path)
-                             (pathname-strip-directory pic-path)
-                             i))
-               pic-paths
-               (iota (length pic-paths)))))
-    (render-thumbnails thumb-objs 'album)))
+         (num-pics (length pic-paths))
+         (thumb-objs (paginate-album pic-paths page-num)))
+    `(,(render-thumbnails thumb-objs 'album)
+      ,(render-pagination-links num-pics page-num))))
 
 (define (render-album-modal album album-id)
   `(div (@ (id ,(conc "album-modal-" album-id))
@@ -92,12 +99,12 @@
 
     (ul ,@(filter-map render-album-link albums))))
 
-(define (render-album-content album)
+(define (render-album-content album page-num)
   ;; If album is #f, render all albums
   (debug "render-album-content: album: ~a" album)
   `(,(render-breadcrumbs (or album "/") (_ "Albums") (albums-web-dir))
     ,(if album
-         (render-album album)
+         (render-album album page-num)
          (let ((albums (db-albums)))
            (if (null? albums)
                (_ "No albums")

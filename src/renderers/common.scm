@@ -198,7 +198,7 @@
                         (else (render-other-file-type (thumb-filename i))))))
                  items))))
 
-(define (render-pics source mode)
+(define (render-pics source mode page-num)
   (add-javascript
    "
 $('.zoom-in').on('click', function() {
@@ -289,9 +289,9 @@ EOF
   (debug "render-pics: source: ~a" source)
   `(,(render-top-bar mode)
     ,(case mode
-       ((album) (render-album-content source))
+       ((album) (render-album-content source page-num))
        ((folder) `(,(render-pic-template-modal)
-                   ,(render-dir-content source)))
+                   ,(render-dir-content source page-num)))
        (else (error 'render-pics
                     (sprintf "Unknown mode: ~a" mode))))))
 
@@ -403,3 +403,23 @@ $('.dropdown-toggle').dropdown();
                    '()))
          ;; ,(render-search-form) ;; FIXME: not implemented yet
          )))
+
+(define (render-pagination-links num-total-items current-page)
+  (let ((num-pages (inexact->exact
+                    (ceiling (/ num-total-items (thumbnails/page)))))
+        (link-page (lambda (page)
+                     (conc "?page=" page))))
+    (if (< num-pages 2)
+        '()
+        `(div (@ (class "pagination pagination-centered"))
+              (ul
+               ,@(map (lambda (i)
+                        (let ((current-page? (= i current-page)))
+                          `(li ,(if current-page?
+                                    `(@ (class "active"))
+                                    '())
+                               (a (@ (href ,(if current-page?
+                                                "#"
+                                                (link-page i))))
+                                  ,(+ i 1)))))
+                      (iota num-pages)))))))

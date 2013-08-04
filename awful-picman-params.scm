@@ -8,6 +8,7 @@
  thumbnails/max-dimensions
  thumbnails/zoom-dimension
  thumbnails/default-extension
+ thumbnails/page
 
  ;; i18n
  language
@@ -34,6 +35,10 @@
 (define thumbnails/default-extension
   ;; For when converting non-web image files to web image files
   (make-parameter "jpg"))
+
+(define thumbnails/page
+  ;; Max number of thumbnails per page.
+  (make-parameter 30))
 
 ;;;
 ;;; i18n
