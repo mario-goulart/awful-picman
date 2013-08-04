@@ -36,11 +36,11 @@
   ;; path is relative to metadata-dir
   (let ((thumbs-dir (make-pathname (list dot-dirname path)
                                    thumbnails-dirname)))
-    (debug "create-thumbnails-dirs: path = ~a" path)
-    (debug "create-thumbnails-dirs: thumbs-dir = ~a" thumbs-dir)
+    (debug 1 "create-thumbnails-dirs: path = ~a" path)
+    (debug 1 "create-thumbnails-dirs: thumbs-dir = ~a" thumbs-dir)
     (for-each (lambda (dimension)
                 (let ((dir (make-pathname thumbs-dir (->string dimension))))
-                  (debug "create-thumbnails-dir: ~a" dir)
+                  (debug 1 "create-thumbnails-dir: ~a" dir)
                   (create-directory dir 'with-parents)))
               (thumbnails/max-dimensions))))
 
@@ -62,10 +62,10 @@
   (process-dir "." recursive?))
 
 (define (process-dir dir recursive?)
-  (debug "Processing ~a" dir)
+  (debug 1 "Processing ~a" dir)
   (let ((image-files (filter image-file? (glob (make-pathname dir "*"))))
         (db-dir-filenames (db-dir-pics dir)))
-    (debug "Image files: ~S" image-files)
+    (debug 1 "Image files: ~S" image-files)
     ;; Generate thumbnails for images in the current directory
     (for-each (lambda (image-file)
                 (for-each (lambda (dimension)
@@ -80,7 +80,7 @@
     (when recursive?
       ;; Recur into subdirectories
       (let ((dirs (filter directory? (glob (make-pathname dir "*")))))
-        (debug "  directories: ~S" dirs)
+        (debug 1 "  directories: ~S" dirs)
         (for-each (lambda (subdir)
                     (process-dir subdir #t))
                   dirs)))))
@@ -119,6 +119,13 @@ Usage: #this [ <options> ]
   option is provided.  In other words, --force makes #this overwrite
   the database file when called with --init.
 
+--verbose
+  Print some user-oriented messages.
+
+--debug=<debug level>
+  Print debug-oriented messages.  <debug level> is a number.
+  Higher numbers produce more verbose output.
+
 EOF
              port)
     (when exit-code
@@ -137,7 +144,10 @@ EOF
   (when (member "--verbose" args)
     (verbose? #t))
 
-  (debug "metadata-dir: ~a" metadata-dir)
+  (and-let* ((d (cmd-line-arg '--debug args)))
+    (debug-level (or (string->number d) 0)))
+
+  (debug 1 "metadata-dir: ~a" metadata-dir)
 
   ;; Set _ for gettext
   (set! _ (let ()

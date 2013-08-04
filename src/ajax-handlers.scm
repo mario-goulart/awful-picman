@@ -15,12 +15,12 @@
                            (day (nonempty as-string)))
     (let ((tags (json-array->list-wo-nulls tags))
           (albums (json-array->list-wo-nulls albums)))
-      (debug "update-pic-info!: Form data:")
-      (debug "  path=~a" path)
-      (debug "  date=~a ~a ~a ~a" decade year month day)
-      (debug "  descr=~S" descr)
-      (debug "  tags=~S" tags)
-      (debug "  albums=~S" albums)
+      (debug 2 "update-pic-info!: Form data:")
+      (debug 2 "    path=~a" path)
+      (debug 2 "    date=~a ~a ~a ~a" decade year month day)
+      (debug 2 "    descr=~S" descr)
+      (debug 2 "    tags=~S" tags)
+      (debug 2 "    albums=~S" albums)
       (insert/update-pic! path
                           descr: descr
                           tags: tags
@@ -50,10 +50,11 @@
                       (alist-ref "tags" template-data equal?)))
                (albums (json-array->list-wo-nulls
                         (alist-ref "albums" template-data equal?))))
-      (debug "================= pics: ~S" pics)
-      (debug "================= template-data: ~S" template-data)
-      (debug "tags: ~S" tags)
-      (debug "albums: ~S" albums)
+      (debug 2 "batch-update-pic-info!:")
+      (debug 2 "    pics: ~S" pics)
+      (debug 2 "    template-data: ~S" template-data)
+      (debug 2 "    tags: ~S" tags)
+      (debug 2 "    albums: ~S" albums)
       (for-each
        (lambda (pic-id/path)
          ;; pic-path is actually the thumbnail path, so it

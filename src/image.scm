@@ -50,8 +50,7 @@
                               (->string dimension))
                         (maybe-replace-thumbnail-extension image-file))))
 
-    (debug "image->thumbnail: thumbnail: ~a" thumbnail)
-    (debug "image->thumbnail: image-file: ~a" image-file)
+    (debug 2 "image->thumbnail: thumbnail: ~a" thumbnail)
 
     ;; Don't create thumbnail if it already exists
     (unless (file-exists? thumbnail)
@@ -62,6 +61,7 @@
         (if (or (> (image-width image) dimension)
                 (> (image-height image) dimension))
             (begin
+              (info* "Generating thumbnail for ~a (dimension=~a)" image-file dimension)
               (when (non-web-image-file? image-file)
                 (image-format-set! image (thumbnails/default-extension)))
               (image-save (image-scale/proportional image dimension)

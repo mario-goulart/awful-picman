@@ -27,12 +27,17 @@
             "."
             dir)))
 
-(define (debug fmt . args)
-  (when (verbose?)
-    (apply fprintf `(,(current-error-port) ,(string-append fmt "\n") ,@args))))
+(define (debug level fmt . args)
+  (when (<= level (debug-level))
+    (apply fprintf `(,(current-error-port) ,((debug-formatter) level fmt) ,@args))))
 
 (define (info fmt . args)
   (apply printf (cons (string-append fmt "\n") args)))
+
+(define (info* fmt . args)
+  ;; Like info, but only for when (verbose?) is truthy
+  (when (verbose?)
+    (apply info (cons fmt args))))
 
 (define (cmd-line-arg option args)
   ;; Returns the argument associated to the command line option OPTION

@@ -81,13 +81,13 @@ create table albums_pics (
     (db-query db "update pics set day=? where pic_id=?"
               values: (list day pic-id)))
   ;; update tags
-  (debug "update-pics-data!: tags: ~S" tags)
+  (debug 2 "update-pics-data!: tags: ~S" tags)
   (db-query db "delete from tags where pic_id=?"
             values: (list pic-id))
   (insert-tags! db pic-id tags)
 
   ;; update albums
-  (debug "update-pics-data!: albums: ~S" albums)
+  (debug 2 "update-pics-data!: albums: ~S" albums)
   (db-query db "delete from albums_pics where pic_id=?"
             values: (list pic-id))
   (insert-albums! db pic-id albums))

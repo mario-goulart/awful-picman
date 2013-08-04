@@ -118,7 +118,7 @@
   (define (id thing)
     (list 'id (string-append thing "-" pic-id)))
   (let ((db-pic (get-pic-from-db pic-path)))
-    (debug "pic path=~a descr=~a decade=~a year=~a month=~a tags=~S"
+    (debug 2 "pic path=~a descr=~a decade=~a year=~a month=~a tags=~S"
            pic-path
            (db-pic-descr db-pic)
            (db-pic-decade db-pic)
@@ -286,7 +286,7 @@ EOF
   (create-dynamic-input-ajax 'tag "/db/tags")
   (create-dynamic-input-ajax 'album "/db/albums")
 
-  (debug "render-pics: source: ~a" source)
+  (debug 1 "render-pics: source: ~a" source)
   `(,(render-top-bar mode)
     ,(case mode
        ((album) (render-album-content source page-num))

@@ -33,7 +33,6 @@
   ;;; Thumbnails
   ;;;
   (define (thumbnail-matcher req-path)
-    (debug "req-path: ~a" req-path)
     (and (string-prefix? (make-absolute-pathname #f thumbnails-dirname)
                          req-path)
          (image-file? req-path)
@@ -45,6 +44,7 @@
 
   (define-page thumbnail-matcher
     (lambda (req-path thumbnail)
+      (debug 1 "thumbnails handler: handling ~a" req-path)
       (lambda ()
         (parameterize ((root-path (pathname-directory thumbnail)))
           (send-static-file (pathname-strip-directory thumbnail))))))
@@ -60,6 +60,7 @@
 
   (define-page assets-matcher
     (lambda (file)
+      (debug 2 "assets handler: handling ~a" file)
       (lambda ()
         (parameterize ((root-path (make-pathname metadata-dir
                                                  (pathname-directory file))))
@@ -91,8 +92,8 @@
   ;;;
   (define-pics-page (irregex (string-append (albums-web-dir) "(/.*)*"))
     (lambda (path)
+      (debug 1 "albums handler: handling ~a" path)
       (let ((album (drop-web-path-prefix (albums-web-dir) path)))
-        (debug "albums: ~a" album)
         (render-pics (if (equal? album ".")
                          #f ;; albums index
                          album)
@@ -104,8 +105,8 @@
   ;;;
   (define-pics-page (irregex (string-append (folders-web-dir) "(/.*)*"))
     (lambda (path)
+      (debug 1 "folders handler: handling ~a" path)
       (let ((dir (drop-web-path-prefix (folders-web-dir) path)))
-        (debug "Folders handler: dir: ~a" dir)
         (if (file-exists? dir)
             (begin
               (process-dir dir #f)

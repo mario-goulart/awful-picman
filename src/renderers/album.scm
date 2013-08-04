@@ -101,7 +101,7 @@
 
 (define (render-album-content album page-num)
   ;; If album is #f, render all albums
-  (debug "render-album-content: album: ~a" album)
+  (debug 1 "render-album-content: album: ~a" album)
   `(,(render-breadcrumbs (or album "/") (_ "Albums") (albums-web-dir))
     ,(if album
          (render-album album page-num)

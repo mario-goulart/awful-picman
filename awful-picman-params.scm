@@ -16,9 +16,12 @@
  ;; Misc
  verbose?
  start-decade
+ debug-level
+ debug-formatter
 )
 
 (import chicken scheme)
+(use extras)
 
 ;;;
 ;;; Web path-related parameters
@@ -49,9 +52,20 @@
   (make-parameter #f))
 
 ;;;
-;;; Assorted parameters
+;;; Messages & debugging
 ;;;
 (define verbose? (make-parameter #f))
+
+(define debug-level (make-parameter 0))
+
+(define debug-formatter
+  (make-parameter
+   (lambda (level fmt)
+     (sprintf "DEBUG[~a] ~a\n" level fmt))))
+
+;;;
+;;; Assorted parameters
+;;;
 (define start-decade (make-parameter 1900))
 
 ) ;; end module
