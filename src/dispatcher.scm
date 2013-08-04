@@ -62,9 +62,15 @@
     (lambda (file)
       (debug 2 "assets handler: handling ~a" file)
       (lambda ()
-        (parameterize ((root-path (make-pathname metadata-dir
-                                                 (pathname-directory file))))
-          (send-static-file (pathname-strip-directory file))))))
+        (let ((file-full-path (make-pathname (list (root-path) metadata-dir)
+                                             file)))
+          (parameterize ((root-path (make-pathname metadata-dir
+                                                   (pathname-directory file))))
+            (if (file-read-access? file-full-path)
+                (send-static-file (pathname-strip-directory file))
+                (send-status
+                 'not-found
+                 "<p>The resource you requested could not be found</p>")))))))
 
   ;;;
   ;;; db
