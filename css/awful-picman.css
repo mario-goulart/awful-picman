@@ -108,3 +108,14 @@ body {
 .pagination-centered {
     text-align: center;
 }
+
+#progress-container {
+    width: 50%;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#progress-percent {
+    font-size: 200%;
+}

@@ -59,32 +59,55 @@
 (define (initialize #!optional recursive? force?)
   (info "Initializing ~a ..." (current-directory))
   (initialize-metadata-dir force?)
-  (process-dir "." recursive?))
+  (let ((missing-thumbnails (find-missing-thumbnails ".")))
+    ((if recursive? process-dir/recursive process-dir) "." missing-thumbnails)))
 
-(define (process-dir dir recursive?)
-  (debug 1 "Processing ~a" dir)
-  (let ((image-files (filter image-file? (glob (make-pathname dir "*"))))
-        (db-dir-filenames (db-dir-pics dir)))
-    (debug 1 "Image files: ~S" image-files)
-    ;; Generate thumbnails for images in the current directory
+(define (find-missing-thumbnails dir)
+  (define (find-missing-thumbnails* dir dimension)
+    (let ((image-files (filter image-file? (glob (make-pathname dir "*")))))
+      (filter-map
+       (lambda (image-file)
+         (let ((thumbnail
+                (normalize-pathname
+                 (make-pathname (list metadata-dir
+                                      thumbnails-dirname
+                                      (->string dimension))
+                                (maybe-replace-thumbnail-extension image-file)))))
+           (and (not (file-read-access? thumbnail))
+                (list image-file thumbnail dimension))))
+       image-files)))
+  (apply append
+         (map (lambda (dim)
+                (find-missing-thumbnails* dir dim))
+              (thumbnails/max-dimensions))))
+
+(define (insert-missing-pics/db! dir missing-thumbnails)
+  (let ((images-in-db (db-dir-pics dir))
+        (images (delete-duplicates (map car missing-thumbnails) equal?)))
     (for-each (lambda (image-file)
-                (for-each (lambda (dimension)
-                            (image->thumbnail image-file dimension)
-                            (unless (member (pathname-strip-directory image-file)
-                                            db-dir-filenames)
-                              (insert/update-pic! (if (equal? dir root-dir)
-                                                      (drop-path-prefix root-dir image-file)
-                                                      image-file))))
-                          (thumbnails/max-dimensions)))
-              image-files)
-    (when recursive?
-      ;; Recur into subdirectories
-      (let ((dirs (filter directory? (glob (make-pathname dir "*")))))
-        (debug 1 "  directories: ~S" dirs)
-        (for-each (lambda (subdir)
-                    (process-dir subdir #t))
-                  dirs)))))
+                (unless (member (pathname-strip-directory image-file)
+                                images-in-db)
+                  (let ((pic (if (equal? dir root-dir)
+                                 (drop-path-prefix root-dir image-file)
+                                 image-file)))
+                    (debug 2 "Inserting into db ~a" pic)
+                    (insert/update-pic! pic))))
+              (map car missing-thumbnails))))
 
+(define (process-dir dir missing-thumbnails #!optional fork?)
+  (debug 1 "Processing ~a" dir)
+  (insert-missing-pics/db! dir missing-thumbnails)
+  (images->thumbnails missing-thumbnails fork?))
+
+(define (process-dir/recursive dir missing-thumbnails)
+  ;; for initialization when --recursive is given on the command line
+  (let ((dirs (filter directory? (glob (make-pathname dir "*")))))
+    (debug 1 "  directories: ~S" dirs)
+    (process-dir dir missing-thumbnails)
+    (for-each (lambda (subdir)
+                (process-dir/recursive subdir
+                                       (find-missing-thumbnails subdir)))
+              dirs)))
 
 (define (usage #!optional exit-code)
   (let ((this (pathname-strip-directory (program-name)))

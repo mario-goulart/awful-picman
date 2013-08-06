@@ -28,7 +28,7 @@
                                       "/js/awful-picman.js"))
       css: '("/css/bootstrap.min.css"
              "/css/awful-picman.css")))
-  
+
   ;;;
   ;;; Thumbnails
   ;;;
@@ -111,14 +111,16 @@
   ;;;
   (define-pics-page (irregex (string-append (folders-web-dir) "(/.*)*"))
     (lambda (path)
-      (debug 1 "folders handler: handling ~a" path)
-      (let ((dir (drop-web-path-prefix (folders-web-dir) path)))
-        (if (file-exists? dir)
-            (begin
-              (process-dir dir #f)
-              (render-pics dir 'folder (or ($ 'page as-number) 0)))
-            (lambda ()
-              (send-status 404 "Not found"))))))
+      (with-request-variables (done)
+        (debug 1 "folders handler: handling ~a" path)
+        (let ((dir (drop-web-path-prefix (folders-web-dir) path)))
+          (if (file-exists? dir)
+              (let ((missing-thumbnails (find-missing-thumbnails dir)))
+                (if (or done (null? missing-thumbnails))
+                    (render-pics dir 'folder (or ($ 'page as-number) 0))
+                    (poll-thumbnails-conversion dir path missing-thumbnails)))
+              (lambda ()
+                (send-status 404 "Not found")))))))
 
   ;;
   ;; /

@@ -52,6 +52,10 @@ msgstr "Arquivo"
 msgid "Folders"
 msgstr "Pastas"
 
+#: src/image.scm
+msgid "Generating thumbnails"
+msgstr ""
+
 #: src/renderers/album.scm
 msgid "No albums"
 msgstr "Nenhum álbum"

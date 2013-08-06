@@ -104,3 +104,9 @@
                               (image-file? i)))
                         items)))
     (append dirs pics other)))
+
+(define (query-string)
+  (uri-query (request-uri (current-request))))
+
+(define (append-to-query-string vars/vals)
+  (form-urlencode (append vars/vals (query-string))))
