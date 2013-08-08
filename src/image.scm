@@ -76,7 +76,11 @@
                       (dimension (caddr img/thumb/dim)))
                   (when progress-file
                     (report-progress progress-file num-thumbs i))
-                  (image->thumbnail image-file thumbnail dimension)))
+                  (image->thumbnail image-file thumbnail dimension)
+                  ;; alleviate gc pressure. Without this explicit call
+                  ;; to gc, memory consumpion easily reaches 1GB when
+                  ;; converting a few hundreds of picures.
+                  (gc)))
               imgs/thumbs/dims
               (iota num-thumbs 1))))
 
