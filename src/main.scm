@@ -82,17 +82,16 @@
               (thumbnails/max-dimensions))))
 
 (define (insert-missing-pics/db! dir missing-thumbnails)
-  (let ((images-in-db (db-dir-pics dir))
-        (images (delete-duplicates (map car missing-thumbnails) equal?)))
-    (for-each (lambda (image-file)
-                (unless (member (pathname-strip-directory image-file)
-                                images-in-db)
-                  (let ((pic (if (equal? dir root-dir)
-                                 (drop-path-prefix root-dir image-file)
-                                 image-file)))
-                    (debug 2 "Inserting into db ~a" pic)
-                    (insert/update-pic! pic))))
-              (map car missing-thumbnails))))
+  (let* ((images-in-db (db-dir-pics dir))
+         (images (map pathname-strip-directory
+                      (delete-duplicates
+                       (map car missing-thumbnails)
+                       equal?)))
+         (images-to-insert (remove (lambda (img)
+                                     (member img images-in-db))
+                                   images)))
+    (unless (null? images-to-insert)
+      (insert-multiple-pics! dir images-to-insert))))
 
 (define (process-dir dir missing-thumbnails #!optional fork?)
   (debug 1 "Processing ~a" dir)

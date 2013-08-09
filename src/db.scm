@@ -131,6 +131,20 @@ create table albums_pics (
                 (insert-pic-data! db dir filename descr decade year month day tags albums))
             #t))))))
 
+(define (insert-multiple-pics! dir pics)
+  (let ((query
+         (string-append
+          "insert into pics (dir, filename, descr, decade, year, month, day) values "
+          (string-intersperse (map (lambda (dummy) "(?, ?, ?, ?, ?, ?, ?)") pics) ",")))
+        (values (let loop ((pics pics))
+                  (if (null? pics)
+                      '()
+                      (append (list dir (car pics) "" "" "" "" "")
+                              (loop (cdr pics)))))))
+    (call-with-database (db-credentials)
+      (lambda (db)
+        (db-query db query values: values)))))
+
 (define-record db-pic id dir filename descr decade year month day tags albums)
 
 (define-record-printer (db-pic obj out)
