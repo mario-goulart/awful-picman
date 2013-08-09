@@ -62,11 +62,10 @@
                    'clobber))
     (image-destroy image)))
 
-(define (report-progress progress-file total current)
+(define (report-progress progress-file image-file dimension total current)
   (with-output-to-file progress-file
     (lambda ()
-      ;; show progress in percentage
-      (print (flonum->fixnum (/ (* current 100) total))))))
+      (write (list image-file dimension total current)))))
 
 (define (images->thumbnails* imgs/thumbs/dims progress-file)
   (let ((num-thumbs (length imgs/thumbs/dims)))
@@ -75,7 +74,7 @@
                       (thumbnail (cadr img/thumb/dim))
                       (dimension (caddr img/thumb/dim)))
                   (when progress-file
-                    (report-progress progress-file num-thumbs i))
+                    (report-progress progress-file image-file dimension num-thumbs i))
                   (image->thumbnail image-file thumbnail dimension)
                   ;; alleviate gc pressure. Without this explicit call
                   ;; to gc, memory consumpion easily reaches 1GB when
@@ -104,27 +103,44 @@
     (periodical-ajax "/generate-thumbnails" 700
       (lambda ()
         (with-request-variables (progress-file)
-          (if (file-read-access? progress-file)
-              (let ((percent (with-input-from-file progress-file read-line)))
-                `((conv-progress . ,(if (string->number percent)
-                                        (conc percent "%")
-                                        ""))
-                  (status . running)))
-              `((conv-progress . "")
-                (status . done)))))
+          (handle-exceptions exn
+            (begin
+              (debug 2 "Error reading progress data: ~a"
+                     (with-output-to-string
+                       (lambda ()
+                         (print-error-message exn))))
+              '((conv-progress . "")
+                (status . running)))
+            (if (file-read-access? progress-file)
+                (let* ((progress-data (with-input-from-file progress-file read))
+                       (image-file (car progress-data))
+                       (dimension (cadr progress-data))
+                       (total (caddr progress-data))
+                       (current (cadddr progress-data))
+                       (num-dimensions (length (thumbnails/max-dimensions))))
+                  `((conv-progress . ,(flonum->fixnum (/ (* current 100) total)))
+                    (image-file . ,image-file)
+                    (dimension . ,dimension)
+                    (total . ,(/ total num-dimensions))
+                    (current . ,(flonum->fixnum (/ current num-dimensions)))
+                    (status . running)))
+                `((conv-progress . "")
+                  (status . done))))))
       update-targets: #t
       arguments: `((progress-file . ,(sprintf "'~a'" progress-file)))
       success: (sprintf
                 (string-append
-                 "var progress;"
+                 "var progress_data;"
                  "if (response['status'] == 'done') {"
                  "    window.location.replace('~a')"
+                 "} else if ((response['status'] == 'running') && response['conv-progress']){"
+                 "    $('.bar').width(response['conv-progress'] + '%');"
+                 "    progress_data = response['conv-progress'] + '% ';"
+                 "    progress_data += '(' + response['current'] + '/' + response['total'] + ') ';"
+                 "    progress_data += response['image-file'];"
+                 "    $('#progress-data').text(progress_data);"
                  "} else {"
-                 "    progress = response['conv-progress'];"
-                 "    if (progress) {"
-                 "        $('.bar').width(progress);"
-                 "        $('#progress-percent').text(progress);"
-                 "    }"
+                 "   $('#progress-data').text('Error');"
                  "};")
                 target-page))
     `((div (@ (id "progress-container"))
@@ -132,4 +148,4 @@
            (div (@ (class "progress"))
                 (div (@ (class "bar")
                         (style "width: 0;"))))
-           (div (@ (id "progress-percent")))))))
+           (div (@ (id "progress-data")))))))
