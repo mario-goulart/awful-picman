@@ -132,18 +132,25 @@ create table albums_pics (
             #t))))))
 
 (define (insert-multiple-pics! dir pics)
-  (let ((query
-         (string-append
-          "insert into pics (dir, filename, descr, decade, year, month, day) values "
-          (string-intersperse (map (lambda (dummy) "(?, ?, ?, ?, ?, ?, ?)") pics) ",")))
-        (values (let loop ((pics pics))
-                  (if (null? pics)
-                      '()
-                      (append (list dir (car pics) "" "" "" "" "")
-                              (loop (cdr pics)))))))
-    (call-with-database (db-credentials)
-      (lambda (db)
-        (db-query db query values: values)))))
+  (let* ((num-query-args 7)
+         (max-query-args 999) ;; default value for SQLITE_MAX_VARIABLE_NUMBER
+         (max-args/query (inexact->exact (floor (/ max-query-args num-query-args))))
+         (pics-slices (chop pics max-args/query)))
+    (for-each
+     (lambda (pics)
+       (let ((query
+              (string-append
+               "insert into pics (dir, filename, descr, decade, year, month, day) values "
+               (string-intersperse (map (lambda (dummy) "(?, ?, ?, ?, ?, ?, ?)") pics) ",")))
+             (values (let loop ((pics pics))
+                       (if (null? pics)
+                           '()
+                           (append (list dir (car pics) "" "" "" "" "")
+                                   (loop (cdr pics)))))))
+         (call-with-database (db-credentials)
+                             (lambda (db)
+                               (db-query db query values: values)))))
+     pics-slices)))
 
 (define-record db-pic id dir filename descr decade year month day tags albums)
 
