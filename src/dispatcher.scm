@@ -18,7 +18,7 @@
   (define (define-pics-page matcher handler)
     (define-page matcher
       (case-lambda
-        (() handler)
+        (() (handler))
         ((path) (handler path))
         (args (apply handler args)))
       charset: "utf-8"
