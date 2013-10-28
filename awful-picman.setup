@@ -27,7 +27,7 @@
      (unless (file-exists? po)
        (with-output-to-file po (cut display "")))
      (system*
-      (sprintf "msgmerge -s -U ~a locale/awful-picman.pot" po lang))
+      (sprintf "msgmerge -s -U ~a locale/awful-picman.pot" po))
      (system*
       (sprintf "msgfmt ~a -o locale/~a/LC_MESSAGES/awful-picman.mo"
                po lang))))
