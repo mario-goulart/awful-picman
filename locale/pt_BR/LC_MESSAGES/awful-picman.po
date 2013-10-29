@@ -57,8 +57,8 @@ msgid "Generating thumbnails"
 msgstr "Gerando miniaturas"
 
 #: src/renderers/album.scm
-msgid "No albums"
-msgstr "Nenhum álbum"
+msgid "No album available.  Make albums out of pictures from "
+msgstr "Nenhum álbum disponível.  Crie álbuns a partir de fotos em "
 
 #: src/renderers/album.scm
 msgid "Remove album?"
@@ -99,6 +99,10 @@ msgstr "arquivo"
 #: src/renderers/folder.scm
 msgid "folder"
 msgstr "pasta"
+
+#: src/renderers/album.scm
+msgid "folders"
+msgstr "pastas"
 
 #: src/renderers/folder.scm
 msgid "no "

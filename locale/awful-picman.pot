@@ -71,13 +71,17 @@ msgstr ""
 msgid "Date"
 msgstr ""
 
-#: src/renderers/album.scm
-msgid "No albums"
-msgstr ""
-
 #: src/renderers/common.scm
 #: src/renderers/album.scm
 msgid "Albums"
+msgstr ""
+
+#: src/renderers/album.scm
+msgid "folders"
+msgstr ""
+
+#: src/renderers/album.scm
+msgid "No album available.  Make albums out of pictures from "
 msgstr ""
 
 #: src/renderers/album.scm

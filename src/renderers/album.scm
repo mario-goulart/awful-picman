@@ -99,6 +99,12 @@
 
     (ul ,@(filter-map render-album-link albums))))
 
+(define (render-no-album)
+  `(div (@ (id "no-album"))
+        ,(_ "No album available.  Make albums out of pictures from ")
+        (a (@ (href ,(folders-web-dir))) ,(_ "folders"))
+        "."))
+
 (define (render-album-content album page-num)
   ;; If album is #f, render all albums
   (debug 1 "render-album-content: album: ~a" album)
@@ -107,5 +113,5 @@
          (render-album album page-num)
          (let ((albums (db-albums)))
            (if (null? albums)
-               (_ "No albums")
+               (render-no-album)
                (render-albums albums))))))
