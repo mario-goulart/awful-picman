@@ -47,7 +47,8 @@
       (debug 1 "thumbnails handler: handling ~a" req-path)
       (lambda ()
         (parameterize ((root-path (pathname-directory thumbnail)))
-          (send-static-file (pathname-strip-directory thumbnail))))))
+          (send-static-file (pathname-strip-directory thumbnail)))))
+    no-db: #t)
 
   ;;;
   ;;; Assets
@@ -70,7 +71,8 @@
                 (send-static-file (pathname-strip-directory file))
                 (send-status
                  'not-found
-                 "<p>The resource you requested could not be found</p>")))))))
+                 "<p>The resource you requested could not be found</p>"))))))
+    no-db: #t)
 
   ;;;
   ;;; db
