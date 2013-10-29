@@ -129,5 +129,5 @@
   ;;
   (define-page (main-page-path)
     (lambda ()
-      (redirect-to (folders-web-dir))))
+      (redirect-to (albums-web-dir))))
   )
