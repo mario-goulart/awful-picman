@@ -54,7 +54,7 @@ msgstr "Pastas"
 
 #: src/image.scm
 msgid "Generating thumbnails"
-msgstr ""
+msgstr "Gerando miniaturas"
 
 #: src/renderers/album.scm
 msgid "No albums"
