@@ -97,7 +97,7 @@
   ;; List directory `dir' content.  Directories first, then images,
   ;; then other files.
   (let* ((items (glob (make-pathname dir "*")))
-         (dirs (filter directory? items))
+         (dirs (sort (filter directory? items) string<))
          (pics (filter image-file? items))
          (other (remove (lambda (i)
                           (or (directory? i)
