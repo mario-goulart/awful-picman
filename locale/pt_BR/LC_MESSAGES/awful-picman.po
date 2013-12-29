@@ -34,7 +34,7 @@ msgstr "Data"
 
 #: src/renderers/common.scm
 msgid "Date (decade/year/month/day)"
-msgstr "Data (década/ano/ms/dia)"
+msgstr "Data (década/ano/mês/dia)"
 
 #: src/renderers/common.scm src/renderers/album.scm
 msgid "Description"
