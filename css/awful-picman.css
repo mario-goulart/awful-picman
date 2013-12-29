@@ -8,19 +8,19 @@ body {
 }
 
 .pic-modal {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 100%;
-  left: 0;
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 100%;
+    left: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
 }
 
 .pic-modal-body {
-  max-height: 100%;
+    max-height: 100%;
 }
 
 .pic-container {
@@ -45,10 +45,9 @@ body {
     display: none;
 }
 
-#modal-pic-template .modal-body{
+#modal-pic-template .modal-body {
     min-height: 480px;
 }
-
 
 #thumbnails {
     padding: 0px;
