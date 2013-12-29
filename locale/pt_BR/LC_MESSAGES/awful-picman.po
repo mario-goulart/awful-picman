@@ -60,9 +60,17 @@ msgstr "Pastas"
 msgid "Generating thumbnails"
 msgstr "Gerando miniaturas"
 
+#: src/renderers/common.scm
+msgid "Next picture"
+msgstr "Próxima foto"
+
 #: src/renderers/album.scm
 msgid "No album available.  Make albums out of pictures from "
 msgstr "Nenhum álbum disponível.  Crie álbuns a partir de fotos em "
+
+#: src/renderers/common.scm
+msgid "Previous picture"
+msgstr "Foto anterior"
 
 #: src/renderers/album.scm
 msgid "Remove album?"
@@ -95,6 +103,14 @@ msgstr "Desselecionar todas"
 #: src/renderers/common.scm
 msgid "Warning:"
 msgstr "Atenção:"
+
+#: src/renderers/common.scm
+msgid "Zoom in"
+msgstr "Ampliar"
+
+#: src/renderers/common.scm
+msgid "Zoom out"
+msgstr "Encolher"
 
 #: src/renderers/folder.scm
 msgid "file"
