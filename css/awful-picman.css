@@ -45,6 +45,10 @@ body {
     display: none;
 }
 
+.modal-body {
+    overflow-y: visible;
+}
+
 #modal-pic-template .modal-body {
     min-height: 480px;
 }
