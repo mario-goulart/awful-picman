@@ -25,6 +25,10 @@ msgid "Cancel"
 msgstr "Cancelar"
 
 #: src/renderers/common.scm
+msgid "Close"
+msgstr "Fechar"
+
+#: src/renderers/common.scm
 msgid "Date"
 msgstr "Data"
 

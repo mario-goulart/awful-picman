@@ -27,6 +27,7 @@
       headers: `(,(include-javascript "/js/bootstrap.min.js"
                                       "/js/awful-picman.js"))
       css: '("/css/bootstrap.min.css"
+             "/css/bootstrap-responsive.min.css"
              "/css/awful-picman.css")))
 
   ;;;

@@ -14,7 +14,12 @@
     (a (@ (href "#")
           (class "next-pic btn")
           (id ,(string-append "btn-next-pic-" id)))
-       (i (@ (class "icon-chevron-right"))))))
+       (i (@ (class "icon-chevron-right"))))
+    (a (@ (href "#")
+          (class "btn")
+          (title ,(_ "Close"))
+          (data-dismiss "modal"))
+       (i (@ (class "icon-remove"))))))
 
 (define (render-date decade year month day)
   (cond ((and decade year month day)
@@ -134,28 +139,21 @@
            (role "dialog")
            (tabindex "-1")
            (aria-labelledby ,pic-filename))
-        (div (@ (class "modal-header"))
-             ,(render-modal-toolbar id)
-             (button (@ (type "button")
-                        (class "close")
-                        (data-dismiss "modal")
-                        (aria-hidden "true"))
-                     ×))
         (div (@ (class "modal-body pic-modal-body"))
              (div (@ (class "row"))
-                  (div (@ (class "span12 pic-container"))
+                  (div (@ (class "span9 pic-container"))
                        (img (@ (src ,(make-pathname
                                       (list (thumbnails-web-dir)
                                             (->string (thumbnails/zoom-dimension))
                                             dir)
                                       pic-filename))
                                (id ,(string-append "pic-" id)))))
-                     (div (@ (class "span4"))
-                          (td
-                           ,(render-modal-pic-form (make-pathname dir pic-filename)
-                                                   id
-                                                   prev-id
-                                                   next-id)))))))
+                     (div (@ (class "span3"))
+                          ,(render-modal-toolbar id)
+                          ,(render-modal-pic-form (make-pathname dir pic-filename)
+                                                  id
+                                                  prev-id
+                                                  next-id))))))
 
 (define (render-thumbnail thumb-obj dimension prev-filename next-filename mode)
   (let* ((filename (thumb-filename thumb-obj))
