@@ -237,7 +237,8 @@ create table albums_pics (
              "select pics.dir, pics.filename from pics, albums, albums_pics "
              "where albums.title=? and "
              "albums.album_id=albums_pics.album_id and "
-             "pics.pic_id=albums_pics.pic_id")
+             "pics.pic_id=albums_pics.pic_id "
+             "order by pics.pic_id")
             values: (list album))))
 
 (define (db-dir-pics dir)
