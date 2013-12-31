@@ -46,7 +46,9 @@ create table albums_pics (
   (for-each (lambda (tag)
               (db-query db "insert into tags (pic_id, tag) values (?, ?)"
                         values: (list pic-id tag)))
-            (or tags '())))
+            (if tags
+                (map string-trim-both tags)
+                '())))
 
 (define (insert-albums! db pic-id albums)
   (for-each
