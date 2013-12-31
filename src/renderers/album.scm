@@ -100,7 +100,7 @@
     (ul ,@(filter-map render-album-link albums))))
 
 (define (render-no-album)
-  `(div (@ (id "no-album"))
+  `(div (@ (id "nothing-here"))
         ,(_ "No album available.  Make albums out of pictures from ")
         (a (@ (href ,(folders-web-dir))) ,(_ "folders"))
         "."))

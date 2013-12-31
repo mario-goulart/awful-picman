@@ -125,6 +125,14 @@
               (lambda ()
                 (send-status 404 "Not found")))))))
 
+  ;;;
+  ;;; Tags
+  ;;;
+  (define-pics-page (tags-web-dir)
+    (lambda ()
+      (debug 1 "tags handler")
+      (render-tags)))
+
   ;;
   ;; /
   ;;

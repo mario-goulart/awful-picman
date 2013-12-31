@@ -42,29 +42,6 @@ create table albums_pics (
                              (sql db-conn q))
                        values)))
 
-(define (insert-tags! db pic-id tags)
-  (for-each (lambda (tag)
-              (db-query db "insert into tags (pic_id, tag) values (?, ?)"
-                        values: (list pic-id tag)))
-            (if tags
-                (map string-trim-both tags)
-                '())))
-
-(define (insert-albums! db pic-id albums)
-  (for-each
-   (lambda (album)
-     (let ((db-album (db-query db "select album_id from albums where title=?"
-                               values: (list album))))
-       (when (null? db-album)
-         (db-query db "insert into albums (title) values (?)"
-                   values: (list album)))
-       (let ((album-id
-              (caar (db-query db "select album_id from albums where title=?"
-                              values: (list album)))))
-         (db-query db "insert into albums_pics (pic_id, album_id) values (?, ?)"
-                   values: (list pic-id album-id)))))
-   (or albums '())))
-
 (define (update-pic-data! db pic-id descr decade year month day tags albums)
   ;; This is ugly:
   (when descr
@@ -199,9 +176,29 @@ create table albums_pics (
                        (if (null? albums) '() (map car albums))))
         (make-db-pic #f dir filename "" #f #f #f #f '() '()))))
 
+;;;
+;;; Tags
+;;;
 (define (db-tags)
   (map car ($db "select distinct tag from tags order by tag")))
 
+(define (insert-tags! db pic-id tags)
+  (for-each (lambda (tag)
+              (db-query db "insert into tags (pic_id, tag) values (?, ?)"
+                        values: (list pic-id tag)))
+            (if tags
+                (map string-trim-both tags)
+                '())))
+
+(define (db-remove-tag! tag)
+  (debug 2 "db-remove-tag!: tag: ~S" tag)
+  ($db "delete from tags where tag=?"
+       values: (list tag)))
+
+(define (db-update-tag! original-tag new-tag)
+  (debug 2 "db-update-tag!: original-tag: ~S  new-tag: ~S" original-tag new-tag)
+  ($db "update tags set tag=? where tag=?"
+       values: (list new-tag original-tag)))
 
 ;;;
 ;;; Albums
@@ -214,6 +211,21 @@ create table albums_pics (
            (db-album-id obj)
            (db-album-title obj)
            (db-album-descr obj)))
+
+(define (insert-albums! db pic-id albums)
+  (for-each
+   (lambda (album)
+     (let ((db-album (db-query db "select album_id from albums where title=?"
+                               values: (list album))))
+       (when (null? db-album)
+         (db-query db "insert into albums (title) values (?)"
+                   values: (list album)))
+       (let ((album-id
+              (caar (db-query db "select album_id from albums where title=?"
+                              values: (list album)))))
+         (db-query db "insert into albums_pics (pic_id, album_id) values (?, ?)"
+                   values: (list pic-id album-id)))))
+   (or albums '())))
 
 (define (db-albums)
   (map (lambda (album/descr)

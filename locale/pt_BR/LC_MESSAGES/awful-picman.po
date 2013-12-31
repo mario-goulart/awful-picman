@@ -20,7 +20,7 @@ msgstr ""
 msgid "Batch edit"
 msgstr "Edição em massa"
 
-#: src/renderers/common.scm src/renderers/album.scm
+#: src/renderers/tag.scm src/renderers/common.scm src/renderers/album.scm
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -48,6 +48,10 @@ msgstr "Editar"
 msgid "Edit selected thumbnails template"
 msgstr "Editar dados a serem aplicados a fotos selecionadas"
 
+#: src/renderers/tag.scm
+msgid "Edit tag"
+msgstr "Editar marcador"
+
 #: src/renderers/common.scm
 msgid "Filename"
 msgstr "Arquivo"
@@ -68,6 +72,10 @@ msgstr "Próxima foto"
 msgid "No album available.  Make albums out of pictures from "
 msgstr "Nenhum álbum disponível.  Crie álbuns a partir de fotos em "
 
+#: src/renderers/tag.scm
+msgid "No tag has been created yet."
+msgstr "Nenhum marcador foi criado ainda."
+
 #: src/renderers/common.scm
 msgid "Previous picture"
 msgstr "Foto anterior"
@@ -76,11 +84,15 @@ msgstr "Foto anterior"
 msgid "Remove album?"
 msgstr "Remover álbum?"
 
+#: src/renderers/tag.scm
+msgid "Remove tag?"
+msgstr "Remover marcador?"
+
 #: src/renderers/common.scm
 msgid "Select all"
 msgstr "Selecionar todas"
 
-#: src/renderers/common.scm src/renderers/album.scm
+#: src/renderers/tag.scm src/renderers/common.scm src/renderers/album.scm
 msgid "Submit"
 msgstr "Salvar"
 

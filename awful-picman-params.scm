@@ -2,7 +2,10 @@
 
 ;;; Exported symbols
 (;; Web path-related parameters
- folders-web-dir thumbnails-web-dir albums-web-dir
+ folders-web-dir
+ thumbnails-web-dir
+ albums-web-dir
+ tags-web-dir
 
  ;; Image-related parameters
  thumbnails/max-dimensions
@@ -29,6 +32,7 @@
 (define folders-web-dir (make-parameter "/folders"))
 (define thumbnails-web-dir (make-parameter "/thumbnails"))
 (define albums-web-dir (make-parameter "/albums"))
+(define tags-web-dir (make-parameter "/tags"))
 
 ;;;
 ;;; Image-related parameters

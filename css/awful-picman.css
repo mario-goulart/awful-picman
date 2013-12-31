@@ -119,7 +119,18 @@ body {
     margin-right: auto;
 }
 
-#no-album {
+#nothing-here {
     text-align: center;
     font-size: 14pt;
+}
+
+.tag-container {
+    float: left;
+    margin: 4px 4px 4px 4px;
+    padding: 1px;
+    padding-right: 4px;
+    padding-left: 4px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #ccc;
 }

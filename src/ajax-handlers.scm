@@ -79,3 +79,12 @@
                                month: (get-field "month")
                                day: (get-field "day"))))
        pics))))
+
+(define (update-tag!)
+  (with-request-variables (tag-id
+                           original-tag
+                           new-tag
+                           (remove? (nonempty as-boolean)))
+    (if (or (equal? new-tag "") remove?)
+        (db-remove-tag! original-tag)
+        (db-update-tag! original-tag new-tag))))
