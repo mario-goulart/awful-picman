@@ -1,12 +1,12 @@
 (define (tag-include tags)
-  (render-dynamic-inputs 'tag_include 0 tags name: "include-tags"))
+  (render-dynamic-inputs 'include-tags 0 tags))
 
 (define (tag-exclude tags)
-  (render-dynamic-inputs 'tag_exclude 1 tags name: "exclude-tags"))
+  (render-dynamic-inputs 'exclude-tags 1 tags))
 
 (define (render-filter-input include-tags exclude-tags)
-  (create-dynamic-input-ajax 'tag_include "/db/tags" name: "include-tags")
-  (create-dynamic-input-ajax 'tag_exclude "/db/tags" name: "exclude-tags")
+  (create-dynamic-input-ajax 'include-tags "/db/tags")
+  (create-dynamic-input-ajax 'exclude-tags "/db/tags")
   (add-dynamic-input-javascript-utils)
 
   `(,(render-top-bar 'filter)
