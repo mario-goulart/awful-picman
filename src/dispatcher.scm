@@ -133,6 +133,24 @@
       (debug 1 "tags handler")
       (render-tags)))
 
+  ;;;
+  ;;; Filters
+  ;;;
+  (define-pics-page (filters-web-dir)
+    (lambda ()
+      (debug 1 "filters handler")
+      (with-request-variables ((include-tags as-list)
+                               (exclude-tags as-list))
+        (let ((include-tags (if include-tags
+                                (delete "" (map string-trim-both include-tags) equal?)
+                                '()))
+              (exclude-tags (if exclude-tags
+                                (delete "" (map string-trim-both exclude-tags) equal?)
+                                '())))
+          (debug 1 "include-tags: ~S" include-tags)
+          (render-pics (cons include-tags exclude-tags)
+                       'filter
+                       (or ($ 'page as-number) 0))))))
   ;;
   ;; /
   ;;

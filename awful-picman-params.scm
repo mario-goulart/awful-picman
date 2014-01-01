@@ -6,6 +6,7 @@
  thumbnails-web-dir
  albums-web-dir
  tags-web-dir
+ filters-web-dir
 
  ;; Image-related parameters
  thumbnails/max-dimensions
@@ -33,6 +34,7 @@
 (define thumbnails-web-dir (make-parameter "/thumbnails"))
 (define albums-web-dir (make-parameter "/albums"))
 (define tags-web-dir (make-parameter "/tags"))
+(define filters-web-dir (make-parameter "/filters"))
 
 ;;;
 ;;; Image-related parameters

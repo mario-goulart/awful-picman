@@ -134,3 +134,12 @@ body {
     border-style: solid;
     border-color: #ccc;
 }
+
+.filter-input {
+    margin-left: 10px;
+    font-size: 16pt;
+}
+
+#filter-matches {
+    margin-left: 10px;
+}

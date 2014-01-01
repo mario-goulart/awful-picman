@@ -22,6 +22,7 @@
 (include "src/renderers/folder")
 (include "src/renderers/album")
 (include "src/renderers/tag")
+(include "src/renderers/filter")
 (include "src/image")
 (include "src/utils")
 (include "src/db")

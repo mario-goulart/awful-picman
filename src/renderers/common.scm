@@ -285,6 +285,7 @@ EOF
        ((album) (render-album-content source page-num))
        ((folder) `(,(render-pic-template-modal)
                    ,(render-dir-content source page-num)))
+       ((filter) (render-filtered-pics (car source) (cdr source) page-num))
        (else (error 'render-pics
                     (sprintf "Unknown mode: ~a" mode))))))
 

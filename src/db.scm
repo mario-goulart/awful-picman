@@ -200,6 +200,27 @@ create table albums_pics (
   ($db "update tags set tag=? where tag=?"
        values: (list new-tag original-tag)))
 
+(define (db-tag-filter include-tags exclude-tags)
+  (define (select-pics tags op)
+    (string-intersperse
+     (map (lambda (_)
+            "select pic_id from tags where tag=?")
+          (iota (length tags)))
+     (sprintf " ~a " op)))
+  (let ((query (string-append
+                "select pics.dir, pics.filename from pics where pic_id in ("
+                (select-pics include-tags "intersect")
+                (if (null? exclude-tags)
+                    ""
+                    (string-append
+                     " except "
+                     (select-pics exclude-tags "except")))
+                ") order by pic_id")))
+    (debug 2 "db-tag-filter: query: ~S" query)
+    (map (lambda (dir/f)
+           (make-pathname (car dir/f) (cadr dir/f)))
+         ($db query values: (append include-tags exclude-tags)))))
+
 ;;;
 ;;; Albums
 ;;;

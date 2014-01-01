@@ -1,8 +1,13 @@
+#: src/db.scm
 msgid ""
 msgstr ""
 "Last-Translator: Mario Domenech Goulart\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
+
+#: src/renderers/filter.scm
+msgid " except those tagged with "
+msgstr " exceto as marcadas com "
 
 #: src/renderers/common.scm src/renderers/album.scm
 msgid "Albums"
@@ -56,6 +61,14 @@ msgstr "Editar marcador"
 msgid "Filename"
 msgstr "Arquivo"
 
+#: src/renderers/filter.scm
+msgid "Filter"
+msgstr "Filtrar"
+
+#: src/renderers/common.scm
+msgid "Filters"
+msgstr "Filtros"
+
 #: src/renderers/folder.scm src/renderers/common.scm
 msgid "Folders"
 msgstr "Pastas"
@@ -71,6 +84,10 @@ msgstr "Próxima foto"
 #: src/renderers/album.scm
 msgid "No album available.  Make albums out of pictures from "
 msgstr "Nenhum álbum disponível.  Crie álbuns a partir de fotos em "
+
+#: src/renderers/filter.scm
+msgid "No match"
+msgstr "Nenhum resultado"
 
 #: src/renderers/tag.scm
 msgid "No tag has been created yet."
@@ -91,6 +108,10 @@ msgstr "Remover marcador?"
 #: src/renderers/common.scm
 msgid "Select all"
 msgstr "Selecionar todas"
+
+#: src/renderers/filter.scm
+msgid "Show pictures tagged with "
+msgstr "Exibir fotos marcadas com "
 
 #: src/renderers/tag.scm src/renderers/common.scm src/renderers/album.scm
 msgid "Submit"
@@ -135,6 +156,14 @@ msgstr "pasta"
 #: src/renderers/album.scm
 msgid "folders"
 msgstr "pastas"
+
+#: src/renderers/filter.scm
+msgid "match"
+msgstr "resultado"
+
+#: src/renderers/filter.scm
+msgid "matches"
+msgstr "resultados"
 
 #: src/renderers/folder.scm
 msgid "no "
