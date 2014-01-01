@@ -33,7 +33,6 @@
 
 (define (add-dynamic-input-javascript-utils)
   (add-javascript "
-
 get_max_dynamic_input_idx = function(type, widget_id) {
     return Math.max.apply(Math, $.map($('.' + type + '-widget-' + widget_id), function(i) {
         return i.id.split('-')[1];
@@ -47,6 +46,10 @@ get_dynamic_inputs = function(type, widget_id) {
 "))
 
 (define (create-dynamic-input-ajax type typeahead-source)
+  ;; WARNING: type cannot contain `-'!
+  (when (substring-index "-" (->string type))
+    (error 'create-dynamic-input-ajax
+           "the first argument's value (`type') cannot contain `-'"))
 
   (define typeahead-source-js
     (sprintf
