@@ -245,8 +245,8 @@ $('.prev-pic').on('click', function() {
                      (month  . "$('#month-' + pic_id).val()")
                      (day    . "$('#day-' + pic_id).val()")
                      (id     . "pic_id")
-                     (tags   . "JSON.stringify(get_pic_dynamic_inputs('tag', pic_id))")
-                     (albums . "JSON.stringify(get_pic_dynamic_inputs('album', pic_id))"))
+                     (tags   . "JSON.stringify(get_dynamic_inputs('tag', pic_id))")
+                     (albums . "JSON.stringify(get_dynamic_inputs('album', pic_id))"))
         success: (string-append
                   "$('#ro-' + pic_id).html(response);"
                   "set_pic_info_ro(pic_id);"))
@@ -261,8 +261,8 @@ var template_data = {
     "year": $('#year-pic-template').val(),
     "month": $('#month-pic-template').val(),
     "day": $('#day-pic-template').val(),
-    "tags": JSON.stringify(get_pic_dynamic_inputs('tag', 'pic-template')),
-    "albums": JSON.stringify(get_pic_dynamic_inputs('album', 'pic-template')),
+    "tags": JSON.stringify(get_dynamic_inputs('tag', 'pic-template')),
+    "albums": JSON.stringify(get_dynamic_inputs('album', 'pic-template')),
     };
 EOF
         arguments: `((template-data . "JSON.stringify(template_data)")

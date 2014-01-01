@@ -40,7 +40,7 @@ get_max_dynamic_input_idx = function(type, widget_id) {
     }));
 }
 
-get_pic_dynamic_inputs = function(type, widget_id) {
+get_dynamic_inputs = function(type, widget_id) {
     var elts = $.map($('.' + type + '-widget-' + widget_id), function(i) { return i; });
     return $.map(elts, function(i) { return $(i).val(); });
 }
