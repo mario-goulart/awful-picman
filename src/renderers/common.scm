@@ -399,11 +399,14 @@ $('.dropdown-toggle').dropdown();
          ;; ,(render-search-form) ;; FIXME: not implemented yet
          )))
 
-(define (render-pagination-links num-total-items current-page)
+(define (render-pagination-links num-total-items current-page #!optional (more-url-vars/vals '()))
   (let ((num-pages (inexact->exact
                     (ceiling (/ num-total-items (thumbnails/page)))))
         (link-page (lambda (page)
-                     (conc "?page=" page))))
+                     (string-append "?"
+                                    (form-urlencode
+                                     (cons `(page . ,page)
+                                           more-url-vars/vals))))))
     (if (< num-pages 2)
         '()
         `(div (@ (class "pagination pagination-centered"))
