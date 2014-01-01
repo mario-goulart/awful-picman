@@ -31,6 +31,21 @@
             '(br)))
       ,(render-dynamic-input+ type pic-id))))
 
+(define (add-dynamic-input-javascript-utils)
+  (add-javascript "
+
+get_max_dynamic_input_idx = function(type, pic_id) {
+    return Math.max.apply(Math, $.map($('.' + type + '-widget-' + pic_id), function(i) {
+        return i.id.split('-')[1];
+    }));
+}
+
+get_pic_dynamic_inputs = function(type, pic_id) {
+    var elts = $.map($('.' + type + '-widget-' + pic_id), function(i) { return i; });
+    return $.map(elts, function(i) { return $(i).val(); });
+}
+"))
+
 (define (create-dynamic-input-ajax type typeahead-source)
 
   (define typeahead-source-js

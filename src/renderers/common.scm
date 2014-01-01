@@ -230,18 +230,9 @@ $('.prev-pic').on('click', function() {
        $('#modal-' + prev).modal('show');
    }
 });
-
-get_max_dynamic_input_idx = function(type, pic_id) {
-    return Math.max.apply(Math, $.map($('.' + type + '-widget-' + pic_id), function(i) {
-        return i.id.split('-')[1];
-    }));
-}
-
-get_pic_dynamic_inputs = function(type, pic_id) {
-    var elts = $.map($('.' + type + '-widget-' + pic_id), function(i) { return i; });
-    return $.map(elts, function(i) { return $(i).val(); });
-}
 ")
+
+  (add-dynamic-input-javascript-utils)
 
   ;; Handle the modal pic form
   (ajax "/insert-update-pic" ".save-pic-info" 'click
@@ -400,7 +391,8 @@ $('.dropdown-toggle').dropdown();
               (ul (@ (class "nav"))
                   ,(item 'album (albums-web-dir) (_ "Albums"))
                   ,(item 'folder (folders-web-dir) (_ "Folders"))
-                  ,(item 'tag (tags-web-dir) (_ "Tags")))
+                  ,(item 'tag (tags-web-dir) (_ "Tags"))
+                  ,(item 'filter (filters-web-dir) (_ "Filters")))
               ,(if (eq? mode 'folder)
                    (render-thumb-toolbar)
                    '()))
