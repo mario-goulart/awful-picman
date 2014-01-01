@@ -1,22 +1,3 @@
-(define (paginate-album album-pic-paths page-num)
-  (let* ((offset (* page-num (thumbnails/page)))
-         (page-pic-paths
-          (slice album-pic-paths offset (+ offset (thumbnails/page)))))
-    (map (lambda (pic-path i)
-           (make-thumb 'pic
-                       (pathname-directory pic-path)
-                       (pathname-strip-directory pic-path)
-                       i))
-         page-pic-paths
-         (iota (length page-pic-paths)))))
-
-(define (render-album album page-num)
-  (let* ((pic-paths (db-album-pics album))
-         (num-pics (length pic-paths))
-         (thumb-objs (paginate-album pic-paths page-num)))
-    `(,(render-thumbnails thumb-objs 'album)
-      ,(render-pagination-links num-pics page-num))))
-
 (define (render-album-modal album album-id)
   `(div (@ (id ,(conc "album-modal-" album-id))
            (class "modal hide")
@@ -110,7 +91,7 @@
   (debug 1 "render-album-content: album: ~a" album)
   `(,(render-breadcrumbs (or album "/") (_ "Albums") (albums-web-dir))
     ,(if album
-         (render-album album page-num)
+         (render-paginated-pics (db-album-pics album) page-num 'album)
          (let ((albums (db-albums)))
            (if (null? albums)
                (render-no-album)

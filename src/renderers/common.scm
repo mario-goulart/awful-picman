@@ -418,3 +418,23 @@ $('.dropdown-toggle').dropdown();
                                                 (link-page i))))
                                   ,(+ i 1)))))
                       (iota num-pages)))))))
+
+
+(define (render-paginated-pics pic-paths page-num mode #!key (url-vars/vals '()))
+
+  (define (paginate pic-paths page-num)
+    (let* ((offset (* page-num (thumbnails/page)))
+           (page-pic-paths
+            (slice pic-paths offset (+ offset (thumbnails/page)))))
+      (map (lambda (pic-path i)
+             (make-thumb 'pic
+                         (pathname-directory pic-path)
+                         (pathname-strip-directory pic-path)
+                         i))
+           page-pic-paths
+           (iota (length page-pic-paths)))))
+
+  (let ((num-pics (length pic-paths))
+        (thumb-objs (paginate pic-paths page-num)))
+    `(,(render-thumbnails thumb-objs mode)
+      ,(render-pagination-links num-pics page-num url-vars/vals))))
