@@ -21,6 +21,7 @@
         (() (handler))
         ((path) (handler path))
         (args (apply handler args)))
+      title: "awful-picman"
       charset: "utf-8"
       doctype: "<!DOCTYPE html>"
       use-ajax: "/js/jquery.min.js"
