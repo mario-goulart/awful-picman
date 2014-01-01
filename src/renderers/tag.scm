@@ -3,7 +3,10 @@
            (id ,(conc "tag-container-" tag-id)))
         (span (@ (class "tag")
                  (id ,(conc "tag-" tag-id)))
-              ,tag)
+              (a (@ (href ,(sprintf "~a/?include-tags=~a"
+                                    (filters-web-dir)
+                                    tag)))
+                 ,tag))
         (literal "&nbsp;")
         (a (@ (href ,(conc "#tag-modal-" tag-id))
               (data-toggle "modal"))
