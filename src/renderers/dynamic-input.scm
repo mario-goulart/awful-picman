@@ -1,47 +1,47 @@
-(define (render-dynamic-input type idx pic-id val #!optional prepend-br?)
+(define (render-dynamic-input type idx widget-id val #!optional prepend-br?)
   `(,(if prepend-br?
          '(br)
          '())
     (input (@ (type "text")
-              (class ,(sprintf "~a-widget-~a ~a" type pic-id type))
-              (id ,(sprintf "~a-~a-~a" type idx pic-id))
+              (class ,(sprintf "~a-widget-~a ~a" type widget-id type))
+              (id ,(sprintf "~a-~a-~a" type idx widget-id))
               (data-provide "typeahead")
               (value ,val)))))
 
-(define (render-dynamic-input+ type pic-id)
-  `((span (@ (id ,(sprintf "~a-widget-placeholder-~a" type pic-id))))
+(define (render-dynamic-input+ type widget-id)
+  `((span (@ (id ,(sprintf "~a-widget-placeholder-~a" type widget-id))))
     (a (@ (href "#")
           (class ,(sprintf "add-~a-widget" type))
-          (id ,(sprintf "add-~a-~a" type pic-id)))
+          (id ,(sprintf "add-~a-~a" type widget-id)))
        (span (@ (class "badge badge-info"))
              "+"))))
 
-(define (render-dynamic-inputs type pic-id inputs)
+(define (render-dynamic-inputs type widget-id inputs)
   (let* ((len-inputs (length inputs))
          (get-val (lambda (idx)
                     (if (< idx len-inputs)
                         (list-ref inputs idx)
                         ""))))
     `(,(if (zero? len-inputs)
-           (render-dynamic-input type 0 pic-id "")
+           (render-dynamic-input type 0 widget-id "")
            (intersperse
             (map (lambda (i)
-                   (render-dynamic-input type i pic-id (get-val i)))
+                   (render-dynamic-input type i widget-id (get-val i)))
                  (iota len-inputs))
             '(br)))
-      ,(render-dynamic-input+ type pic-id))))
+      ,(render-dynamic-input+ type widget-id))))
 
 (define (add-dynamic-input-javascript-utils)
   (add-javascript "
 
-get_max_dynamic_input_idx = function(type, pic_id) {
-    return Math.max.apply(Math, $.map($('.' + type + '-widget-' + pic_id), function(i) {
+get_max_dynamic_input_idx = function(type, widget_id) {
+    return Math.max.apply(Math, $.map($('.' + type + '-widget-' + widget_id), function(i) {
         return i.id.split('-')[1];
     }));
 }
 
-get_pic_dynamic_inputs = function(type, pic_id) {
-    var elts = $.map($('.' + type + '-widget-' + pic_id), function(i) { return i; });
+get_pic_dynamic_inputs = function(type, widget_id) {
+    var elts = $.map($('.' + type + '-widget-' + widget_id), function(i) { return i; });
     return $.map(elts, function(i) { return $(i).val(); });
 }
 "))
@@ -63,16 +63,16 @@ get_pic_dynamic_inputs = function(type, pic_id) {
 
   (ajax "/add-dynamic-input" (sprintf ".add-~a-widget" type) 'click
         (lambda ()
-          (with-request-variables (type pic-id next-idx)
-            (render-dynamic-input type next-idx pic-id "" 'prepend-br)))
+          (with-request-variables (type widget-id next-idx)
+            (render-dynamic-input type next-idx widget-id "" 'prepend-br)))
         prelude: (string-append
-                  (sprintf "var pic_id = $(this).attr('id').replace(/^add-~a-/, '');" type)
-                  (sprintf "var next = get_max_dynamic_input_idx('~a', pic_id) + 1;" type))
-        arguments: `((pic-id . "pic_id")
-                     (type . ,(sprintf "'~a'" type))
-                     (next-idx . "next"))
+                  (sprintf "var widget_id = $(this).attr('id').replace(/^add-~a-/, '');" type)
+                  (sprintf "var next = get_max_dynamic_input_idx('~a', widget_id) + 1;" type))
+        arguments: `((widget-id . "widget_id")
+                     (type      . ,(sprintf "'~a'" type))
+                     (next-idx  . "next"))
         success: (string-append
-                  (sprintf "$(response).insertBefore('#~a-widget-placeholder-' + pic_id);" type)
-                  (sprintf "$('#~a-' + next + '-' + pic_id).typeahead({~a});"
+                  (sprintf "$(response).insertBefore('#~a-widget-placeholder-' + widget_id);" type)
+                  (sprintf "$('#~a-' + next + '-' + widget_id).typeahead({~a});"
                            type typeahead-source-js)
-                  (sprintf "$('#~a-' + next + '-' + pic_id).focus();" type))))
+                  (sprintf "$('#~a-' + next + '-' + widget_id).focus();" type))))
