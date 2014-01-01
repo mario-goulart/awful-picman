@@ -6,6 +6,8 @@
               (class ,(sprintf "~a-widget-~a ~a" type widget-id type))
               (id ,(sprintf "~a-~a-~a" type idx widget-id))
               (data-provide "typeahead")
+              (autocomplete "off") ;; prevents default browser menus from appearing
+                                   ;; over the Bootstrap typeahead dropdown
               (value ,val)))))
 
 (define (render-dynamic-input+ type widget-id)
