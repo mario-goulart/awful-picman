@@ -1,4 +1,4 @@
-(define (render-dynamic-input type idx widget-id val #!optional prepend-br?)
+(define (render-dynamic-input type idx widget-id val #!key prepend-br?)
   `(,(if prepend-br?
          '(br)
          '())
@@ -67,7 +67,7 @@ get_dynamic_inputs = function(type, widget_id) {
   (ajax "/add-dynamic-input" (sprintf ".add-~a-widget" type) 'click
         (lambda ()
           (with-request-variables (type widget-id next-idx)
-            (render-dynamic-input type next-idx widget-id "" 'prepend-br)))
+            (render-dynamic-input type next-idx widget-id "" prepend-br?: #t)))
         prelude: (string-append
                   (sprintf "var widget_id = $(this).attr('id').replace(/^add-~a-/, '');" type)
                   (sprintf "var next = get_max_dynamic_input_idx('~a', widget_id) + 1;" type))
