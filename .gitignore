@@ -1,0 +1,7 @@
+*~
+*.so
+*.import.scm
+*.import.so
+*.pot
+*.mo
+awful-picman
