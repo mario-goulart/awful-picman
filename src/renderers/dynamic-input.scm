@@ -1,4 +1,4 @@
-(define (render-dynamic-input type idx widget-id val #!key prepend-br?)
+(define (render-dynamic-input type idx widget-id val #!key prepend-br? name)
   `(,(if prepend-br?
          '(br)
          '())
@@ -6,6 +6,9 @@
               (class ,(sprintf "~a-widget-~a ~a" type widget-id type))
               (id ,(sprintf "~a-~a-~a" type idx widget-id))
               (data-provide "typeahead")
+              ,(if name
+                   `(name ,name)
+                   '())
               (autocomplete "off") ;; prevents default browser menus from appearing
                                    ;; over the Bootstrap typeahead dropdown
               (value ,val)))))
@@ -18,17 +21,17 @@
        (span (@ (class "badge badge-info"))
              "+"))))
 
-(define (render-dynamic-inputs type widget-id inputs)
+(define (render-dynamic-inputs type widget-id inputs #!key name)
   (let* ((len-inputs (length inputs))
          (get-val (lambda (idx)
                     (if (< idx len-inputs)
                         (list-ref inputs idx)
                         ""))))
     `(,(if (zero? len-inputs)
-           (render-dynamic-input type 0 widget-id "")
+           (render-dynamic-input type 0 widget-id "" name: name)
            (intersperse
             (map (lambda (i)
-                   (render-dynamic-input type i widget-id (get-val i)))
+                   (render-dynamic-input type i widget-id (get-val i) name: name))
                  (iota len-inputs))
             '(br)))
       ,(render-dynamic-input+ type widget-id))))
@@ -47,7 +50,7 @@ get_dynamic_inputs = function(type, widget_id) {
 }
 "))
 
-(define (create-dynamic-input-ajax type typeahead-source)
+(define (create-dynamic-input-ajax type typeahead-source #!key name)
   ;; WARNING: type cannot contain `-'!
   (when (substring-index "-" (->string type))
     (error 'create-dynamic-input-ajax
@@ -68,14 +71,15 @@ get_dynamic_inputs = function(type, widget_id) {
 
   (ajax "/add-dynamic-input" (sprintf ".add-~a-widget" type) 'click
         (lambda ()
-          (with-request-variables (type widget-id next-idx)
-            (render-dynamic-input type next-idx widget-id "" prepend-br?: #t)))
+          (with-request-variables (type widget-id next-idx name)
+            (render-dynamic-input type next-idx widget-id "" prepend-br?: #t name: name)))
         prelude: (string-append
                   (sprintf "var widget_id = $(this).attr('id').replace(/^add-~a-/, '');" type)
                   (sprintf "var next = get_max_dynamic_input_idx('~a', widget_id) + 1;" type))
         arguments: `((widget-id . "widget_id")
                      (type      . ,(sprintf "'~a'" type))
-                     (next-idx  . "next"))
+                     (next-idx  . "next")
+                     (name      . ,(sprintf "'~a'" name)))
         success: (string-append
                   (sprintf "$(response).insertBefore('#~a-widget-placeholder-' + widget_id);" type)
                   (sprintf "$('#~a-' + next + '-' + widget_id).typeahead({~a});"
