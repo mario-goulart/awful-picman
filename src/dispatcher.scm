@@ -157,6 +157,9 @@
            (("without-album")
             (render-pics #f 'filter/without-album page))
 
+           (("without-tag")
+            (render-pics #f 'filter/without-tag page))
+
            (else (render-filters))))))
   ;;
   ;; /

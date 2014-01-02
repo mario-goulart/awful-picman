@@ -287,6 +287,7 @@ EOF
                    ,(render-dir-content source page-num)))
        ((filter/by-tags) (render-filter/by-tags (car source) (cdr source) page-num))
        ((filter/without-album) (render-filter/without-album page-num))
+       ((filter/without-tag) (render-filter/without-tag page-num))
        (else (error 'render-pics
                     (sprintf "Unknown mode: ~a" mode))))))
 

@@ -62,6 +62,12 @@
       ,(render-matches pics-without-album)
       ,(render-paginated-pics pics-without-album page-num 'filter/without-album))))
 
+(define (render-filter/without-tag page-num)
+  (let ((pics-without-tag (db-filter/without-tag)))
+    `((h3 ,(_ "Pics without tag"))
+      ,(render-matches pics-without-tag)
+      ,(render-paginated-pics pics-without-tag page-num 'filter/without-tag))))
+
 (define (render-filters-menu mode)
 
   (define (item path text)
@@ -80,6 +86,7 @@
               (aria-labelledby "dLabel"))
            ,(item "by-tags" (_ "By tags"))
            ,(item "without-album" (_ "Pics without album"))
+           ,(item "without-tag" (_ "Pics without tag"))
            )))
 
 (define (render-filters)
@@ -88,4 +95,5 @@
   `(,(render-top-bar 'filter)
     (ul
      ,(filter-link "by-tags" (_ "Filter by tags"))
-     ,(filter-link "without-album" (_ "Pics without album")))))
+     ,(filter-link "without-album" (_ "Pics without album"))
+     ,(filter-link "without-tag" (_ "Pics without tag")))))

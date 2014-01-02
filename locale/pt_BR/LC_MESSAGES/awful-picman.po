@@ -105,6 +105,10 @@ msgstr "Nenhum marcador foi criado ainda."
 msgid "Pics without album"
 msgstr "Fotos que não estão em álbums"
 
+#: src/renderers/filter.scm
+msgid "Pics without tag"
+msgstr "Fotos que não contêm marcadores"
+
 #: src/renderers/common.scm
 msgid "Previous picture"
 msgstr "Foto anterior"
