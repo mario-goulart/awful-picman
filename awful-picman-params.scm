@@ -47,7 +47,7 @@
 
 (define thumbnails/page
   ;; Max number of thumbnails per page.
-  (make-parameter 30))
+  (make-parameter 50))
 
 ;;;
 ;;; i18n
