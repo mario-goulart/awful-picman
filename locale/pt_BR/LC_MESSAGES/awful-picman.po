@@ -25,6 +25,10 @@ msgstr ""
 msgid "Batch edit"
 msgstr "Edição em massa"
 
+#: src/renderers/filter.scm
+msgid "By tags"
+msgstr "Por marcadores"
+
 #: src/renderers/tag.scm src/renderers/common.scm src/renderers/album.scm
 msgid "Cancel"
 msgstr "Cancelar"
@@ -65,7 +69,11 @@ msgstr "Arquivo"
 msgid "Filter"
 msgstr "Filtrar"
 
-#: src/renderers/common.scm
+#: src/renderers/filter.scm
+msgid "Filter by tags"
+msgstr "Filtrar por marcadores"
+
+#: src/renderers/filter.scm
 msgid "Filters"
 msgstr "Filtros"
 
@@ -92,6 +100,10 @@ msgstr "Nenhum resultado"
 #: src/renderers/tag.scm
 msgid "No tag has been created yet."
 msgstr "Nenhum marcador foi criado ainda."
+
+#: src/renderers/filter.scm
+msgid "Pics without album"
+msgstr "Fotos que não estão em álbums"
 
 #: src/renderers/common.scm
 msgid "Previous picture"

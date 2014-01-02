@@ -110,3 +110,6 @@
 
 (define (append-to-query-string vars/vals)
   (form-urlencode (append vars/vals (query-string))))
+
+(define (path-split path)
+  (string-split path "/"))

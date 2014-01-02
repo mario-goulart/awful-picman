@@ -12,7 +12,7 @@
   `(,(render-top-bar 'filter)
     (div (@ (class "filter-input"))
          (form (@ (method "get")
-                  (action ,(filters-web-dir)))
+                  (action ,(make-pathname (filters-web-dir) "by-tags")))
                (div (@ (class "row"))
                     (div (@ (class "span3"))
                          ,(_ "Show pictures tagged with "))
@@ -35,20 +35,57 @@
                  (cons 'exclude-tags tag))
                exclude-tags)))
 
-(define (render-filtered-pics include-tags exclude-tags page-num)
+(define (render-matches matches)
+  (let ((num-matches (length matches)))
+    `(h4 ,(if (zero? num-matches)
+              (_ "No match")
+              `(,num-matches " " ,(if (= 1 num-matches)
+                                      (_ "match")
+                                      (_ "matches")))))))
+
+(define (render-filter/by-tags include-tags exclude-tags page-num)
   `(,(render-filter-input include-tags exclude-tags)
     ,(if (null? include-tags)
          '()
-         (let* ((filtered-pic-paths (db-tag-filter include-tags exclude-tags))
-                (matches (length filtered-pic-paths)))
+         (let ((filtered-pic-paths (db-tag-filter include-tags exclude-tags)))
            (debug 2 "render-filtered-pictures: filter results: ~S" filtered-pic-paths)
            `((div (@ (id "filter-matches"))
-                  (h4 ,(if (zero? matches)
-                           (_ "No match")
-                           `(,matches " " ,(if (= 1 matches)
-                                               (_ "match")
-                                               (_ "matches"))))))
+                  ,(render-matches filtered-pic-paths))
              ,(render-paginated-pics filtered-pic-paths
                                      page-num
-                                     'filter
+                                     'filter/by-tags
                                      url-vars/vals: (form-tags include-tags exclude-tags)))))))
+
+(define (render-filter/without-album page-num)
+  (let ((pics-without-album (db-filter/without-album)))
+    `((h3 ,(_ "Pics without album"))
+      ,(render-matches pics-without-album)
+      ,(render-paginated-pics pics-without-album page-num 'filter/without-album))))
+
+(define (render-filters-menu mode)
+
+  (define (item path text)
+    `(li (a (@ (href ,(make-pathname (filters-web-dir) path))) ,text)))
+
+  `(li (@ (class ,(string-append "dropdown"
+                                 (if (eq? mode 'filter)
+                                     " active"
+                                     ""))))
+       (a (@ (class "dropdown-toggle")
+             (data-toggle "dropdown")
+             (href "#"))
+          ,(_ "Filters"))
+       (ul (@ (class "dropdown-menu")
+              (role "menu")
+              (aria-labelledby "dLabel"))
+           ,(item "by-tags" (_ "By tags"))
+           ,(item "without-album" (_ "Pics without album"))
+           )))
+
+(define (render-filters)
+  (define (filter-link path text)
+    `(li (a (@ (href ,(make-pathname (filters-web-dir) path))) ,text)))
+  `(,(render-top-bar 'filter)
+    (ul
+     ,(filter-link "by-tags" (_ "Filter by tags"))
+     ,(filter-link "without-album" (_ "Pics without album")))))

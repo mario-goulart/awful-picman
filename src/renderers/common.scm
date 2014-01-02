@@ -285,7 +285,8 @@ EOF
        ((album) (render-album-content source page-num))
        ((folder) `(,(render-pic-template-modal)
                    ,(render-dir-content source page-num)))
-       ((filter) (render-filtered-pics (car source) (cdr source) page-num))
+       ((filter/by-tags) (render-filter/by-tags (car source) (cdr source) page-num))
+       ((filter/without-album) (render-filter/without-album page-num))
        (else (error 'render-pics
                     (sprintf "Unknown mode: ~a" mode))))))
 
@@ -393,7 +394,7 @@ $('.dropdown-toggle').dropdown();
                   ,(item 'album (albums-web-dir) (_ "Albums"))
                   ,(item 'folder (folders-web-dir) (_ "Folders"))
                   ,(item 'tag (tags-web-dir) (_ "Tags"))
-                  ,(item 'filter (filters-web-dir) (_ "Filters")))
+                  ,(render-filters-menu mode))
               ,(if (eq? mode 'folder)
                    (render-thumb-toolbar)
                    '()))

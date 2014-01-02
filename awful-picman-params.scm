@@ -34,7 +34,7 @@
 (define thumbnails-web-dir (make-parameter "/thumbnails"))
 (define albums-web-dir (make-parameter "/albums"))
 (define tags-web-dir (make-parameter "/tags"))
-(define filters-web-dir (make-parameter "/filters"))
+(define filters-web-dir (make-parameter "/filter"))
 
 ;;;
 ;;; Image-related parameters

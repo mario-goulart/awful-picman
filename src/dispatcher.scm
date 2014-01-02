@@ -137,21 +137,27 @@
   ;;;
   ;;; Filters
   ;;;
-  (define-pics-page (filters-web-dir)
-    (lambda ()
-      (debug 1 "filters handler")
-      (with-request-variables ((include-tags as-list)
-                               (exclude-tags as-list))
-        (let ((include-tags (if include-tags
-                                (delete "" (map string-trim-both include-tags) equal?)
-                                '()))
-              (exclude-tags (if exclude-tags
-                                (delete "" (map string-trim-both exclude-tags) equal?)
-                                '())))
-          (debug 1 "include-tags: ~S" include-tags)
-          (render-pics (cons include-tags exclude-tags)
-                       'filter
-                       (or ($ 'page as-number) 0))))))
+  (define-pics-page (irregex (string-append (filters-web-dir) "(/.*)*"))
+    (lambda (path)
+      (let ((page (or ($ 'page as-number) 0)))
+        (debug 1 "filters handler: ~S" path)
+        (match (cdr (path-split path))
+           (("by-tags")
+            (with-request-variables ((include-tags as-list)
+                                     (exclude-tags as-list))
+              (let ((include-tags (if include-tags
+                                      (delete "" (map string-trim-both include-tags) equal?)
+                                      '()))
+                    (exclude-tags (if exclude-tags
+                                      (delete "" (map string-trim-both exclude-tags) equal?)
+                                      '())))
+                (debug 1 "include-tags: ~S" include-tags)
+                (render-pics (cons include-tags exclude-tags) 'filter/by-tags page))))
+
+           (("without-album")
+            (render-pics #f 'filter/without-album page))
+
+           (else (render-filters))))))
   ;;
   ;; /
   ;;

@@ -221,6 +221,11 @@ create table albums_pics (
            (make-pathname (car dir/f) (cadr dir/f)))
          ($db query values: (append include-tags exclude-tags)))))
 
+(define (db-filter/without-album)
+  (map (lambda (dir/f)
+         (make-pathname (car dir/f) (cadr dir/f)))
+       ($db "select dir, filename from pics where pics.pic_id not in (select distinct pic_id from albums_pics)")))
+
 ;;;
 ;;; Albums
 ;;;

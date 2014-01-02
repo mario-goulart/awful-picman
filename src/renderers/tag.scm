@@ -4,7 +4,7 @@
         (span (@ (class "tag")
                  (id ,(conc "tag-" tag-id)))
               (a (@ (href ,(sprintf "~a/?include-tags=~a"
-                                    (filters-web-dir)
+                                    (make-pathname (filters-web-dir) "by-tags")
                                     tag)))
                  ,tag))
         (literal "&nbsp;")
