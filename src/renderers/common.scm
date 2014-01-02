@@ -35,6 +35,14 @@
         (decade decade)
         (else "")))
 
+(define (render-pic-path db-pic)
+  (let* ((path (db-pic-path db-pic))
+         (dir (pathname-directory path))
+         (file (pathname-strip-directory path)))
+    `(p (code (a (@ (href ,(make-pathname (folders-web-dir) dir)))
+                 ,(string-append dir "/"))
+              ,file))))
+
 (define (render-modal-pic-form/ro db-pic pic-id)
   (define (id thing)
     (list 'id (string-append thing "-" pic-id)))
@@ -60,7 +68,7 @@
                            `(li ,i))
                          (db-pic-tags db-pic))))
         (h5 ,(_ "Filename"))
-        (p (code ,(db-pic-path db-pic)))
+        ,(render-pic-path db-pic)
         (br)
         (button (@ (class "btn edit-pic-info")
                    ;; Super ugly hack: events don't seem to work with
@@ -108,7 +116,7 @@
          ,(if template?
               '()
               `((h5 ,(_ "Filename"))
-                (p (code ,(db-pic-path db-pic)))))
+                ,(render-pic-path db-pic)))
          (br)
          (button (@ ,(id "submit")
                     (class ,(string-append "btn "
