@@ -33,11 +33,12 @@
 
 (define (update-album-info!)
   (with-request-variables (album-id
+                           title
                            descr
                            (remove? (nonempty as-boolean)))
     (if remove?
         (db-remove-album! album-id)
-        (db-update-album! album-id descr))))
+        (db-update-album! album-id title descr))))
 
 (define (batch-update-pic-info!)
   (with-request-variables (pics template-data)

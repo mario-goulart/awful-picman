@@ -294,6 +294,6 @@ create table albums_pics (
   ($db "delete from albums where album_id=?"
        values: (list album-id)))
 
-(define (db-update-album! album-id descr)
-  ($db "update albums set descr=? where album_id=?"
-       values: (list descr album-id)))
+(define (db-update-album! album-id title descr)
+  ($db "update albums set title=?, descr=? where album_id=?"
+       values: (list title descr album-id)))

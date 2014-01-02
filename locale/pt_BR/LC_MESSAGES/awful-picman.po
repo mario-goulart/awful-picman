@@ -53,6 +53,10 @@ msgstr "Descrição"
 msgid "Edit"
 msgstr "Editar"
 
+#: src/renderers/album.scm
+msgid "Edit album"
+msgstr "Editar álbum"
+
 #: src/renderers/common.scm
 msgid "Edit selected thumbnails template"
 msgstr "Editar dados a serem aplicados a fotos selecionadas"
@@ -140,6 +144,14 @@ msgstr "Marcadores"
 #: src/renderers/common.scm
 msgid "Template data for selected pictures"
 msgstr "Dados a serem aplicados a fotos selecionadas"
+
+#: src/renderers/album.scm
+msgid "The album needs a title"
+msgstr "O álbum requer um título"
+
+#: src/renderers/album.scm
+msgid "Title"
+msgstr "Título"
 
 #: src/renderers/common.scm
 msgid "Toggle selection"
