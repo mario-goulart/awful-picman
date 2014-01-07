@@ -113,3 +113,24 @@
 
 (define (path-split path)
   (string-split path "/"))
+
+(define (format-size/bytes n)
+  (define num/si ;; Stolen from fmt
+    (let* ((names10 '#("" "k" "M" "G" "T" "E" "P" "Z" "Y"))
+           (names2 (list->vector
+                    (cons ""
+                          (cons "Ki" (map (lambda (s) (string-append s "i"))
+                                          (cddr (vector->list names10))))))))
+      (lambda (n . o)
+        (let-optionals* o ((base 1024)
+                           (suffix "")
+                           (names (if (= base 1024) names2 names10)))
+           (let* ((k (min (inexact->exact (floor (/ (log n) (log base))))
+                          (vector-length names)))
+                  (n2 (/ (round (* (/ n (expt base k)) 10)) 10)))
+             (conc (if (integer? n2)
+                       (number->string (inexact->exact n2))
+                       (exact->inexact n2))
+                   (vector-ref names k)
+                   (if (zero? k) "" suffix)))))))
+  (string-append (num/si n) "B"))

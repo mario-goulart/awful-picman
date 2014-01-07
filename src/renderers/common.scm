@@ -35,13 +35,19 @@
         (decade decade)
         (else "")))
 
+(define (render-file-size path)
+  (let ((size (file-size path)))
+    (format-size/bytes size)))
+
 (define (render-pic-path db-pic)
   (let* ((path (db-pic-path db-pic))
          (dir (pathname-directory path))
          (file (pathname-strip-directory path)))
     `(p (code (a (@ (href ,(make-pathname (folders-web-dir) dir)))
                  ,(string-append dir "/"))
-              ,file))))
+              ,file
+              " "
+              "(" ,(render-file-size path) ")"))))
 
 (define (render-modal-pic-form/ro db-pic pic-id)
   (define (id thing)
