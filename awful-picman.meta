@@ -3,6 +3,6 @@
  (author "Mario Domenech Goulart")
  (category web)
  (license "BSD")
- (depends awful-sql-de-lite imlib2 free-gettext hostinfo slice matchable)
+ (depends (awful "0.39") awful-sql-de-lite imlib2 free-gettext hostinfo slice matchable)
  (test-depends)
  (foreign-depends))
