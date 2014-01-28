@@ -98,7 +98,7 @@
   ;; then other files.
   (let* ((items (glob (make-pathname dir "*")))
          (dirs (sort (filter directory? items) string<))
-         (pics (filter image-file? items))
+         (pics (sort (filter image-file? items) string<))
          (other (remove (lambda (i)
                           (or (directory? i)
                               (image-file? i)))
