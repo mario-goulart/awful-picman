@@ -160,14 +160,15 @@ EOF
             (member "-h" args))
      (usage 0))
 
-  (load-global-conf)
-  (load-local-conf)
-
   (when (member "--verbose" args)
     (verbose? #t))
 
   (and-let* ((d (cmd-line-arg '--debug args)))
     (debug-level (or (string->number d) 0)))
+
+  (load-global-conf)
+  (load-user-conf)
+  (load-local-conf)
 
   (debug 1 "metadata-dir: ~a" metadata-dir)
 
