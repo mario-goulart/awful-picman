@@ -23,6 +23,13 @@
 (define (flonum->fixnum num)
   (inexact->exact (round num)))
 
+(define (thumbnail-path pic-path dimension)
+  (normalize-pathname
+   (make-pathname (list metadata-dir
+                        thumbnails-dirname
+                        (->string dimension))
+                  (maybe-replace-thumbnail-extension pic-path))))
+
 (define (maybe-replace-thumbnail-extension thumbnail)
   (if (non-web-image-file? thumbnail)
       (pathname-replace-extension thumbnail

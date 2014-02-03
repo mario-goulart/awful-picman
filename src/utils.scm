@@ -34,6 +34,10 @@
 (define (info fmt . args)
   (apply printf (cons (string-append fmt "\n") args)))
 
+(define (info-error fmt . args)
+  (apply fprintf (cons (current-error-port)
+                       (cons (string-append fmt "\n") args))))
+
 (define (info* fmt . args)
   ;; Like info, but only for when (verbose?) is truthy
   (when (verbose?)

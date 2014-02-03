@@ -148,6 +148,10 @@ Usage: #this [ <options> ]
   Print debug-oriented messages.  <debug level> is a number.
   Higher numbers produce more verbose output.
 
+--gc
+  Performs garbage collection on thumbnails and the database:
+  removes all records that reference files that don't exist anymore.
+
 EOF
              port)
     (when exit-code
@@ -200,6 +204,13 @@ EOF
               "Could not find a metadata directory.  "
               "Did you create it with --init?\n"))
     (exit 1))
+
+  (when (member "--gc" args)
+    (handle-exceptions exn
+      (exit 1)
+      (begin
+        (gc!)
+        (exit 0))))
 
   (let ((dev-mode? (and (member "--development-mode" args) #t))
         (port (cmd-line-arg "--port" args)))

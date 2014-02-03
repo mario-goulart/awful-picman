@@ -28,6 +28,7 @@
 (include "src/db")
 (include "src/ajax-handlers")
 (include "src/dispatcher")
+(include "src/gc")
 (include "src/main")
 
 ) ;; end module

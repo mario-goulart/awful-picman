@@ -9,6 +9,18 @@ msgstr ""
 msgid " except those tagged with "
 msgstr " exceto as marcadas com "
 
+#: src/gc.scm
+msgid " records have been removed."
+msgstr "registros foram removidos."
+
+#: src/gc.scm
+msgid " thumbnails have been removed."
+msgstr "miniaturas foram removidas."
+
+#: src/gc.scm
+msgid "Aborting."
+msgstr "Abortando."
+
 #: src/renderers/common.scm src/renderers/album.scm
 msgid "Albums"
 msgstr "Álbuns"
@@ -20,6 +32,10 @@ msgid ""
 msgstr ""
 "Todas as fotos selecionadas terão suas informações sobrescritas pelas "
 "preenchidas neste formulário."
+
+#: src/gc.scm
+msgid "An error has occurred while performing db garbage collection:"
+msgstr "Ocorreu um erro durante a coleta de lixo na base de dados:"
 
 #: src/renderers/common.scm
 msgid "Batch edit"
@@ -101,9 +117,21 @@ msgstr "Nenhum álbum disponível.  Crie álbuns a partir de fotos em "
 msgid "No match"
 msgstr "Nenhum resultado"
 
+#: src/gc.scm
+msgid "No orphan pics found."
+msgstr "Nenhuma foto órfã foi encontrada."
+
 #: src/renderers/tag.scm
 msgid "No tag has been created yet."
 msgstr "Nenhum marcador foi criado ainda."
+
+#: src/gc.scm
+msgid "Not removing records."
+msgstr "Nenhum registro foi removido."
+
+#: src/gc.scm
+msgid "Not removing thumbnails."
+msgstr "Nenhuma miniatura removida."
 
 #: src/renderers/filter.scm
 msgid "Pics without album"
@@ -120,6 +148,14 @@ msgstr "Foto anterior"
 #: src/renderers/album.scm
 msgid "Remove album?"
 msgstr "Remover álbum?"
+
+#: src/gc.scm
+msgid "Remove orphan thumbnails?"
+msgstr "Remover miniaturas órfãs?"
+
+#: src/gc.scm
+msgid "Remove records that reference those files from the database?"
+msgstr "Remover registros da base de dados que referenciam esses arquivos?"
 
 #: src/renderers/tag.scm
 msgid "Remove tag?"
@@ -196,6 +232,14 @@ msgstr "resultados"
 #: src/renderers/folder.scm
 msgid "no "
 msgstr "nenhuma "
+
+#: src/gc.scm
+msgid "orphan pics have been found."
+msgstr "fotos órfãs foram encontradas."
+
+#: src/gc.scm
+msgid "orphan thumbnails have been found."
+msgstr "miniaturas órfãs foram encontradas."
 
 #: src/renderers/folder.scm
 msgid "pic"
