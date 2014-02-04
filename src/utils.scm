@@ -116,7 +116,9 @@
   (form-urlencode (append vars/vals (query-string))))
 
 (define (path-split path)
-  (string-split path "/"))
+  (string-split path (if (eq? (software-type) 'windows)
+                         "/\\"
+                         "/")))
 
 (define (format-size/bytes n)
   (define num/si ;; Stolen from fmt
