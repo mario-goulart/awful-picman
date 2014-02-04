@@ -207,7 +207,10 @@ EOF
 
   (when (member "--gc" args)
     (handle-exceptions exn
-      (exit 1)
+      (begin
+        (print-call-chain (current-error-port))
+        (print-error-message exn (current-error-port))
+        (exit 1))
       (begin
         (gc!)
         (exit 0))))
