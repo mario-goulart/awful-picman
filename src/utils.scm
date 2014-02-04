@@ -120,6 +120,9 @@
                          "/\\"
                          "/")))
 
+(define (path-join parts)
+  (string-intersperse parts "/"))
+
 (define (format-size/bytes n)
   (define num/si ;; Stolen from fmt
     (let* ((names10 '#("" "k" "M" "G" "T" "E" "P" "Z" "Y"))

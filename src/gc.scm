@@ -46,29 +46,36 @@
                slices)
               #t)))))))
 
-(define (orphan-thumbnails orphan-pic-paths)
-  (filter file-exists?
-          (flatten
-           (map (lambda (dimension)
-                  (map (lambda (pic-path)
-                         (thumbnail-path pic-path dimension))
-                       orphan-pic-paths))
-                (thumbnails/max-dimensions)))))
+(define (thumbnail->pic-path thumbnail-path)
+  (let* ((parts-thumbnails-dirname (length (path-split thumbnails-dirname)))
+         (parts-metadata-dir (length (path-split metadata-dir)))
+         (parts-to-drop (+ 1 ;; dimension
+                           parts-thumbnails-dirname
+                           parts-metadata-dir)))
+      (let ((path-parts (path-split thumbnail-path)))
+        (path-join (cons "." (drop path-parts parts-to-drop))))))
+
+(define (orphan-thumbnails)
+  (let ((pic-files (map pathname-strip-extension
+                        (find-files "."
+                                    test: image-file?)))
+        (thumbnails (find-files (make-pathname metadata-dir thumbnails-dirname)
+                                test: image-file?)))
+    (remove (lambda (thumbnail)
+              (member (pathname-strip-extension (thumbnail->pic-path thumbnail))
+                      pic-files))
+            thumbnails)))
 
 (define (gc!)
   ;; Orphan pics are those which exist on the database but not on the
   ;; filesystem (e.g., user deleted pics from the filesystem).  Orphan
-  ;; thumbnails the thumbnails corresponding to orphan pics.
-
-  ;; FIXME: At the moment, the garbage collector doesn't check whether
-  ;; each thumbnail on the filesystem has a corresponding pic on the
-  ;; database or on the filesystem (the actual pic file)
+  ;; thumbnails are thumbnails that don't have the corresponding pic file.
   (let* ((orphan-pics (db-orphan-pics))
-         (orphan-thumbs (orphan-thumbnails (map cdr orphan-pics)))
+         (orphan-thumbs (orphan-thumbnails))
          (num-orphan-pics (length orphan-pics))
          (num-orphan-thumbs (length orphan-thumbs)))
     (if (null? orphan-pics)
-        (info (_ "No orphan pics found."))
+        (info (_ "No orphan pic found."))
         (begin
           (for-each info (map cdr orphan-pics))
           (info "\n~a ~a" num-orphan-pics (_ "orphan pics have been found."))
@@ -81,8 +88,11 @@
                 (begin
                   (db-remove-orphan-pics! orphan-pics)
                   (info "~a ~a" num-orphan-pics (_ " records have been removed.")))
-                (info (_ "Not removing records."))))
+                (info (_ "Not removing records."))))))
 
+    (if (null? orphan-thumbs)
+        (info (_ "No orphan thumbnail found."))
+        (begin
           (for-each info orphan-thumbs)
           (info "\n~a ~a" num-orphan-thumbs (_ "orphan thumbnails have been found."))
           (let ((answer

@@ -118,8 +118,12 @@ msgid "No match"
 msgstr "Nenhum resultado"
 
 #: src/gc.scm
-msgid "No orphan pics found."
+msgid "No orphan pic found."
 msgstr "Nenhuma foto órfã foi encontrada."
+
+#: src/gc.scm
+msgid "No orphan thumbnail found."
+msgstr "Nenhuma miniatura órfã foi encontrada."
 
 #: src/renderers/tag.scm
 msgid "No tag has been created yet."
