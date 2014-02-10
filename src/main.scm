@@ -67,12 +67,7 @@
     (let ((image-files (filter image-file? (glob (make-pathname dir "*")))))
       (filter-map
        (lambda (image-file)
-         (let ((thumbnail
-                (normalize-pathname
-                 (make-pathname (list metadata-dir
-                                      thumbnails-dirname
-                                      (->string dimension))
-                                (maybe-replace-thumbnail-extension image-file)))))
+         (let ((thumbnail (thumbnail-path image-file dimension)))
            (and (not (file-read-access? thumbnail))
                 (list image-file thumbnail dimension))))
        image-files)))
