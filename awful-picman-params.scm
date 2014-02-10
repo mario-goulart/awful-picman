@@ -25,7 +25,20 @@
 )
 
 (import chicken scheme)
-(use extras)
+(use data-structures extras srfi-4)
+(use hostinfo spiffy)
+(reexport (only awful page-access-control))
+
+;;;
+;;; Access control
+;;;
+(page-access-control
+ (lambda (dummy)
+   (equal? "localhost"
+           (ip->hostname
+            (list->u8vector
+             (map string->number
+                  (string-split (remote-address) ".")))))))
 
 ;;;
 ;;; Web path-related parameters
