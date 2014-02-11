@@ -22,6 +22,12 @@
 ;;; IMPORTANT: migrations must be added in the order they are to be
 ;;; applied!
 
+;; version 0 -> 1
+(add-migration!
+ 1
+ (lambda (db)
+   ;; version 0 didn't have a version table
+   (db-query db "create table version (version integer)")))
 
 ;;; end migrations
 
