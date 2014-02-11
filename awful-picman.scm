@@ -26,6 +26,7 @@
 (include "src/image")
 (include "src/utils")
 (include "src/db")
+(include "src/db-migrations")
 (include "src/ajax-handlers")
 (include "src/dispatcher")
 (include "src/gc")

@@ -200,6 +200,9 @@ EOF
               "Did you create it with --init?\n"))
     (exit 1))
 
+  ;; Run migrations if necessary
+  (maybe-migrate-db!)
+
   (when (member "--gc" args)
     (handle-exceptions exn
       (begin
