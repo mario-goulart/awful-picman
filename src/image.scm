@@ -146,9 +146,7 @@
                  "    progress_data += '(' + response['current'] + '/' + response['total'] + ') ';"
                  "    progress_data += response['image-file'];"
                  "    $('#progress-data').text(progress_data);"
-                 "} else {"
-                 "   $('#progress-data').text('Error');"
-                 "};")
+                 "}")
                 target-page))
     `((div (@ (id "progress-container"))
            (h2 ,(_ "Generating thumbnails"))
