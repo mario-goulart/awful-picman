@@ -25,7 +25,8 @@
           (handle-exceptions exn
             (begin
               (info-error (_ "An error has occurred while performing db garbage collection:"))
-              (print-error-message exn (current-error-port)))
+              (print-error-message exn (current-error-port))
+              (print-call-chain (current-error-port)))
             ;; Work around the apply limit...
             (let ((slices (if (> (length orphan-pics) 120)
                               (chop orphan-pics 120)
