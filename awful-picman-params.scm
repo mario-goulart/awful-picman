@@ -32,13 +32,13 @@
 ;;;
 ;;; Access control
 ;;;
-(page-access-control
- (lambda (dummy)
-   (equal? "localhost"
-           (ip->hostname
-            (list->u8vector
-             (map string->number
-                  (string-split (remote-address) ".")))))))
+;; (page-access-control
+;;  (lambda (dummy)
+;;    (equal? "localhost"
+;;            (ip->hostname
+;;             (list->u8vector
+;;              (map string->number
+;;                   (string-split (remote-address) ".")))))))
 
 ;;;
 ;;; Web path-related parameters

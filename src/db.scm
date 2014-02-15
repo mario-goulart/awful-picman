@@ -42,44 +42,65 @@ create table albums_pics (
                              (sql db-conn q))
                        values)))
 
+(define (db-query/ssql db-conn q #!key (values '()))
+  (apply query (append (list (map-rows (lambda (data) data))
+                             (sql db-conn (ssql->sql #f q)))
+                       values)))
+
+(define ($db/ssql q #!key default values)
+  ($db (ssql->sql #f q) default: default values: values))
+
 (define (update-pic-data! db pic-id descr decade year month day tags albums)
   ;; This is ugly:
   (when descr
-    (db-query db "update pics set descr=? where pic_id=?"
-              values: (list descr pic-id)))
+    (db-query/ssql db `(update (table pics)
+                               (set (descr ?))
+                               (where (= pic_id ?)))
+                   values: (list descr pic-id)))
   (when decade
-    (db-query db "update pics set decade=? where pic_id=?"
-              values: (list decade pic-id)))
+    (db-query/ssql db `(update (table pics)
+                               (set (decade ?))
+                               (where (= pic_id ?)))
+                   values: (list decade pic-id)))
   (when year
-    (db-query db "update pics set year=? where pic_id=?"
-              values: (list year pic-id)))
+    (db-query/ssql db `(update (table pics)
+                               (set (year ?))
+                               (where (= pic_id ?)))
+                   values: (list year pic-id)))
   (when month
-    (db-query db "update pics set month=? where pic_id=?"
-              values: (list month pic-id)))
+    (db-query/ssql db `(update (table pics)
+                               (set (month ?))
+                               (where (= pic_id ?)))
+                   values: (list month pic-id)))
   (when day
-    (db-query db "update pics set day=? where pic_id=?"
-              values: (list day pic-id)))
+    (db-query/ssql db `(update (table pics)
+                               (set (day ?))
+                               (where (= pic_id ?)))
+                   values: (list day pic-id)))
   ;; update tags
   (debug 2 "update-pics-data!: tags: ~S" tags)
-  (db-query db "delete from tags where pic_id=?"
-            values: (list pic-id))
+  (db-query/ssql db `(delete (from tags) (where (= pic_id ?)))
+                 values: (list pic-id))
   (insert-tags! db pic-id tags)
 
   ;; update albums
   (debug 2 "update-pics-data!: albums: ~S" albums)
-  (db-query db "delete from albums_pics where pic_id=?"
-            values: (list pic-id))
+  (db-query/ssql db `(delete (from albums_pics) (where (= pic_id ?)))
+                 values: (list pic-id))
   (insert-albums! db pic-id albums))
 
 (define (insert-pic-data! db dir filename descr decade year month day tags albums)
-  (db-query db "insert into pics (dir, filename, descr, decade, year, month, day) values (?, ?, ?, ?, ?, ?, ?)"
-            values: (list dir
-                          filename
-                          (or descr "")
-                          (or decade "")
-                          (or year "")
-                          (or month "")
-                          (or day "")))
+  (db-query/ssql db
+                 `(insert (into pics)
+                          (columns dir filename descr decade year month day)
+                          (values #(? ? ? ? ? ? ?)))
+                 values: (list dir
+                               filename
+                               (or descr "")
+                               (or decade "")
+                               (or year "")
+                               (or month "")
+                               (or day "")))
   (let ((pic-id (last-insert-rowid db)))
     (insert-tags! db pic-id tags)
     (insert-albums! db pic-id albums)))
@@ -99,8 +120,11 @@ create table albums_pics (
       (lambda (db)
         (with-transaction db
           (lambda ()
-            (or (and-let* ((data (db-query db "select pic_id from pics where dir=? and filename=?"
-                                           values: (list dir filename)))
+            (or (and-let* ((data (db-query/ssql db `(select (columns pic_id)
+                                                            (from pics)
+                                                            (where (and (= dir ?)
+                                                                        (= filename ?))))
+                                                values: (list dir filename)))
                            ((not (null? data)))
                            (pic-id (caar data)))
                   ;; pic is in db.  Update its data.
@@ -152,18 +176,24 @@ create table albums_pics (
 (define (get-pic-from-db path)
   (let ((dir (pathname-directory path))
         (filename (pathname-strip-directory path)))
-    (or (and-let* ((data* ($db "select pic_id, descr, decade, year, month, day from pics where dir=? and filename=?"
-                               values: (list dir filename)))
+    (or (and-let* ((data* ($db/ssql
+                           '(select (columns pic_id descr decade year month day)
+                                    (from pics)
+                                    (where (= dir ?)
+                                           (= filename ?)))
+                           values: (list dir filename)))
                    ((not (null? data*)))
                    (data (car data*))
                    (id (car data))
                    ($ (lambda (pos) (list-ref data pos)))
-                   (tags ($db "select tag from tags where pic_id=?"
-                              values: (list id)))
-                   (albums ($db (string-append
-                                 "select albums.title from albums, albums_pics where "
-                                 "albums_pics.pic_id=? and albums.album_id=albums_pics.album_id")
-                                values: (list id))))
+                   (tags ($db/ssql '(select (columns tag) (from tags) (qhere (= pic_id ?)))
+                                   values: (list id)))
+                   (albums ($db/ssql
+                            '(select (columns albums.title)
+                                     (from albums albums_pics)
+                                     (where (and (= albums_pics.pic_id ?)
+                                                 (= albums.album_id albums_pics.album_id))))
+                            values: (list id))))
           (make-db-pic id
                        dir
                        filename
@@ -180,28 +210,36 @@ create table albums_pics (
 ;;; Tags
 ;;;
 (define (db-tags)
-  (map car ($db "select distinct tag from tags order by tag")))
+  (map car ($db/ssql
+            '(select distinct
+                     (columns tag)
+                     (from tags)
+                     (order tag)))))
 
 (define (insert-tags! db pic-id tags)
   (for-each (lambda (tag)
-              (db-query db "insert into tags (pic_id, tag) values (?, ?)"
-                        values: (list pic-id tag)))
+              (db-query/ssql db '(insert (into tags)
+                                         (columns pic_id tag)
+                                         (values #(? ?)))
+                             values: (list pic-id tag)))
             (if tags
                 (map string-trim-both tags)
                 '())))
 
 (define (db-remove-tag! tag)
   (debug 2 "db-remove-tag!: tag: ~S" tag)
-  ($db "delete from tags where tag=?"
-       values: (list tag)))
+  ($db/ssql '(delete (from tags) (where (= tag ?)))
+            values: (list tag)))
 
 (define (db-update-tag! original-tag new-tag)
   (debug 2 "db-update-tag!: original-tag: ~S  new-tag: ~S" original-tag new-tag)
-  ($db "update tags set tag=? where tag=?"
-       values: (list new-tag original-tag)))
+  ($db/ssql '(update (table tags)
+                     (set (tag ?))
+                     (where (= tag ?)))
+            values: (list new-tag original-tag)))
 
 (define (db-tag-filter include-tags exclude-tags)
-  (define (select-pics tags op)
+  (define (select-pics tags op) ;; FIXME
     (string-intersperse
      (map (lambda (_)
             "select pic_id from tags where tag=?")
@@ -224,12 +262,22 @@ create table albums_pics (
 (define (db-filter/without-album)
   (map (lambda (dir/f)
          (make-pathname (car dir/f) (cadr dir/f)))
-       ($db "select dir, filename from pics where pics.pic_id not in (select distinct pic_id from albums_pics)")))
+       ($db/ssql '(select (columns dir filename)
+                          (from pics)
+                          (where (not (in pics.pic_id
+                                          (select distinct
+                                                  (columns pic_id)
+                                                  (from albums_pics)))))))))
 
 (define (db-filter/without-tag)
   (map (lambda (dir/f)
          (make-pathname (car dir/f) (cadr dir/f)))
-       ($db "select dir, filename from pics where pics.pic_id not in (select distinct pic_id from tags)")))
+       ($db/ssql '(select (columns dir filename)
+                          (from pics)
+                          (where (not (in pics.pic_id
+                                          (select distinct
+                                                  (columns pic_id)
+                                                  (from tags)))))))))
 
 ;;;
 ;;; Albums
@@ -246,29 +294,36 @@ create table albums_pics (
 (define (insert-albums! db pic-id albums)
   (for-each
    (lambda (album)
-     (let ((db-album (db-query db "select album_id from albums where title=?"
-                               values: (list album))))
+     (let ((db-album (db-query/ssql db '(select (columns album_id)
+                                                (from albums)
+                                                (where (= title ?)))
+                                    values: (list album))))
        (when (null? db-album)
-         (db-query db "insert into albums (title) values (?)"
-                   values: (list album)))
+         (db-query/ssql db '(insert (into albums) (columns title) (values #(?)))
+                        values: (list album)))
        (let ((album-id
-              (caar (db-query db "select album_id from albums where title=?"
-                              values: (list album)))))
-         (db-query db "insert into albums_pics (pic_id, album_id) values (?, ?)"
-                   values: (list pic-id album-id)))))
+              (caar (db-query/ssql db '(select (columns album_id) (from albums) (where (= title ?)))
+                                   values: (list album)))))
+         (db-query/ssql db '(insert (into albums_pics) (columns pic_id album_id) (values #(? ?)))
+                        values: (list pic-id album-id)))))
    (or albums '())))
 
 (define (db-albums)
   (map (lambda (album/descr)
          (apply make-db-album album/descr))
-       ($db "select distinct album_id, title, descr from albums order by title")))
+       ($db/ssql `(select distinct
+                          (columns album_id title descr)
+                          (from albums)
+                          (order title)))))
 
 (define (db-album-pics-count album-id)
   (let ((count
-         ($db (string-append
-               "select count(albums_pics.pic_id) from albums, albums_pics where "
-               "albums_pics.album_id=albums.album_id and albums.album_id=?")
-              values: (list album-id))))
+         ($db/ssql
+          `(select (columns (count albums_pics.pic_id))
+                   (from album albums_pics)
+                   (where (and (= albums_pics.album_id albums.album_id)
+                               (= albums.album_id ?))))
+          values: (list album-id))))
     (if (null? count)
         0
         (caar count))))
@@ -276,24 +331,30 @@ create table albums_pics (
 (define (db-album-pics album)
   (map (lambda (dir/f)
          (make-pathname (car dir/f) (cadr dir/f)))
-       ($db (string-append
-             "select pics.dir, pics.filename from pics, albums, albums_pics "
-             "where albums.title=? and "
-             "albums.album_id=albums_pics.album_id and "
-             "pics.pic_id=albums_pics.pic_id "
-             "order by pics.pic_id")
-            values: (list album))))
+       ($db/ssql
+        `(select (columns pics.dir pics.filename)
+                 (from pics albums albums_pics)
+                 (where (and (= album.title ?)
+                             (= albums.album_id pics.album_id)
+                             (= pics.pic_id albums_pics.pic_id)))
+                 (order pics.pic_id))
+        values: (list album))))
 
 (define (db-dir-pics dir)
   (call-with-database (db-credentials)
      (lambda (db)
-       (map car (db-query db "select filename from pics where dir=?"
-                          values: (list dir))))))
+       (map car (db-query/ssql db `(select (columns filename)
+                                           (from pics)
+                                           (where (= dir ?)))
+                               values: (list dir))))))
 
 (define (db-remove-album! album-id)
-  ($db "delete from albums where album_id=?"
-       values: (list album-id)))
+  ($db/ssql `(delete (from albums) (where (= album_id ?)))
+            values: (list album-id)))
 
 (define (db-update-album! album-id title descr)
-  ($db "update albums set title=?, descr=? where album_id=?"
-       values: (list title descr album-id)))
+  ($db/ssql `(update (table albums)
+                     (set (title ?)
+                          (descr ?))
+                     (where (= (album_id ?))))
+            values: (list title descr album-id)))
