@@ -16,16 +16,30 @@
 
  ;; i18n
  language
+ _
 
  ;; Misc
  verbose?
  start-decade
  debug-level
  debug-formatter
+
+ ;; Constants
+ dot-dirname
+ thumbnails-dirname
+ db-filename
+ assets-install-dir
+ root-dir
+ metadata-dir
+ global-conf-dir
+
+ ;; Image
+ image-file-extensions
+ non-web-image-file-extensions
 )
 
 (import chicken scheme)
-(use data-structures extras srfi-4)
+(use data-structures extras files posix setup-api srfi-4)
 (use hostinfo spiffy)
 (reexport (only awful page-access-control))
 
@@ -70,6 +84,9 @@
   ;; environment variables
   (make-parameter #f))
 
+;; _ is actually a procedure which is set as soon as the program runs
+(define _)
+
 ;;;
 ;;; Messages & debugging
 ;;;
@@ -86,5 +103,40 @@
 ;;; Assorted parameters
 ;;;
 (define start-decade (make-parameter 1900))
+
+
+;;;
+;;; Constants
+;;;
+(define dot-dirname ".awful-picman")
+(define thumbnails-dirname "thumbnails")
+(define db-filename "awful-picman.db")
+
+;; Where chicken-install will install static files served by the web
+;; server.  This stuff will be copied to the metadata dir on --init.
+(define assets-install-dir
+  (make-pathname (list (installation-prefix)
+                       "lib"
+                       "chicken"
+                       (number->string (##sys#fudge 42)))
+                 "awful-picman"))
+
+(define root-dir #f) ;; set as soon as the program starts running
+
+(define metadata-dir
+  (make-pathname "." dot-dirname))
+
+(define global-conf-dir
+  (make-pathname (get-environment-variable "HOME") dot-dirname))
+
+;;;
+;;; Image stuff
+;;;
+(define image-file-extensions
+  '("png" "jpg" "jpeg" "gif" "tiff"))
+
+(define non-web-image-file-extensions
+  '("tiff"))
+
 
 ) ;; end module

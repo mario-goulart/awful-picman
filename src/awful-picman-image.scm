@@ -1,27 +1,18 @@
+(module awful-picman-image
+
+  (default-thumbnail-dimension
+   thumbnail-path
+   maybe-replace-thumbnail-extension
+   images->thumbnails
+   )
+
+(import chicken scheme)
+(use data-structures files ports posix srfi-1 extras)
+(use imlib2 awful)
+(use awful-picman-params awful-picman-utils)
+
 (define (default-thumbnail-dimension)
   (car (thumbnails/max-dimensions)))
-
-(define image-file-extensions
-  '("png" "jpg" "jpeg" "gif" "tiff"))
-
-(define non-web-image-file-extensions
-  '("tiff"))
-
-(define (image-file? file)
-  (let ((extension (pathname-extension file)))
-    (and extension
-         (member (string-downcase extension) image-file-extensions)
-         #t)))
-
-(define (non-web-image-file? file)
-  (let ((extension (pathname-extension file)))
-    (and extension
-         (member (string-downcase extension)
-                 non-web-image-file-extensions)
-         #t)))
-
-(define (flonum->fixnum num)
-  (inexact->exact (round num)))
 
 (define (thumbnail-path pic-path dimension)
   (normalize-pathname
@@ -101,56 +92,5 @@
         progress-file)
       (images->thumbnails* imgs/thumbs/dims #f)))
 
-(define (poll-thumbnails-conversion dir target-page missing-thumbnails)
-  ;; Generate the page to be displayed while images files are
-  ;; converted to thumbnails
-  (let ((progress-file (process-dir dir missing-thumbnails #t))
-        (target-page
-         (string-append "?" (append-to-query-string '((done . "true"))))))
-    (periodical-ajax "/generate-thumbnails" 700
-      (lambda ()
-        (with-request-variables (progress-file)
-          (handle-exceptions exn
-            (begin
-              (debug 2 "Error reading progress data: ~a"
-                     (with-output-to-string
-                       (lambda ()
-                         (print-error-message exn))))
-              '((conv-progress . "")
-                (status . running)))
-            (if (file-read-access? progress-file)
-                (let* ((progress-data (with-input-from-file progress-file read))
-                       (image-file (car progress-data))
-                       (dimension (cadr progress-data))
-                       (total (caddr progress-data))
-                       (current (cadddr progress-data))
-                       (num-dimensions (length (thumbnails/max-dimensions))))
-                  `((conv-progress . ,(flonum->fixnum (/ (* current 100) total)))
-                    (image-file . ,image-file)
-                    (dimension . ,dimension)
-                    (total . ,(/ total num-dimensions))
-                    (current . ,(flonum->fixnum (/ current num-dimensions)))
-                    (status . running)))
-                `((conv-progress . "")
-                  (status . done))))))
-      update-targets: #t
-      arguments: `((progress-file . ,(sprintf "'~a'" progress-file)))
-      success: (sprintf
-                (string-append
-                 "var progress_data;"
-                 "if (response['status'] == 'done') {"
-                 "    window.location.replace('~a')"
-                 "} else if ((response['status'] == 'running') && response['conv-progress']){"
-                 "    $('.bar').width(response['conv-progress'] + '%');"
-                 "    progress_data = response['conv-progress'] + '% ';"
-                 "    progress_data += '(' + response['current'] + '/' + response['total'] + ') ';"
-                 "    progress_data += response['image-file'];"
-                 "    $('#progress-data').text(progress_data);"
-                 "}")
-                target-page))
-    `((div (@ (id "progress-container"))
-           (h2 ,(_ "Generating thumbnails"))
-           (div (@ (class "progress"))
-                (div (@ (class "bar")
-                        (style "width: 0;"))))
-           (div (@ (id "progress-data")))))))
+
+) ;; end module

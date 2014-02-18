@@ -1,6 +1,9 @@
-;;;
-;;; Migrations
-;;;
+(module awful-picman-db-migrations (maybe-migrate-db!)
+
+(import chicken scheme)
+(use srfi-1)
+(use awful sql-de-lite)
+(use awful-picman-utils awful-picman-db)
 
 (define *db-migrations* '())
 
@@ -66,3 +69,5 @@
            (info "Successfully migrated from version ~a to ~a" version next-version)))
        migrations
        (iota (- total-migrations version) version)))))
+
+) ;; end module

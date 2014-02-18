@@ -1,4 +1,4 @@
-#: src/db.scm
+#: src/awful-picman-db.scm
 msgid ""
 msgstr ""
 "Last-Translator: Mario Domenech Goulart\n"
@@ -9,15 +9,15 @@ msgstr ""
 msgid " except those tagged with "
 msgstr " exceto as marcadas com "
 
-#: src/gc.scm
+#: src/awful-picman-gc.scm
 msgid " records have been removed."
 msgstr "registros foram removidos."
 
-#: src/gc.scm
+#: src/awful-picman-gc.scm
 msgid " thumbnails have been removed."
 msgstr "miniaturas foram removidas."
 
-#: src/gc.scm
+#: src/awful-picman-gc.scm
 msgid "Aborting."
 msgstr "Abortando."
 
@@ -33,7 +33,7 @@ msgstr ""
 "Todas as fotos selecionadas terão suas informações sobrescritas pelas "
 "preenchidas neste formulário."
 
-#: src/gc.scm
+#: src/awful-picman-gc.scm
 msgid "An error has occurred while performing db garbage collection:"
 msgstr "Ocorreu um erro durante a coleta de lixo na base de dados:"
 
@@ -101,7 +101,7 @@ msgstr "Filtros"
 msgid "Folders"
 msgstr "Pastas"
 
-#: src/image.scm
+#: src/awful-picman-process-dir.scm
 msgid "Generating thumbnails"
 msgstr "Gerando miniaturas"
 
@@ -117,11 +117,11 @@ msgstr "Nenhum álbum disponível.  Crie álbuns a partir de fotos em "
 msgid "No match"
 msgstr "Nenhum resultado"
 
-#: src/gc.scm
+#: src/awful-picman-gc.scm
 msgid "No orphan pic found."
 msgstr "Nenhuma foto órfã foi encontrada."
 
-#: src/gc.scm
+#: src/awful-picman-gc.scm
 msgid "No orphan thumbnail found."
 msgstr "Nenhuma miniatura órfã foi encontrada."
 
@@ -129,11 +129,11 @@ msgstr "Nenhuma miniatura órfã foi encontrada."
 msgid "No tag has been created yet."
 msgstr "Nenhum marcador foi criado ainda."
 
-#: src/gc.scm
+#: src/awful-picman-gc.scm
 msgid "Not removing records."
 msgstr "Nenhum registro foi removido."
 
-#: src/gc.scm
+#: src/awful-picman-gc.scm
 msgid "Not removing thumbnails."
 msgstr "Nenhuma miniatura removida."
 
@@ -153,11 +153,11 @@ msgstr "Foto anterior"
 msgid "Remove album?"
 msgstr "Remover álbum?"
 
-#: src/gc.scm
+#: src/awful-picman-gc.scm
 msgid "Remove orphan thumbnails?"
 msgstr "Remover miniaturas órfãs?"
 
-#: src/gc.scm
+#: src/awful-picman-gc.scm
 msgid "Remove records that reference those files from the database?"
 msgstr "Remover registros da base de dados que referenciam esses arquivos?"
 
@@ -237,11 +237,11 @@ msgstr "resultados"
 msgid "no "
 msgstr "nenhuma "
 
-#: src/gc.scm
+#: src/awful-picman-gc.scm
 msgid "orphan pics have been found."
 msgstr "fotos órfãs foram encontradas."
 
-#: src/gc.scm
+#: src/awful-picman-gc.scm
 msgid "orphan thumbnails have been found."
 msgstr "miniaturas órfãs foram encontradas."
 

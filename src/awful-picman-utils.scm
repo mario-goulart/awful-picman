@@ -1,3 +1,66 @@
+(module awful-picman-utils
+
+  (image-file?
+   non-web-image-file?
+
+   ;; Reporting
+   debug
+   info
+   info-error
+   info*
+   cmd-line-arg
+
+   ;; dir-stat record
+   make-dir-stat
+   dir-stat-num-dirs
+   dir-stat-num-pics
+   dir-stat-num-files
+   get-dir-stat
+
+   ;; Paths
+   path-split
+   path-join
+   drop-path-prefix
+   drop-web-path-prefix
+
+   ;; Directory
+   find-root-dir
+   list-directory
+
+   ;; Time
+   current-year
+   current-decade
+
+   ;; Misc
+   flonum->fixnum
+   combo-box
+   maybe-string-null->false
+   query-string
+   append-to-query-string
+   format-size/bytes
+   )
+
+(import chicken scheme)
+(use data-structures extras files irregex posix srfi-1 srfi-13)
+(use uri-common spiffy intarweb)
+(use awful-picman-params)
+
+(define (image-file? file)
+  (let ((extension (pathname-extension file)))
+    (and extension
+         (member (string-downcase extension) image-file-extensions)
+         #t)))
+
+(define (non-web-image-file? file)
+  (let ((extension (pathname-extension file)))
+    (and extension
+         (member (string-downcase extension)
+                 non-web-image-file-extensions)
+         #t)))
+
+(define (flonum->fixnum num)
+  (inexact->exact (round num)))
+
 (define (find-root-dir dir)
   ;; Find the root dir, looking back in the filesystem hierarchy,
   ;; starting from `dir'.
@@ -8,9 +71,6 @@
         (if (equal? dir (pathname-directory dir)) ;; system root dir
             #f
             (find-root-dir (pathname-directory dir))))))
-
-(define (default-thumbnail-dimension)
-  (car (thumbnails/max-dimensions)))
 
 (define (drop-path-prefix prefix path)
   (let ((p (substring path (string-length prefix))))
@@ -143,3 +203,5 @@
                    (vector-ref names k)
                    (if (zero? k) "" suffix)))))))
   (string-append (num/si n) "B"))
+
+) ;; end module

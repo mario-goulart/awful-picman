@@ -1,7 +1,54 @@
+(module awful-picman-db
+
+  (initialize-database
+   db-query
+
+   ;; Albums
+   db-dir-pics
+   db-filter/without-album
+   db-albums
+   db-album-pics
+   db-album-pics-count
+   db-album?
+   db-album-id
+   db-album-descr
+   db-album-title
+   db-update-album!
+   db-remove-album!
+
+   ;; Tags
+   db-tags
+   db-update-tag!
+   db-remove-tag!
+   db-tag-filter
+   db-filter/without-tag
+
+   ;; db-pic object
+   make-db-pic
+   db-pic?
+   db-pic-decade
+   db-pic-descr
+   db-pic-path
+   db-pic-tags
+   db-pic-albums
+   db-pic-day
+   db-pic-month
+   db-pic-year
+
+   get-pic-from-db
+   insert/update-pic!
+   insert-multiple-pics!
+   )
+
+(import chicken scheme)
+(use data-structures files srfi-1 srfi-13)
+(use awful awful-sql-de-lite sql-de-lite)
+(use awful-picman-utils)
+
 (define (initialize-database db-file force?)
   (when (or (not (file-exists? db-file))
             force?)
-    (info "Initializing database ~a" db-file)
+    ;(info "Initializing database ~a" db-file)
     (with-output-to-file db-file (cut display ""))
     (let ((db (open-database db-file)))
 
@@ -297,3 +344,5 @@ create table albums_pics (
 (define (db-update-album! album-id title descr)
   ($db "update albums set title=?, descr=? where album_id=?"
        values: (list title descr album-id)))
+
+) ;; end module

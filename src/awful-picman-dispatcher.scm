@@ -1,3 +1,15 @@
+(module awful-picman-dispatcher (awful-picman)
+
+(import chicken scheme)
+(use files irregex ports posix srfi-1 srfi-13)
+(use json spiffy awful awful-sql-de-lite matchable)
+(use awful-picman-params
+     awful-picman-utils
+     awful-picman-image
+     awful-picman-db
+     awful-picman-process-dir
+     awful-picman-renderers)
+
 (define (awful-picman)
 
   (enable-sxml #t)
@@ -160,3 +172,5 @@
     (lambda ()
       (redirect-to (albums-web-dir))))
   )
+
+) ;; end module

@@ -11,12 +11,93 @@
       '(-O3 -d1) ;; -d0 makes awful-picman break (see http://bugs.call-cc.org/ticket/1041)
       ))
 
-;; Compile modules
+(change-directory "src")
+
+;;;
+;;; Compile modules and the executable
+;;;
+
+;;; awful-picman-params
 (compile -J -s ,@csc-options awful-picman-params.scm)
 (compile -s ,@csc-options awful-picman-params.import.scm)
 
-;; Compile the executable
+;;; awful-picman-conf
+(compile -J -s ,@csc-options awful-picman-conf.scm)
+(compile -s ,@csc-options awful-picman-conf.import.scm)
+
+;;; awful-picman-utils
+(compile -J -s ,@csc-options awful-picman-utils.scm)
+(compile -s ,@csc-options awful-picman-utils.import.scm)
+
+;;; awful-picman-db
+(compile -J -s ,@csc-options awful-picman-db.scm)
+(compile -s ,@csc-options awful-picman-db.import.scm)
+
+;;; awful-picman-process-dir
+(compile -J -s ,@csc-options awful-picman-process-dir.scm)
+(compile -s ,@csc-options awful-picman-process-dir.import.scm)
+
+;;; awful-picman-image
+(compile -J -s ,@csc-options awful-picman-image.scm)
+(compile -s ,@csc-options awful-picman-image.import.scm)
+
+;;; awful-picman-renderers
+(compile -J -s ,@csc-options awful-picman-renderers.scm)
+(compile -s ,@csc-options awful-picman-renderers.import.scm)
+
+;;; awful-picman-dispatcher
+(compile -J -s ,@csc-options awful-picman-dispatcher.scm)
+(compile -s ,@csc-options awful-picman-dispatcher.import.scm)
+
+;;; awful-picman-db-migrations
+(compile -J -s ,@csc-options awful-picman-db-migrations.scm)
+(compile -s ,@csc-options awful-picman-db-migrations.import.scm)
+
+;;; awful-picman-gc
+(compile -J -s ,@csc-options awful-picman-gc.scm)
+(compile -s ,@csc-options awful-picman-gc.import.scm)
+
+
+;;; awful-picman
 (compile ,@csc-options awful-picman.scm)
+
+;;;
+;;; Install things
+;;;
+(install-program
+ 'awful-picman
+ '("awful-picman")
+ `((version ,awful-picman-version)))
+
+(for-each
+ (lambda (mod)
+   (install-extension
+    mod
+    (list (sprintf "~a.import.so" mod) (sprintf "~a.so" mod))
+    `((version ,awful-picman-version))))
+ '(awful-picman-params
+   awful-picman-utils
+   awful-picman-db
+   awful-picman-image
+   awful-picman-conf
+   awful-picman-dispatcher
+   awful-picman-process-dir
+   awful-picman-renderers
+   awful-picman-db-migrations
+   awful-picman-gc))
+
+(change-directory "..")
+
+;;;
+;;; Assets and i18n
+;;;
+(install-extension
+ 'awful-picman-assets
+ '(("js"  "awful-picman/js")
+   ("css" "awful-picman/css")
+   ("img" "awful-picman/img")
+   ("locale" "awful-picman/locale"))
+ `((version ,awful-picman-version)))
 
 ;; i18n stuff
 (system* "csi -s bin/sgettext.scm src/*.scm src/renderers/*.scm > locale/awful-picman.pot")
@@ -32,21 +113,3 @@
       (sprintf "msgfmt ~a -o locale/~a/LC_MESSAGES/awful-picman.mo"
                po lang))))
  '(pt_BR))
-
-(install-program
- 'awful-picman
- '("awful-picman")
- `((version ,awful-picman-version)))
-
-(install-extension
- 'awful-picman-params
- '("awful-picman-params.import.so" "awful-picman-params.so")
- `((version ,awful-picman-version)))
-
-(install-extension
- 'awful-picman-assets
- '(("js"  "awful-picman/js")
-   ("css" "awful-picman/css")
-   ("img" "awful-picman/img")
-   ("locale" "awful-picman/locale"))
- `((version ,awful-picman-version)))

@@ -1,3 +1,10 @@
+(module awful-picman-gc (gc!)
+
+(import chicken scheme)
+(use data-structures files posix srfi-1 utils)
+(use awful matchable sql-de-lite)
+(use awful-picman-params awful-picman-utils awful-picman-db)
+
 (define (db-orphan-pics)
   (let ((db-pics
          (call-with-database (db-credentials)
@@ -106,3 +113,5 @@
                   (for-each delete-file* orphan-thumbs)
                   (info "~a ~a" num-orphan-thumbs (_ " thumbnails have been removed.")))
                 (info (_ "Not removing thumbnails."))))))))
+
+) ;; end module

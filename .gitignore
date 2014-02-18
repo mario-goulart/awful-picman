@@ -4,4 +4,4 @@
 *.import.so
 *.pot
 *.mo
-awful-picman
+src/awful-picman

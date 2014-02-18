@@ -1,3 +1,14 @@
+(module awful-picman-conf
+
+  (load-global-conf
+   load-user-conf
+   load-local-conf
+   )
+
+(import chicken scheme)
+(use files posix)
+(use awful-picman-params awful-picman-utils)
+
 (define conf-filename "awful-picman.conf")
 (define dot-conf-filename (string-append "." conf-filename))
 
@@ -21,3 +32,5 @@
 (define (load-local-conf)
   (conf-loader 'user
                (make-pathname metadata-dir conf-filename)))
+
+) ;; end module
