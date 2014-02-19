@@ -1,9 +1,22 @@
 ;; -*- scheme -*-
-(use posix)
+(use posix make)
 
 (define awful-picman-version "0.0.1")
 
 (define debug? (get-environment-variable "AWFUL_PICMAN_DEBUG"))
+
+(define make-targets (get-environment-variable "MAKE_TARGETS"))
+
+(define base-dir (current-directory))
+(define src-dir (make-pathname base-dir "src"))
+
+(define-syntax cd
+  (syntax-rules ()
+    ((_ dir body ...)
+     (let ((cur (current-directory)))
+       (change-directory dir)
+       body ...
+       (change-directory cur)))))
 
 (define csc-options
   (if debug?
@@ -11,105 +24,167 @@
       '(-O3 -d1) ;; -d0 makes awful-picman break (see http://bugs.call-cc.org/ticket/1041)
       ))
 
-(change-directory "src")
+(define modules/deps
+  `(awful-picman-params
+    (awful-picman-utils "awful-picman-params.import.so")
+    (awful-picman-db "awful-picman-utils.import.so")
+    (awful-picman-image "awful-picman-params.import.so"
+                        "awful-picman-utils.import.so")
+    (awful-picman-conf "awful-picman-params.import.so"
+                       "awful-picman-utils.import.so")
+    (awful-picman-dispatcher "awful-picman-params.import.so"
+                             "awful-picman-utils.import.so"
+                             "awful-picman-image.import.so"
+                             "awful-picman-db.import.so"
+                             "awful-picman-process-dir.import.so"
+                             "awful-picman-renderers.import.so"
+                             "awful-picman-process-dir.import.so")
+    ,(cons 'awful-picman-renderers
+           (append
+            '("awful-picman-params.import.so"
+              "awful-picman-utils.import.so"
+              "awful-picman-db.import.so"
+              "awful-picman-image.import.so")
+            (map (lambda (file)
+                   (make-pathname "renderers" file))
+                 '("ajax-handlers.scm"
+                   "album.scm"
+                   "breadcrumbs.scm"
+                   "common.scm"
+                   "dynamic-input.scm"
+                   "filter.scm"
+                   "folder.scm"
+                   "tag.scm"))))
+    (awful-picman-db-migrations "awful-picman-utils.import.so"
+                                "awful-picman-db.import.so")
+    (awful-picman-gc "awful-picman-params.import.so"
+                     "awful-picman-utils.import.so"
+                     "awful-picman-db.import.so")
+    ))
 
-;;;
-;;; Compile modules and the executable
-;;;
+(define modules
+  (map (lambda (mod)
+         (if (pair? mod)
+             (car mod)
+             mod))
+       modules/deps))
 
-;;; awful-picman-params
-(compile -J -s ,@csc-options awful-picman-params.scm)
-(compile -s ,@csc-options awful-picman-params.import.scm)
+(define (mod.so mod)
+  (sprintf "~a.so" mod))
 
-;;; awful-picman-conf
-(compile -J -s ,@csc-options awful-picman-conf.scm)
-(compile -s ,@csc-options awful-picman-conf.import.scm)
+(define (mod.scm mod)
+  (sprintf "~a.scm" mod))
 
-;;; awful-picman-utils
-(compile -J -s ,@csc-options awful-picman-utils.scm)
-(compile -s ,@csc-options awful-picman-utils.import.scm)
+(define (mod.import.so mod)
+  (sprintf "~a.import.so" mod))
 
-;;; awful-picman-db
-(compile -J -s ,@csc-options awful-picman-db.scm)
-(compile -s ,@csc-options awful-picman-db.import.scm)
+(define (mod.import.scm mod)
+  (sprintf "~a.import.scm" mod))
 
-;;; awful-picman-process-dir
-(compile -J -s ,@csc-options awful-picman-process-dir.scm)
-(compile -s ,@csc-options awful-picman-process-dir.import.scm)
+(define (mod-rule mod . extra-files)
+  `((,(mod.so mod)
+     ,(cons (mod.scm mod) extra-files)
+     ,(lambda ()
+        (cd src-dir
+            (compile -J -s ,@csc-options ,(mod.scm mod)))))
+    (,(mod.import.so mod)
+     (,(mod.import.scm mod))
+     ,(lambda ()
+        (cd src-dir
+            (compile -s ,@csc-options ,(mod.import.scm mod)))))))
 
-;;; awful-picman-image
-(compile -J -s ,@csc-options awful-picman-image.scm)
-(compile -s ,@csc-options awful-picman-image.import.scm)
+(make-nonfile-targets '("clean" "build" "install" "install-assets" "i18n" "all"))
 
-;;; awful-picman-renderers
-(compile -J -s ,@csc-options awful-picman-renderers.scm)
-(compile -s ,@csc-options awful-picman-renderers.import.scm)
+(define (cleanup!)
+  (cd src-dir
+      (for-each delete-file*
+                (cons "awful-picman"
+                      (append (glob "*~")
+                              (glob "*.so")
+                              (glob "*.import.scm"))))))
 
-;;; awful-picman-dispatcher
-(compile -J -s ,@csc-options awful-picman-dispatcher.scm)
-(compile -s ,@csc-options awful-picman-dispatcher.import.scm)
+(define *rules* '())
 
-;;; awful-picman-db-migrations
-(compile -J -s ,@csc-options awful-picman-db-migrations.scm)
-(compile -s ,@csc-options awful-picman-db-migrations.import.scm)
+(define (add-rule! target deps #!optional proc)
+  (set! *rules*
+        (cons (if proc
+                  (list target deps proc)
+                  (list target deps))
+              *rules*)))
 
-;;; awful-picman-gc
-(compile -J -s ,@csc-options awful-picman-gc.scm)
-(compile -s ,@csc-options awful-picman-gc.import.scm)
+;; Module rules
+(set! *rules*
+      (append (apply append
+                     (map (lambda (mod/extra-files)
+                            (apply mod-rule (if (pair? mod/extra-files)
+                                                mod/extra-files
+                                                (list mod/extra-files))))
+                          modules/deps))
+              *rules*))
+
+;; Command line app
+(add-rule! "awful-picman" '("awful-picman.scm")
+           (lambda ()
+             (cd src-dir
+                 (compile ,@csc-options awful-picman.scm))))
+
+;; Clean
+(add-rule! "clean" '() cleanup!)
 
 
-;;; awful-picman
-(compile ,@csc-options awful-picman.scm)
+;; Build
+(add-rule! "build" (append (list "awful-picman")
+                           (map mod.so modules)
+                           (map mod.import.so modules)))
 
-;;;
-;;; Install things
-;;;
-(install-program
- 'awful-picman
- '("awful-picman")
- `((version ,awful-picman-version)))
+;; Install binaries
+(add-rule! "install" '("build")
+           (lambda ()
+             (cd src-dir
+                 ;; Command line app
+                 (install-program 'awful-picman
+                                  '("awful-picman")
+                                  `((version ,awful-picman-version)))
+                 ;; Modules
+                 (for-each (lambda (mod)
+                             (install-extension
+                              mod
+                              (list (mod.import.so mod) (mod.so mod))
+                              `((version ,awful-picman-version))))
+                           modules))))
 
-(for-each
- (lambda (mod)
-   (install-extension
-    mod
-    (list (sprintf "~a.import.so" mod) (sprintf "~a.so" mod))
-    `((version ,awful-picman-version))))
- '(awful-picman-params
-   awful-picman-utils
-   awful-picman-db
-   awful-picman-image
-   awful-picman-conf
-   awful-picman-dispatcher
-   awful-picman-process-dir
-   awful-picman-renderers
-   awful-picman-db-migrations
-   awful-picman-gc))
+;; Install assets
+(add-rule! "install-assets" '()
+           (lambda ()
+             (cd base-dir
+                 (install-extension
+                  'awful-picman-assets
+                  '(("js"  "awful-picman/js")
+                    ("css" "awful-picman/css")
+                    ("img" "awful-picman/img")
+                    ("locale" "awful-picman/locale"))
+                  `((version ,awful-picman-version))))))
 
-(change-directory "..")
+;; i18n
+(add-rule! "i18n" '()
+           (lambda ()
+             (cd base-dir
+                 (system* "csi -s bin/sgettext.scm src/*.scm src/renderers/*.scm > locale/awful-picman.pot")
 
-;;;
-;;; Assets and i18n
-;;;
-(install-extension
- 'awful-picman-assets
- '(("js"  "awful-picman/js")
-   ("css" "awful-picman/css")
-   ("img" "awful-picman/img")
-   ("locale" "awful-picman/locale"))
- `((version ,awful-picman-version)))
+                 (for-each
+                  (lambda (lang)
+                    (let ((po (sprintf "locale/~a/LC_MESSAGES/awful-picman.po" lang)))
+                      (unless (file-exists? po)
+                        (with-output-to-file po (cut display "")))
+                      (system*
+                       (sprintf "msgmerge -s -U ~a locale/awful-picman.pot" po))
+                      (system*
+                       (sprintf "msgfmt ~a -o locale/~a/LC_MESSAGES/awful-picman.mo"
+                                po lang))))
+                  '(pt_BR)))))
 
-;; i18n stuff
-(system* "csi -s bin/sgettext.scm src/*.scm src/renderers/*.scm > locale/awful-picman.pot")
+;; All
+(add-rule! "all" '("build" "install" "install-assets" "i18n"))
 
-(for-each
- (lambda (lang)
-   (let ((po (sprintf "locale/~a/LC_MESSAGES/awful-picman.po" lang)))
-     (unless (file-exists? po)
-       (with-output-to-file po (cut display "")))
-     (system*
-      (sprintf "msgmerge -s -U ~a locale/awful-picman.pot" po))
-     (system*
-      (sprintf "msgfmt ~a -o locale/~a/LC_MESSAGES/awful-picman.mo"
-               po lang))))
- '(pt_BR))
+(cd src-dir
+    (make/proc *rules* (or make-targets "all")))
