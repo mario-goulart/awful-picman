@@ -80,7 +80,10 @@ Usage: #this [ <options> ]
   web server's static data and thumbnails are stored.  During the init
   step, #this creates thumbnails for all images in the current directory.
   If --recursive (see below) is not provided, it will not recur into
-  directories.
+  directories.  After all the initialization steps, it starts the web server.
+
+--init-only
+  Does what --init does, but doesn't start the web server.
 
 --recursive
   To be used with --init.  Indicates that #this is to recur into
@@ -150,19 +153,23 @@ EOF
      (append (thumbnails/max-dimensions)
              (list (thumbnails/zoom-dimension)))))
 
-  (when (member "--init" args)
-    (initialize (and (member "--recursive" args) #t)
-                (and (member "--force" args) #t)))
+  (let ((init-only? (member "--init-only" args)))
+    (when (or (member "--init" args) init-only?)
+      (initialize (and (member "--recursive" args) #t)
+                  (and (member "--force" args) #t)))
 
-  (unless (directory-exists? metadata-dir)
-    (fprintf (current-error-port)
-             (string-append
-              "Could not find a metadata directory.  "
-              "Did you create it with --init?\n"))
-    (exit 1))
+    (unless (directory-exists? metadata-dir)
+      (fprintf (current-error-port)
+               (string-append
+                "Could not find a metadata directory.  "
+                "Did you create it with --init?\n"))
+      (exit 1))
 
-  ;; Run migrations if necessary
-  (maybe-migrate-db!)
+    ;; Run migrations if necessary
+    (maybe-migrate-db!)
+
+    (when init-only?
+      (exit 0)))
 
   (when (member "--gc" args)
     (handle-exceptions exn
