@@ -42,7 +42,7 @@
 
 (import chicken scheme)
 (use data-structures files srfi-1 srfi-13)
-(use awful awful-sql-de-lite sql-de-lite)
+(use awful awful-sql-de-lite matchable sql-de-lite)
 (use awful-picman-utils)
 
 (define (initialize-database db-file force?)
@@ -306,8 +306,9 @@ create table albums_pics (
    (or albums '())))
 
 (define (db-albums)
-  (map (lambda (album/descr)
-         (apply make-db-album album/descr))
+  (map (match-lambda
+        ((id title descr)
+         (make-db-album id title (if (null? descr) "" descr))))
        ($db "select distinct album_id, title, descr from albums order by title")))
 
 (define (db-album-pics-count album-id)

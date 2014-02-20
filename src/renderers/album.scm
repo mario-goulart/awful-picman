@@ -52,9 +52,7 @@
              (literal "&nbsp;")
              (span (@ (id ,(conc "album-link-descr-" album-id))
                       (class "album-link-descr"))
-                   ,(if (and descr (not (null? descr)))
-                        descr
-                        ""))
+                   ,descr)
              (literal "&nbsp;")
              (a (@ (href ,(conc "#album-modal-" album-id))
                    (data-toggle "modal"))
