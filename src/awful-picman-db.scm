@@ -108,14 +108,16 @@ create table albums_pics (
               values: (list day pic-id)))
   ;; update tags
   (debug 2 "update-pics-data!: tags: ~S" tags)
-  (db-query db "delete from tags where pic_id=?"
-            values: (list pic-id))
+  (when tags
+    (db-query db "delete from tags where pic_id=?"
+              values: (list pic-id)))
   (insert-tags! db pic-id tags)
 
   ;; update albums
   (debug 2 "update-pics-data!: albums: ~S" albums)
-  (db-query db "delete from albums_pics where pic_id=?"
-            values: (list pic-id))
+  (when albums
+    (db-query db "delete from albums_pics where pic_id=?"
+              values: (list pic-id)))
   (insert-albums! db pic-id albums))
 
 (define (insert-pic-data! db dir filename descr decade year month day tags albums)
