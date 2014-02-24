@@ -32,13 +32,10 @@
                         "awful-picman-utils.import.so")
     (awful-picman-conf "awful-picman-params.import.so"
                        "awful-picman-utils.import.so")
-    (awful-picman-dispatcher "awful-picman-params.import.so"
-                             "awful-picman-utils.import.so"
-                             "awful-picman-image.import.so"
-                             "awful-picman-db.import.so"
-                             "awful-picman-process-dir.import.so"
-                             "awful-picman-renderers.import.so"
-                             "awful-picman-process-dir.import.so")
+    (awful-picman-process-dir "awful-picman-params.import.so"
+                              "awful-picman-utils.import.so"
+                              "awful-picman-db.import.so"
+                              "awful-picman-image.import.so")
     ,(cons 'awful-picman-renderers
            (append
             '("awful-picman-params.import.so"
@@ -55,6 +52,13 @@
                    "filter.scm"
                    "folder.scm"
                    "tag.scm"))))
+    (awful-picman-dispatcher "awful-picman-params.import.so"
+                             "awful-picman-utils.import.so"
+                             "awful-picman-image.import.so"
+                             "awful-picman-db.import.so"
+                             "awful-picman-process-dir.import.so"
+                             "awful-picman-renderers.import.so"
+                             "awful-picman-process-dir.import.so")
     (awful-picman-db-migrations "awful-picman-utils.import.so"
                                 "awful-picman-db.import.so")
     (awful-picman-gc "awful-picman-params.import.so"
@@ -123,7 +127,8 @@
               *rules*))
 
 ;; Command line app
-(add-rule! "awful-picman" '("awful-picman.scm")
+(add-rule! "awful-picman" (cons "awful-picman.scm"
+                                (map mod.so modules))
            (lambda ()
              (cd src-dir
                  (compile ,@csc-options awful-picman.scm))))
