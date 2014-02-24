@@ -11,5 +11,5 @@
           make
           matchable
           slice)
- (test-depends)
+ (test-depends test)
  (foreign-depends))
