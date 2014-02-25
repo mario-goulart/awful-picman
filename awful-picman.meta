@@ -3,7 +3,7 @@
  (author "Mario Domenech Goulart")
  (category web)
  (license "BSD")
- (depends (awful "0.39")
+ (depends (awful "0.41.0")
           awful-sql-de-lite
           free-gettext
           hostinfo
