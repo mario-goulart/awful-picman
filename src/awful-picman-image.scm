@@ -53,8 +53,10 @@
           (info* "Generating thumbnail for ~a (dimension=~a)" image-file dimension)
           (when (non-web-image-file? image-file)
             (image-format-set! image (thumbnails/default-extension)))
-          (image-save (image-scale/proportional image dimension)
-                      thumbnail))
+          (handle-exceptions exn
+            (info-error "image->thumbnail: error when generating thumbnail for ~a" image-file)
+            (image-save (image-scale/proportional image dimension)
+                        thumbnail)))
         (file-copy image-file
                    (maybe-replace-thumbnail-extension thumbnail)
                    'clobber))
