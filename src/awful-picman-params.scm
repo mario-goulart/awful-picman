@@ -41,6 +41,7 @@
 (import chicken scheme)
 (use data-structures extras files posix setup-api srfi-4)
 (use hostinfo spiffy)
+(use (only awful page-access-control))
 (reexport (only awful page-access-control))
 
 ;;;
