@@ -4,7 +4,7 @@
 (declare (uses chicken-syntax))
 
 ;; Units
-(use data-structures extras files posix setup-api)
+(use data-structures extras files posix setup-api srfi-13)
 
 ;; Eggs
 (use awful free-gettext spiffy)
@@ -142,6 +142,19 @@ EOF
                            (i18n-language)
                            "./.awful-picman/locale")
              'getter)))
+
+  ;; Set the default language for the OCR in case it is unset
+  (unless (ocr-default-language)
+    (ocr-default-language
+     (let ((lang (i18n-language)))
+       (and lang
+            (case (string->symbol (string-downcase lang))
+              ((pt_br) 'por)
+              ((de_de) 'deu)
+              ((fr_fr) 'fra)
+              ((it_it) 'ita)
+              ((es_es) 'spa)
+              (else "eng"))))))
 
   (db-credentials (make-pathname metadata-dir db-filename))
 

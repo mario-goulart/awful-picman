@@ -38,6 +38,7 @@
    query-string
    append-to-query-string
    format-size/bytes
+   program-available?
    )
 
 (import chicken scheme)
@@ -203,5 +204,18 @@
                    (vector-ref names k)
                    (if (zero? k) "" suffix)))))))
   (string-append (num/si n) "B"))
+
+
+(define (program-available? program)
+  (let ((paths (string-split (get-environment-variable "PATH")
+                             (if (eq? (software-type) 'windows)
+                                 ";"
+                                 ":"))))
+    (let loop ((paths paths))
+      (if (null? paths)
+          #f
+          (let ((path (car paths)))
+            (or (file-exists? (make-pathname path program))
+                (loop (cdr paths))))))))
 
 ) ;; end module

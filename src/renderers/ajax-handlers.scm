@@ -89,3 +89,7 @@
     (if (or (equal? new-tag "") remove?)
         (db-remove-tag! original-tag)
         (db-update-tag! original-tag new-tag))))
+
+(define (ajax/run-ocr)
+  (with-request-variables (pic-id filename language)
+    (run-ocr filename language)))

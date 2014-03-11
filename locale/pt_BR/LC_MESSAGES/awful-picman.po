@@ -106,6 +106,10 @@ msgid "Generating thumbnails"
 msgstr "Gerando miniaturas"
 
 #: src/renderers/common.scm
+msgid "Language: "
+msgstr "Língua: "
+
+#: src/renderers/common.scm
 msgid "Next picture"
 msgstr "Próxima foto"
 

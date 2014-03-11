@@ -87,6 +87,29 @@
                    (onclick ,(sprintf "set_pic_info_rw('~a');" pic-id)))
                 ,(_ "Edit"))))
 
+(define (maybe-render-description/ocr-bar pic-id pic-filename)
+  (if (and (ocr-installed?)
+           (ocr-supported-pic-format? pic-filename))
+      `((h5 ,(_ "Description")
+            " "
+            (a (@ (href "#")
+                  (title "OCR"))
+               (i (@ (class "icon-eye-open ocr-icon")
+                     (id ,(string-append "ocr-icon-" pic-id))))))
+        (p (@ (class "ocr-bar form-horizontal")
+              (id ,(string-append "ocr-bar-" pic-id)))
+           ,(_ "Language: ")
+           ,(combo-box (string-append "ocr-lang-" pic-id)
+                       (ocr-languages)
+                       default: (ocr-default-language)
+                       class: "input-small tiny-input")
+           " "
+           (button (@ (id ,(string-append "run-ocr-" pic-id))
+                      (class "btn run-ocr tiny-input")
+                      (data-filename ,pic-filename))
+                   ,"OCR")))
+      `(h5 ,(_ "Description"))))
+
 (define (render-modal-pic-form/rw pic-id db-pic prev-id next-id #!optional template?)
   (define (id thing)
     (list 'id (string-append thing "-" pic-id)))
@@ -102,7 +125,7 @@
          (input (@ (type "hidden")
                    ,(id "path")
                    (value ,(db-pic-path db-pic))))
-         (h5 ,(_ "Description"))
+         ,(maybe-render-description/ocr-bar pic-id (db-pic-path db-pic))
          (textarea (@ ,(id "descr")) ,(db-pic-descr db-pic))
          (h5 ,(_ "Date (decade/year/month/day)"))
          ,(combo-box (string-append "decade-" pic-id)
@@ -299,6 +322,28 @@ EOF
                                "        return null;"
                                "}))")))
         success: "window.location.reload(true);") ;; FIXME: this is horrible
+
+  ;; Handle OCR
+  (add-javascript
+   "$('.ocr-bar').hide();"
+   "$('.ocr-icon').click(function(){"
+   "    var id = $(this).attr('id').replace(/ocr-icon-/,'');"
+   "    $('#ocr-bar-' + id).toggle(200);"
+   "});"
+   )
+
+  (when (ocr-installed?)
+    (ajax "/ocr" ".run-ocr" 'click
+          ajax/run-ocr
+          prelude: (string-append
+                    "var pic_id = $(this).attr('id').replace(/^run-ocr-/, '');"
+                    "var pic_filename = $(this).attr('data-filename');"
+                    "var language = $('#ocr-lang-' + pic_id).val();")
+          arguments: `((pic-id   . "pic_id")
+                       (filename . "pic_filename")
+                       (language . "language"))
+          success: "$('#descr-' + pic_id).val($('#descr-' + pic_id).val() + response)"))
+
 
   (create-dynamic-input-ajax 'tag "/db/tags")
   (create-dynamic-input-ajax 'album "/db/albums")

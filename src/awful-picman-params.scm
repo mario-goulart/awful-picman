@@ -36,10 +36,17 @@
  ;; Image
  image-file-extensions
  non-web-image-file-extensions
+
+ ;; OCR
+ ocr-supported-formats
+ ocr-program
+ ocr-args
+ ocr-languages
+ ocr-default-language
 )
 
 (import chicken scheme)
-(use data-structures extras files posix setup-api srfi-4)
+(use data-structures extras files posix setup-api srfi-4 utils)
 (use hostinfo spiffy)
 (use (only awful page-access-control))
 (reexport (only awful page-access-control))
@@ -139,5 +146,40 @@
 (define non-web-image-file-extensions
   '("tiff" "tif"))
 
+
+;;;
+;;; OCR stuff
+;;;
+(define ocr-supported-formats
+  (make-parameter '("tif" "tiff")))
+
+(define ocr-program
+  (make-parameter "tesseract"))
+
+(define ocr-args
+  (make-parameter
+   (lambda (pic-file text-file lang)
+     (sprintf "~a ~a -l ~a"
+              (qs pic-file)
+              (qs text-file)
+              lang))))
+
+(define ocr-languages
+  ;; tesseract doesn't provide any easy way to list the supported
+  ;; languages, so we list some of them here (it's possible that not
+  ;; all of them are installed!)
+  (make-parameter
+   `((eng . "English")
+     (deu . "German")
+     (fra . "French")
+     (ita . "Italian")
+     (por . "Portuguese")
+     (spa . "Spanish")
+     )))
+
+(define ocr-default-language
+  ;; awful picman will try to guess the default OCR language based on
+  ;; the i18n language
+  (make-parameter #f))
 
 ) ;; end module

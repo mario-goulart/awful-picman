@@ -64,6 +64,8 @@
     (awful-picman-gc "awful-picman-params.import.so"
                      "awful-picman-utils.import.so"
                      "awful-picman-db.import.so")
+    (awful-picman-ocr "awful-picman-params.import.so"
+                      "awful-picman-utils.import.so")
     ))
 
 (define modules

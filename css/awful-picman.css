@@ -155,3 +155,10 @@ body {
     height: 30px;
     display: none;
 }
+
+.tiny-input {
+    font-size: 8pt;
+    line-height: 10pt;
+    height: 16pt;
+    padding: 2px;
+}
