@@ -134,10 +134,10 @@
 ;;; Image stuff
 ;;;
 (define image-file-extensions
-  '("png" "jpg" "jpeg" "gif" "tiff"))
+  '("png" "jpg" "jpeg" "gif" "tiff" "tif"))
 
 (define non-web-image-file-extensions
-  '("tiff"))
+  '("tiff" "tif"))
 
 
 ) ;; end module
