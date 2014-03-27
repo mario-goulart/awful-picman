@@ -44,14 +44,16 @@
 (define (image->thumbnail image-file thumbnail dimension)
   (debug 2 "image->thumbnail: thumbnail: ~a" thumbnail)
   (create-directory (pathname-directory thumbnail) 'with-parents)
-  (let ((image (image-load image-file)))
+  (let ((image (image-load image-file))
+        (non-web? (non-web-image-file? image-file)))
     ;; Only resize image if it is bigger than the max thumbnail
     ;; dimension
     (if (or (> (image-width image) dimension)
-            (> (image-height image) dimension))
+            (> (image-height image) dimension)
+            non-web?)
         (begin
           (info* "Generating thumbnail for ~a (dimension=~a)" image-file dimension)
-          (when (non-web-image-file? image-file)
+          (when non-web?
             (image-format-set! image (thumbnails/default-extension)))
           (handle-exceptions exn
             (info-error "image->thumbnail: error when generating thumbnail for ~a" image-file)

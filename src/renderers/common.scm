@@ -160,11 +160,13 @@
         (div (@ (class "modal-body pic-modal-body"))
              (div (@ (class "row"))
                   (div (@ (class "span9 pic-container"))
-                       (img (@ (src ,(make-pathname
-                                      (list (thumbnails-web-dir)
-                                            (->string (thumbnails/zoom-dimension))
-                                            dir)
-                                      pic-filename))
+                       (img (@ (src ,(maybe-replace-thumbnail-extension
+                                      (normalize-pathname
+                                       (make-pathname
+                                        (list (thumbnails-web-dir)
+                                              (->string (thumbnails/zoom-dimension))
+                                              dir)
+                                        pic-filename))))
                                (id ,(string-append "pic-" id)))))
                      (div (@ (class "span3"))
                           ,(render-modal-toolbar id)
@@ -177,10 +179,12 @@
   `((a (@ (href ,(string-append "#modal-" id))
           (data-toggle "modal"))
        (img (@ (id ,(string-append "thumb-" id))
-               (src ,(make-pathname (list (thumbnails-web-dir)
-                                          (->string dimension)
-                                          (thumb-dir thumb-obj))
-                                    (thumb-filename thumb-obj))))))
+               (src ,(maybe-replace-thumbnail-extension
+                      (normalize-pathname
+                       (make-pathname (list (thumbnails-web-dir)
+                                            (->string dimension)
+                                            (thumb-dir thumb-obj))
+                                      (thumb-filename thumb-obj))))))))
     ,(if (eq? mode 'album)
          '()
          `(input (@ (class "thumb-select")
