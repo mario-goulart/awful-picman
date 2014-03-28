@@ -143,3 +143,15 @@ body {
 #filter-matches {
     margin-left: 10px;
 }
+
+#ajax-busy {
+    z-index: 1100;
+    position: absolute;
+    top: 40%;
+    left: 40%;
+    background-image: url("/img/ajax-loader.gif");
+    background-repeat: no-repeat;
+    width: 230px;
+    height: 30px;
+    display: none;
+}

@@ -16,6 +16,30 @@
   (enable-db)
   (literal-script/style? #t)
 
+  (define (ajax-spinner)
+    ;; Only show the spinner after 400ms
+    (add-javascript "
+var $loader = $('#ajax-busy')
+var timer;
+
+$(document)
+    .ajaxStart(function()
+    {
+        timer && clearTimeout(timer);
+        timer = setTimeout(function()
+        {
+            $loader.show();
+        },
+        400);
+    })
+    .ajaxStop(function()
+    {
+        clearTimeout(timer);
+        $loader.hide();
+    });
+")
+    `(div (@ (id "ajax-busy"))))
+  
   ;;;
   ;;; Page definer
   ;;;
@@ -108,11 +132,12 @@
     (lambda (path)
       (debug 1 "albums handler: handling ~a" path)
       (let ((album (drop-web-path-prefix (albums-web-dir) path)))
-        (render-pics (if (equal? album ".")
-                         #f ;; albums index
-                         album)
-                     'album
-                     (or ($ 'page as-number) 0)))))
+        (list (ajax-spinner)
+              (render-pics (if (equal? album ".")
+                               #f ;; albums index
+                               album)
+                           'album
+                           (or ($ 'page as-number) 0))))))
 
   ;;;
   ;;; Folders
@@ -125,7 +150,8 @@
           (if (file-exists? dir)
               (let ((missing-thumbnails (find-missing-thumbnails dir)))
                 (if (or done (null? missing-thumbnails))
-                    (render-pics dir 'folder (or ($ 'page as-number) 0))
+                    (list (ajax-spinner)
+                          (render-pics dir 'folder (or ($ 'page as-number) 0)))
                     (poll-thumbnails-conversion dir path missing-thumbnails)))
               (lambda ()
                 (send-status 404 "Not found")))))))
@@ -136,7 +162,8 @@
   (define-pics-page (tags-web-dir)
     (lambda ()
       (debug 1 "tags handler")
-      (render-tags)))
+      (list (ajax-spinner)
+            (render-tags))))
 
   ;;;
   ;;; Filters
@@ -145,26 +172,28 @@
     (lambda (path)
       (let ((page (or ($ 'page as-number) 0)))
         (debug 1 "filters handler: ~S" path)
-        (match (cdr (path-split path))
-           (("by-tags")
-            (with-request-variables ((include-tags as-list)
-                                     (exclude-tags as-list))
-              (let ((include-tags (if include-tags
-                                      (delete "" (map string-trim-both include-tags) equal?)
-                                      '()))
-                    (exclude-tags (if exclude-tags
-                                      (delete "" (map string-trim-both exclude-tags) equal?)
-                                      '())))
-                (debug 1 "include-tags: ~S" include-tags)
-                (render-pics (cons include-tags exclude-tags) 'filter/by-tags page))))
+        (list
+         (ajax-spinner)
+         (match (cdr (path-split path))
+                (("by-tags")
+                 (with-request-variables ((include-tags as-list)
+                                          (exclude-tags as-list))
+                   (let ((include-tags (if include-tags
+                                           (delete "" (map string-trim-both include-tags) equal?)
+                                           '()))
+                         (exclude-tags (if exclude-tags
+                                           (delete "" (map string-trim-both exclude-tags) equal?)
+                                           '())))
+                     (debug 1 "include-tags: ~S" include-tags)
+                     (render-pics (cons include-tags exclude-tags) 'filter/by-tags page))))
 
-           (("without-album")
-            (render-pics #f 'filter/without-album page))
+                (("without-album")
+                 (render-pics #f 'filter/without-album page))
 
-           (("without-tag")
-            (render-pics #f 'filter/without-tag page))
+                (("without-tag")
+                 (render-pics #f 'filter/without-tag page))
 
-           (else (render-filters))))))
+                (else (render-filters)))))))
   ;;
   ;; /
   ;;
