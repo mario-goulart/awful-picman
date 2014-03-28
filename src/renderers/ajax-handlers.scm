@@ -6,7 +6,7 @@
 (define (update-pic-info!)
   (with-request-variables (id
                            path
-                           (descr (nonempty as-string))
+                           descr
                            (tags (nonempty as-string))
                            (albums (nonempty as-string))
                            (decade (nonempty as-string))
