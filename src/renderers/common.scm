@@ -49,13 +49,18 @@
               " "
               "(" ,(render-file-size path) ")"))))
 
+(define (render-pic-descr/ro descr)
+  (if (and descr (not (equal? descr "")))
+      `(pre ,descr)
+      '()))
+
 (define (render-modal-pic-form/ro db-pic pic-id)
   (define (id thing)
     (list 'id (string-append thing "-" pic-id)))
   `(div (@ ,(id "ro")
            (class "pic-info-ro"))
         (h5 ,(_ "Description"))
-        (p ,(db-pic-descr db-pic))
+        ,(render-pic-descr/ro (db-pic-descr db-pic))
         (h5 ,(_ "Date"))
         ,(render-date (db-pic-decade db-pic)
                       (db-pic-year db-pic)
