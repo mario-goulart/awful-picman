@@ -207,6 +207,9 @@
   `((a (@ (href ,(string-append "#modal-" id))
           (data-toggle "modal"))
        (img (@ (id ,(string-append "thumb-" id))
+               ;; Path to the pic this thumbnail was generated from
+               (data-pic-path ,(make-pathname (thumb-dir thumb-obj)
+                                              (thumb-filename thumb-obj)))
                (src ,(maybe-replace-thumbnail-extension
                       (normalize-pathname
                        (make-pathname (list (thumbnails-web-dir)
@@ -317,7 +320,7 @@ EOF
                                "JSON.stringify($.map($('.thumb-select'), function(elt, i) {"
                                "    var pic_id = elt.id.replace(/^thumb-select-/, '');"
                                "    if (elt.checked)"
-                               "        return [pic_id, $('#thumb-' + pic_id).attr('src')];"
+                               "        return [pic_id, $('#thumb-' + pic_id).attr('data-pic-path')];"
                                "    else"
                                "        return null;"
                                "}))")))

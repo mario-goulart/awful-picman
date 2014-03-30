@@ -62,12 +62,7 @@
          ;; contains (thumbnails-web-dir) and the thumbnail
          ;; dimension, which have to be removed.
          (let* ((pic-id (car pic-id/path))
-                (pic-path (cadr pic-id/path))
-                (path-parts
-                 (string-split
-                  (drop-path-prefix (thumbnails-web-dir) pic-path)
-                  "/"))
-                (path (string-intersperse (cdr path-parts) "/"))
+                (path (cadr pic-id/path))
                 (get-field (lambda (i)
                              (alist-ref i template-data equal?))))
            ;; FIXME: a single insert would be enough
