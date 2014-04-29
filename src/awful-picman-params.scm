@@ -46,7 +46,7 @@
 )
 
 (import chicken scheme)
-(use data-structures extras files posix setup-api srfi-4 utils)
+(use data-structures extras files posix srfi-4 utils)
 (use hostinfo spiffy)
 (use (only awful page-access-control))
 (reexport (only awful page-access-control))
@@ -123,11 +123,7 @@
 ;; Where chicken-install will install static files served by the web
 ;; server.  This stuff will be copied to the metadata dir on --init.
 (define assets-install-dir
-  (make-pathname (list (installation-prefix)
-                       "lib"
-                       "chicken"
-                       (number->string (##sys#fudge 42)))
-                 "awful-picman"))
+  (make-pathname (repository-path) "awful-picman"))
 
 (define root-dir #f) ;; set as soon as the program starts running
 
