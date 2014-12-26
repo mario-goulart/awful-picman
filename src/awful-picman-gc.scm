@@ -74,6 +74,22 @@
                       pic-files))
             thumbnails)))
 
+(define (unused-thumbnail-sets)
+  (let* ((thumbnails-dir (make-pathname metadata-dir
+                                        thumbnails-dirname))
+         (configured-dimensions
+          (cons (thumbnails/zoom-dimension)
+                (thumbnails/max-dimensions)))
+         (available-thumbnail-sets
+          (filter-map string->number
+                      (directory thumbnails-dir)))
+         (to-remove (lset-difference =
+                                     available-thumbnail-sets
+                                     configured-dimensions)))
+    (map (lambda (dim)
+           (make-pathname thumbnails-dir (number->string dim)))
+         to-remove)))
+
 (define (gc!)
   ;; Orphan pics are those which exist on the database but not on the
   ;; filesystem (e.g., user deleted pics from the filesystem).  Orphan
@@ -81,7 +97,9 @@
   (let* ((orphan-pics (db-orphan-pics))
          (orphan-thumbs (orphan-thumbnails))
          (num-orphan-pics (length orphan-pics))
-         (num-orphan-thumbs (length orphan-thumbs)))
+         (num-orphan-thumbs (length orphan-thumbs))
+         (unused-thumbnail-dirs (unused-thumbnail-sets))
+         (num-unused-thumbnail-dirs (length unused-thumbnail-dirs)))
     (if (null? orphan-pics)
         (info (_ "No orphan pic found."))
         (begin
@@ -112,6 +130,27 @@
                 (begin
                   (for-each delete-file* orphan-thumbs)
                   (info "~a ~a" num-orphan-thumbs (_ " thumbnails have been removed.")))
-                (info (_ "Not removing thumbnails."))))))))
+                (info (_ "Not removing thumbnails."))))))
+    (if (null? unused-thumbnail-dirs)
+        (info (_ "No unused thumbnail directory found."))
+        (begin
+          (for-each info unused-thumbnail-dirs)
+          (info "\n~a ~a"
+                num-unused-thumbnail-dirs
+                (_ "unused thumbnail directories found."))
+          (let ((answer
+                 (yes-or-no? (_ "Remove unused thumbnail directories?")
+                             abort: (lambda ()
+                                      (info (_ "Aborting."))
+                                      (exit 0)))))
+            (if answer
+                (begin
+                  (for-each (lambda (dir)
+                              (delete-directory dir 'recursively))
+                            unused-thumbnail-dirs)
+                  (info "~a ~a"
+                        num-unused-thumbnail-dirs
+                        (_ " unused thumbnail directories have been removed.")))
+                (info (_ "Not removing unused thumbnail directories."))))))))
 
 ) ;; end module

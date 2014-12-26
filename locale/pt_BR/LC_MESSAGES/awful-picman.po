@@ -18,6 +18,10 @@ msgid " thumbnails have been removed."
 msgstr "miniaturas foram removidas."
 
 #: src/awful-picman-gc.scm
+msgid " unused thumbnail directories have been removed."
+msgstr "diretórios de miniaturas não utilizadas foram removidos."
+
+#: src/awful-picman-gc.scm
 msgid "Aborting."
 msgstr "Abortando."
 
@@ -134,12 +138,20 @@ msgid "No tag has been created yet."
 msgstr "Nenhum marcador foi criado ainda."
 
 #: src/awful-picman-gc.scm
+msgid "No unused thumbnail directory found."
+msgstr "Nenhum diretório de miniaturas não utilizadas foi encontrado."
+
+#: src/awful-picman-gc.scm
 msgid "Not removing records."
 msgstr "Nenhum registro foi removido."
 
 #: src/awful-picman-gc.scm
 msgid "Not removing thumbnails."
 msgstr "Nenhuma miniatura removida."
+
+#: src/awful-picman-gc.scm
+msgid "Not removing unused thumbnail directories."
+msgstr "Nenhum diretório de miniaturas não utilizadas removido."
 
 #: src/renderers/filter.scm
 msgid "Pics without album"
@@ -168,6 +180,10 @@ msgstr "Remover registros da base de dados que referenciam esses arquivos?"
 #: src/renderers/tag.scm
 msgid "Remove tag?"
 msgstr "Remover marcador?"
+
+#: src/awful-picman-gc.scm
+msgid "Remove unused thumbnail directories?"
+msgstr "Remover diretórios de miniaturas não utilizadas?"
 
 #: src/renderers/common.scm
 msgid "Select all"
@@ -260,3 +276,7 @@ msgstr "foto"
 #: src/renderers/album.scm
 msgid "pictures"
 msgstr "fotos"
+
+#: src/awful-picman-gc.scm
+msgid "unused thumbnail directories found."
+msgstr "Nenhum diretório de miniaturas não utilizadas foi encontrado."
