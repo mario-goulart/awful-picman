@@ -99,7 +99,10 @@
          (num-orphan-pics (length orphan-pics))
          (num-orphan-thumbs (length orphan-thumbs))
          (unused-thumbnail-dirs (unused-thumbnail-sets))
-         (num-unused-thumbnail-dirs (length unused-thumbnail-dirs)))
+         (num-unused-thumbnail-dirs (length unused-thumbnail-dirs))
+         (abort&exit (lambda ()
+                       (info (_ "Aborting."))
+                       (exit 0))))
     (if (null? orphan-pics)
         (info (_ "No orphan pic found."))
         (begin
@@ -107,9 +110,7 @@
           (info "\n~a ~a" num-orphan-pics (_ "orphan pics have been found."))
           (let ((answer
                  (yes-or-no? (_ "Remove records that reference those files from the database?")
-                             abort: (lambda ()
-                                      (info (_ "Aborting."))
-                                      (exit 0)))))
+                             abort: abort&exit)))
             (if answer
                 (begin
                   (db-remove-orphan-pics! orphan-pics)
@@ -123,9 +124,7 @@
           (info "\n~a ~a" num-orphan-thumbs (_ "orphan thumbnails have been found."))
           (let ((answer
                  (yes-or-no? (_ "Remove orphan thumbnails?")
-                             abort: (lambda ()
-                                      (info (_ "Aborting."))
-                                      (exit 0)))))
+                             abort: abort&exit)))
             (if answer
                 (begin
                   (for-each delete-file* orphan-thumbs)
@@ -140,9 +139,7 @@
                 (_ "unused thumbnail directories found."))
           (let ((answer
                  (yes-or-no? (_ "Remove unused thumbnail directories?")
-                             abort: (lambda ()
-                                      (info (_ "Aborting."))
-                                      (exit 0)))))
+                             abort: abort&exit)))
             (if answer
                 (begin
                   (for-each (lambda (dir)
