@@ -429,7 +429,7 @@ $('.dropdown-toggle').dropdown();
                (title ,title)
                (class "thumb-toolbar-item presentation"))
             ((i (@ (class ,icon)))
-             (literal "&nbsp")
+             (literal "&nbsp;")
              ,title))))
 
   `((ul (@ (class "nav pull-right thumb-toolbar"))
