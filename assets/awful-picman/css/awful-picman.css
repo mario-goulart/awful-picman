@@ -1,0 +1,116 @@
+#content {
+    width: 100%;
+}
+
+.pic-thumbnail {
+    cursor: pointer;
+    display: inline;
+    vertical-align: bottom;
+}
+
+
+.dir {
+    text-align: center;
+    width: 300px;
+    height: 200px;
+}
+
+.dir img {
+    display: inline;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.other-file-type {
+    text-align: center;
+    width: 300px;
+    height: 200px;
+}
+
+.other-file-type img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#zoomed-pic-area-wrapper {
+    position: relative;
+    width: 100%;
+    background-color: white;
+    z-index: 1;
+}
+
+#zoomed-pic-area {
+    position: relative;
+    top: 0;
+    left: 0;
+    z-index: 2;
+}
+
+/* Removes scrollbar.
+   http://stackoverflow.com/questions/4904668/html5-vertical-spacing-issue-with-img
+*/
+#zoomed-pic img {
+    display: block;
+}
+
+#pic-info-wrapper {
+    position: absolute;
+    z-index: 3;
+    top: 0;
+    right: 0;
+    min-width: 250px;
+}
+
+#pic-toolbar {
+    position: absolute;
+    right: 0;
+    font-size: 14pt;
+    padding-right: 10px;
+}
+
+#pic-toolbar .glyphicon {
+    padding: 5px;
+}
+
+#pic-info {
+    position: relative;
+    margin-top: 20px;
+    overflow: auto;
+}
+
+#pic-form {
+    position: relative;
+    width: 90%;
+}
+
+#close-zoomed-pic, #prev-pic, #next-pic, #edit-pic-info {
+    cursor: pointer;
+}
+
+textarea, input, select {
+    border-style:solid;
+    border-color:#ccc;
+    border-width: 1px;
+}
+
+.add-typeahead-icon,
+.remove-typeahead-icon,
+.edit-album-info,
+.save-album-info,
+.remove-album {
+    cursor: pointer;
+}
+
+
+#ajax-busy {
+    z-index: 1100;
+    position: absolute;
+    top: 40%;
+    left: 40%;
+    background-image: url("/assets/awful-picman/img/ajax-loader.gif");
+    background-repeat: no-repeat;
+    width: 230px;
+    height: 30px;
+    display: none;
+}

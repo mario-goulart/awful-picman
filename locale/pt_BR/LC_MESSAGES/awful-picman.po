@@ -233,11 +233,11 @@ msgstr "Ampliar"
 msgid "Zoom out"
 msgstr "Encolher"
 
-#: src/renderers/folder.scm
+#: src/renderers/folder.scm src/awful-picman-renderers.scm
 msgid "file"
 msgstr "arquivo"
 
-#: src/renderers/folder.scm
+#: src/renderers/folder.scm src/awful-picman-renderers.scm
 msgid "folder"
 msgstr "pasta"
 
@@ -253,7 +253,7 @@ msgstr "resultado"
 msgid "matches"
 msgstr "resultados"
 
-#: src/renderers/folder.scm
+#: src/renderers/folder.scm src/awful-picman-renderers.scm
 msgid "no "
 msgstr "nenhuma "
 
@@ -265,7 +265,7 @@ msgstr "fotos órfãs foram encontradas."
 msgid "orphan thumbnails have been found."
 msgstr "miniaturas órfãs foram encontradas."
 
-#: src/renderers/folder.scm
+#: src/renderers/folder.scm src/awful-picman-renderers.scm
 msgid "pic"
 msgstr "foto"
 

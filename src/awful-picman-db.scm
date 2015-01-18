@@ -7,6 +7,7 @@
    db-dir-pics
    db-filter/without-album
    db-albums
+   db-albums->alist
    db-album-pics
    db-album-pics-count
    db-album?
@@ -34,10 +35,17 @@
    db-pic-day
    db-pic-month
    db-pic-year
+   db-pic->alist
 
+   db-get-pic-by-id
+   db-get-pics-id/path-by-album
+   db-get-pics-id/path-by-directory
    get-pic-from-db
    insert/update-pic!
    insert-multiple-pics!
+
+   db-get-album-by-id
+   db-album->alist
    )
 
 (import chicken scheme)
@@ -133,30 +141,34 @@ create table albums_pics (
     (insert-tags! db pic-id tags)
     (insert-albums! db pic-id albums)))
 
-(define (insert/update-pic! path #!key descr
-                                       decade
-                                       year
-                                       month
-                                       day
-                                       tags
-                                       albums)
+(define (insert/update-pic! pic-id-or-path #!key descr
+                                                 decade
+                                                 year
+                                                 month
+                                                 day
+                                                 tags
+                                                 albums)
   ;; This procedure doesn't use awful-sql-de-lite stuff because it can
   ;; be called before awful is started
-  (let ((dir (or (pathname-directory path) "."))
-        (filename (pathname-strip-directory path)))
+  (let ((path (and (string? pic-id-or-path) pic-id-or-path))
+        (pic-id (and (number? pic-id-or-path) pic-id-or-path)))
     (call-with-database (db-credentials)
       (lambda (db)
         (with-transaction db
           (lambda ()
-            (or (and-let* ((data (db-query db "select pic_id from pics where dir=? and filename=?"
-                                           values: (list dir filename)))
-                           ((not (null? data)))
-                           (pic-id (caar data)))
-                  ;; pic is in db.  Update its data.
-                  (update-pic-data! db pic-id descr decade year month day tags albums))
-
-                ;; pic is NOT in db.  Add it.
-                (insert-pic-data! db dir filename descr decade year month day tags albums))
+            (if path
+                (let ((dir (or (pathname-directory path) "."))
+                      (filename (pathname-strip-directory path)))
+                  (or (and-let* ((data (db-query db "select pic_id from pics where dir=? and filename=?"
+                                                 values: (list dir filename)))
+                                 ((not (null? data)))
+                                 (pic-id (caar data)))
+                        ;; pic is in db.  Update its data.
+                        (update-pic-data! db pic-id descr decade year month day tags albums))
+                      ;; pic is NOT in db.  Add it.
+                      (insert-pic-data! db dir filename descr decade year month day tags albums)))
+                ;; pid-id has been given.  Update pic.
+                (update-pic-data! db pic-id descr decade year month day tags albums))
             #t))))))
 
 (define (insert-multiple-pics! dir pics)
@@ -195,8 +207,64 @@ create table albums_pics (
            (db-pic-tags obj)
            (db-pic-albums obj)))
 
+(define (db-pic->alist obj)
+  `((id            . ,(db-pic-id obj))
+    (dir           . ,(db-pic-dir obj))
+    (filename      . ,(db-pic-filename obj))
+    (description   . ,(db-pic-descr obj))
+    (date          . ,(list (db-pic-decade obj)
+                            (db-pic-year obj)
+                            (db-pic-month obj)
+                            (db-pic-day obj)))
+    (tags          . ,(db-pic-tags obj))
+    (albums        . ,(db-pic-albums obj))))
+
 (define (db-pic-path db-pic)
   (make-pathname (db-pic-dir db-pic) (db-pic-filename db-pic)))
+
+(define (db-get-pics-id/path-by-directory dir)
+  (let ((data ($db "select pic_id, dir, filename from pics where dir=?"
+                   values: (list dir))))
+    (map (lambda (d)
+           (cons (car d) (make-pathname (cadr d) (caddr d))))
+         data)))
+
+(define (db-get-pics-id/path-by-album album)
+  (map (lambda (id/dir/f)
+         (cons (car id/dir/f)
+               (make-pathname (cadr id/dir/f) (caddr id/dir/f))))
+       ($db (string-append
+             "select pics.pic_id, pics.dir, pics.filename from pics, albums, albums_pics "
+             "where albums.title=? and "
+             "albums.album_id=albums_pics.album_id and "
+             "pics.pic_id=albums_pics.pic_id "
+             "order by pics.pic_id")
+            values: (list album))))
+
+(define (db-get-pic-by-id id)
+  ;; Return #f if there's no pic with the given id in the database.
+  (and-let* ((data* ($db "select dir, filename, descr, decade, year, month, day from pics where pic_id=?"
+                         values: (list id)))
+             ((not (null? data*)))
+             (data (car data*))
+             ($ (lambda (pos) (list-ref data pos)))
+             (tags ($db "select tag from tags where pic_id=?"
+                        values: (list id)))
+             (albums ($db (string-append
+                           "select albums.title from albums, albums_pics where "
+                           "albums_pics.pic_id=? and albums.album_id=albums_pics.album_id")
+                          values: (list id))))
+    (make-db-pic id
+                 ($ 0)
+                 ($ 1)
+                 ($ 2)
+                 (maybe-string-null->false ($ 3))
+                 (maybe-string-null->false ($ 4))
+                 (maybe-string-null->false ($ 5))
+                 (maybe-string-null->false ($ 6))
+                 (if (null? tags) '() (map car tags))
+                 (if (null? albums) '() (map car albums)))))
+
 
 (define (get-pic-from-db path)
   (let ((dir (pathname-directory path))
@@ -295,13 +363,20 @@ create table albums_pics (
 ;;; Albums
 ;;;
 
-(define-record db-album id title descr)
+(define-record db-album id title descr num-pics)
 
 (define-record-printer (db-album obj out)
-  (fprintf out "#<db-album id=~a title=~a descr=~a>"
+  (fprintf out "#<db-album id=~a title=~a descr=~a num-pics=~a>"
            (db-album-id obj)
            (db-album-title obj)
-           (db-album-descr obj)))
+           (db-album-descr obj)
+           (db-album-num-pics obj)))
+
+(define (db-album->alist db-album-obj)
+  `((id          . ,(db-album-id db-album-obj))
+    (title       . ,(db-album-title db-album-obj))
+    (description . ,(db-album-descr db-album-obj))
+    (num-pics    . ,(db-album-num-pics db-album-obj))))
 
 (define (insert-albums! db pic-id albums)
   (for-each
@@ -319,10 +394,24 @@ create table albums_pics (
    (or albums '())))
 
 (define (db-albums)
-  (map (match-lambda
-        ((id title descr)
-         (make-db-album id title (if (null? descr) "" descr))))
-       ($db "select distinct album_id, title, descr from albums order by title")))
+  (with-transaction (db-connection)
+    (lambda ()
+      (map db-get-album-by-id
+           (map car ($db "select distinct album_id from albums"))))))
+
+(define (db-albums->alist)
+  (map db-album->alist (db-albums)))
+
+(define (db-get-album-by-id album-id)
+  (let ((data
+         ($db (string-append
+               "select distinct album_id, title, descr, "
+               "  (select count(albums_pics.pic_id) from albums, albums_pics "
+               "    where albums_pics.album_id=albums.album_id and albums.album_id=?) "
+               "  from albums where album_id=?")
+              values: (list album-id album-id))))
+    (and (not (null? data))
+         (apply make-db-album (car data)))))
 
 (define (db-album-pics-count album-id)
   (let ((count

@@ -10,6 +10,7 @@
           imlib2
           make
           matchable
-          slice)
+          slice
+          spock)
  (test-depends test)
  (foreign-depends))

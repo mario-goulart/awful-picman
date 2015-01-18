@@ -5,3 +5,4 @@
 *.pot
 *.mo
 src/awful-picman
+assets/awful-picman/js

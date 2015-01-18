@@ -129,6 +129,36 @@
                           modules/deps))
               *rules*))
 
+;; Client-side rules (stuff compiled with spock)
+(define client-side-targets '())
+
+(let ((deps
+       (map (lambda (file)
+              (make-pathname "client-side" file))
+            '("sxml-html.scm"
+              "jquery.scm"
+              "client-side-utils.scm"
+              "i18n.scm")))
+      (assets-dir (make-pathname (list ".." "assets" "awful-picman") "js")))
+  (create-directory assets-dir 'recursively)
+  (for-each
+   (lambda (file)
+     (let* ((out-file-path (make-pathname assets-dir file "js"))
+            (source (make-pathname "client-side" file "scm"))
+            (sources (append deps (list source))))
+       (add-rule! out-file-path
+                  sources
+                  (lambda ()
+                    (cd src-dir
+                        (let ((cmd (sprintf "chicken-spock ~a > ~a"
+                                       (string-intersperse sources)
+                                       out-file-path)))
+                          (print cmd)
+                          (system* cmd)))))
+       (set! client-side-targets (cons out-file-path client-side-targets))))
+   '("awful-picman-pics" "awful-picman-albums")))
+
+
 ;; Command line app
 (add-rule! "awful-picman" (cons "awful-picman.scm"
                                 (map mod.so modules))
@@ -143,7 +173,8 @@
 ;; Build
 (add-rule! "build" (append (list "awful-picman")
                            (map mod.so modules)
-                           (map mod.import.so modules)))
+                           (map mod.import.so modules)
+                           client-side-targets))
 
 ;; Install binaries
 (add-rule! "install" '("build")
@@ -161,15 +192,22 @@
                               `((version ,awful-picman-version))))
                            modules))))
 
+(define (spock-runtime-install-rule)
+  (let ((runtime-files '("spock-runtime-debug.js"
+                         "spock-runtime-min.js")))
+    (map (lambda (runtime-file)
+           (list (make-pathname (list (repository-path) "spock") runtime-file)
+                 (make-pathname (list "assets" "spock" "js") runtime-file)))
+         runtime-files)))
+
 ;; Install assets
-(add-rule! "install-assets" '()
+(add-rule! "install-assets" client-side-targets
            (lambda ()
              (cd base-dir
                  (install-extension
                   'awful-picman-assets
-                  '(("js"  "awful-picman/js")
-                    ("css" "awful-picman/css")
-                    ("img" "awful-picman/img")
+                  `(("assets"  "awful-picman/assets")
+                    ,@(spock-runtime-install-rule)
                     ("locale" "awful-picman/locale"))
                   `((version ,awful-picman-version))))))
 
@@ -178,7 +216,6 @@
            (lambda ()
              (cd base-dir
                  (system* "csi -s bin/sgettext.scm src/*.scm src/renderers/*.scm > locale/awful-picman.pot")
-
                  (for-each
                   (lambda (lang)
                     (let ((po (sprintf "locale/~a/LC_MESSAGES/awful-picman.po" lang)))
