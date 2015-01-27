@@ -162,6 +162,8 @@
                (% "max-width" (- window-width pic-width)
                   "min-height" pic-height))
       (%inline .css ($ "#pic-info") (% "height" pic-height))
+      (%inline .css ($ "#content") (% "margin-top" "0px"))
+      (jhide ($ "#main-navbar"))
       (unshade-icon ($ "#edit-pic-info"))
       (%inline .addClass ($ "body") "modal-open")
       (jshow ($ "#pic-info-wrapper")))))
@@ -208,7 +210,9 @@
   (leave-pic-info-edit-mode!)
   (let ((pic-id (jattr ($ "#zoomed-pic img") "data-pic-id")))
     (jhide ($ "#zoomed-pic-area-wrapper"))
+    (jshow ($ "#main-navbar"))
     (%inline .removeClass ($ "body") "modal-open")
+    (%inline .css ($ "#content") (% "margin-top" "70px")) ;; FIXME: hardcoded
     (debug (string-append "focusing " pic-id))
     (jfocus ($ (string-append "#" pic-id)))
     #f))

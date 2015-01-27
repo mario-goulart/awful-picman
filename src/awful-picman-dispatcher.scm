@@ -226,6 +226,7 @@ $(document)
       (let* ((album (drop-web-path-prefix (albums-web-dir) path))
              (album-index? (equal? album ".")))
         (list (ajax-spinner)
+              (render-navbar 'albums)
               (render-pics (if album-index?
                                #f ;; albums index
                                album)
@@ -252,6 +253,7 @@ $(document)
               (let ((missing-thumbnails (find-missing-thumbnails dir)))
                 (if (or done (null? missing-thumbnails))
                     (list (ajax-spinner)
+                          (render-navbar 'folders)
                           (render-pics dir 'folder)
                           (include-javascript
                            "/assets/bootstrap/js/bootstrap.min.js"

@@ -2,7 +2,9 @@
 
   (render-pics
    render-tags
-   render-filters)
+   render-filters
+   render-navbar ;; FIXME: should be exported?
+   )
 
 (import chicken scheme)
 (use data-structures files ports posix srfi-1)
@@ -12,6 +14,59 @@
      awful-picman-db
      awful-picman-image
      awful-picman-ocr)
+
+(define (render-navbar-link href text active?)
+  `(li (@ ,(if active?
+               '(class "active")
+               '()))
+       (a (@ (href ,href)) ,text)))
+
+(define (render-navbar active)
+  `(nav (@ (class "navbar navbar-default navbar-fixed-top")
+           (id "main-navbar"))
+        (div (@ (class "container-fluid"))
+             (div (@ (class "collapse navbar-collapse"))
+                  (ul (@ (class "nav navbar-nav"))
+                      ,(render-navbar-link "/albums" (_ "Albums") (eq? active 'albums))
+                      ,(render-navbar-link "/folders" (_ "Folders") (eq? active 'folders))
+                      ,(render-navbar-link "/tags" (_ "Tags") (eq? active 'tags))
+                      (li (@ (class "dropdown"))
+                          (a (@ (href "#")
+                                (class "dropdown-toggle")
+                                (data-toggle "dropdown")
+                                (role "button")
+                                (aria-expanded "false"))
+                             ,(_ "Filters") " " (span (@ (class "caret"))))
+                          (ul (@ (class "dropdown-menu")
+                                 (role "menu"))
+                              (li (a (@ (href "#")) ,(_ "By tags")))
+                              (li (a (@ (href "#")) ,(_ "Pics not in albums")))
+                              (li (a (@ (href "#")) ,(_ "Pics without tags"))))))
+                  ;; (form (@ (class "navbar-form navbar-left")
+                  ;;          (role "search"))
+                  ;;       (div (@ (class "form-group"))
+                  ;;            (input (@ (type "text")
+                  ;;                      (class "form-control")
+                  ;;                      (placeholder ,(_ "Search")))))
+                  ;;       (button (@ (type "submit")
+                  ;;                  (class "btn btn-default"))
+                  ;;               ,(_ "Submit")))
+                  (ul (@ (class "nav navbar-nav navbar-right"))
+                      (li (@ (class "dropdown"))
+                          (a (@ (href "#")
+                                (class "dropdown-toggle")
+                                (data-toggle "dropdown")
+                                (role "button")
+                                (aria-expanded "false"))
+                             ,(_ "Batch edit") " " (span (@ (class "caret"))))
+                          (ul (@ (class "dropdown-menu")
+                                 (role "menu"))
+                              (li (a (@ (href "#")) ,(_ "Select all")))
+                              (li (a (@ (href "#")) ,(_ "Deselect all")))
+                              (li (a (@ (href "#")) ,(_ "Toggle selection")))
+                              (li (@ (class "divider")))
+                              (li (a (@ (href "#"))
+                                     ,(_ "Edit selected thumbnails template"))))))))))
 
 (define (pic-toolbar)
   `(div (@ (id "pic-toolbar"))
@@ -96,20 +151,20 @@
 (define render-tags (lambda args args)) ;; FIXME
 
 (define (render-pics path-or-album mode . rest) ;; FIXME
-  `(div (@ (id "content")) ;; FIXME: move to a more generic place
-        ,(zoomed-pic-area)
-        ,(case mode
-           ((folder)
-            (let ((all-files (glob (make-pathname path-or-album "*"))))
-              (render-thumbnails (db-get-pics-id/path-by-directory path-or-album)
-                                 folders: (filter directory? all-files)
-                                 other-files: (remove (lambda (f)
-                                                        (or (image-file? f)
-                                                            (directory? f)))
-                                                      all-files))))
-           ((album)
-            (if path-or-album
-                (render-thumbnails (db-get-pics-id/path-by-album path-or-album))
-                `(ul (@ (id "albums-list"))))))))
+  `(,(zoomed-pic-area)
+    (div (@ (id "content")) ;; FIXME: move to a more generic place
+         ,(case mode
+            ((folder)
+             (let ((all-files (glob (make-pathname path-or-album "*"))))
+               (render-thumbnails (db-get-pics-id/path-by-directory path-or-album)
+                                  folders: (filter directory? all-files)
+                                  other-files: (remove (lambda (f)
+                                                         (or (image-file? f)
+                                                             (directory? f)))
+                                                       all-files))))
+            ((album)
+             (if path-or-album
+                 (render-thumbnails (db-get-pics-id/path-by-album path-or-album))
+                 `(ul (@ (id "albums-list")))))))))
 
 ) ;; end module

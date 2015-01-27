@@ -26,6 +26,7 @@ msgid "Aborting."
 msgstr "Abortando."
 
 #: src/renderers/common.scm src/renderers/album.scm
+#: src/awful-picman-renderers.scm
 msgid "Albums"
 msgstr "Álbuns"
 
@@ -41,11 +42,11 @@ msgstr ""
 msgid "An error has occurred while performing db garbage collection:"
 msgstr "Ocorreu um erro durante a coleta de lixo na base de dados:"
 
-#: src/renderers/common.scm
+#: src/renderers/common.scm src/awful-picman-renderers.scm
 msgid "Batch edit"
 msgstr "Edição em massa"
 
-#: src/renderers/filter.scm
+#: src/renderers/filter.scm src/awful-picman-renderers.scm
 msgid "By tags"
 msgstr "Por marcadores"
 
@@ -69,6 +70,11 @@ msgstr "Data (década/ano/mês/dia)"
 msgid "Description"
 msgstr "Descrição"
 
+#: src/awful-picman-renderers.scm
+#, fuzzy
+msgid "Deselect all"
+msgstr "Desselecionar todas"
+
 #: src/renderers/common.scm
 msgid "Edit"
 msgstr "Editar"
@@ -77,7 +83,7 @@ msgstr "Editar"
 msgid "Edit album"
 msgstr "Editar álbum"
 
-#: src/renderers/common.scm
+#: src/renderers/common.scm src/awful-picman-renderers.scm
 msgid "Edit selected thumbnails template"
 msgstr "Editar dados a serem aplicados a fotos selecionadas"
 
@@ -97,11 +103,12 @@ msgstr "Filtrar"
 msgid "Filter by tags"
 msgstr "Filtrar por marcadores"
 
-#: src/renderers/filter.scm
+#: src/renderers/filter.scm src/awful-picman-renderers.scm
 msgid "Filters"
 msgstr "Filtros"
 
 #: src/renderers/folder.scm src/renderers/common.scm
+#: src/awful-picman-renderers.scm
 msgid "Folders"
 msgstr "Pastas"
 
@@ -153,12 +160,22 @@ msgstr "Nenhuma miniatura removida."
 msgid "Not removing unused thumbnail directories."
 msgstr "Nenhum diretório de miniaturas não utilizadas removido."
 
+#: src/awful-picman-renderers.scm
+#, fuzzy
+msgid "Pics not in albums"
+msgstr "Fotos que não estão em álbums"
+
 #: src/renderers/filter.scm
 msgid "Pics without album"
 msgstr "Fotos que não estão em álbums"
 
 #: src/renderers/filter.scm
 msgid "Pics without tag"
+msgstr "Fotos que não contêm marcadores"
+
+#: src/awful-picman-renderers.scm
+#, fuzzy
+msgid "Pics without tags"
 msgstr "Fotos que não contêm marcadores"
 
 #: src/renderers/common.scm
@@ -185,7 +202,7 @@ msgstr "Remover marcador?"
 msgid "Remove unused thumbnail directories?"
 msgstr "Remover diretórios de miniaturas não utilizadas?"
 
-#: src/renderers/common.scm
+#: src/renderers/common.scm src/awful-picman-renderers.scm
 msgid "Select all"
 msgstr "Selecionar todas"
 
@@ -197,7 +214,7 @@ msgstr "Exibir fotos marcadas com "
 msgid "Submit"
 msgstr "Salvar"
 
-#: src/renderers/common.scm
+#: src/renderers/common.scm src/awful-picman-renderers.scm
 msgid "Tags"
 msgstr "Marcadores"
 
@@ -213,7 +230,7 @@ msgstr "O álbum requer um título"
 msgid "Title"
 msgstr "Título"
 
-#: src/renderers/common.scm
+#: src/renderers/common.scm src/awful-picman-renderers.scm
 msgid "Toggle selection"
 msgstr "Inverter seleção"
 
@@ -280,3 +297,11 @@ msgstr "fotos"
 #: src/awful-picman-gc.scm
 msgid "unused thumbnail directories found."
 msgstr "Nenhum diretório de miniaturas não utilizadas foi encontrado."
+
+#, fuzzy
+#~ msgid "By pics without tags"
+#~ msgstr "Fotos que não contêm marcadores"
+
+#, fuzzy
+#~ msgid "Invert selection"
+#~ msgstr "Inverter seleção"
