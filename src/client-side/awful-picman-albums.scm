@@ -53,9 +53,9 @@
                     ""))))) ;; FIXME: spock needs this or it will nest spans.  Bug?
 
 (define (render-no-album)
-  `(div (@ (id "nothing-here"))
+  `(div (@ (id "no-album"))
         ,(_ "No album available.  Make albums out of pictures from ")
-        (a (@ (href ,(folders-web-dir))) ,(_ "folders"))
+        (a (@ (href "/folders")) ,(_ "folders")) ;; FIXME: hardcoded /folders
         "."))
 
 (define (render-albums albums-list-elt)
@@ -101,8 +101,10 @@
     (set-album-info-read-only! album-id)))
 
 (define (remove-album! event)
-  (album-info-remove-from-edited! album-id)
-  (debug "remove-album!"))
+  (let* ((this (jcurrent-target event))
+         (album-id (jattr this "data-album-id")))
+    (album-info-remove-from-edited! album-id)
+    (debug "remove-album!")))
 
 ;;;
 ;;; Event handlers

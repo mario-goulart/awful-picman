@@ -167,6 +167,6 @@
             ((album)
              (if path-or-album
                  (render-thumbnails (db-get-pics-id/path-by-album path-or-album))
-                 `(ul (@ (id "albums-list")))))))))
+                 `(div (@ (id "albums-list")))))))))
 
 ) ;; end module

@@ -90,7 +90,7 @@
                  "if (response['status'] == 'done') {"
                  "    window.location.replace('~a')"
                  "} else if ((response['status'] == 'running') && response['conv-progress']){"
-                 "    $('.bar').width(response['conv-progress'] + '%');"
+                 "    $('.progress-bar').width(response['conv-progress'] + '%');"
                  "    progress_data = response['conv-progress'] + '% ';"
                  "    progress_data += '(' + response['current'] + '/' + response['total'] + ') ';"
                  "    progress_data += response['image-file'];"
@@ -100,7 +100,10 @@
     `((div (@ (id "progress-container"))
            (h2 ,(_ "Generating thumbnails"))
            (div (@ (class "progress"))
-                (div (@ (class "bar")
+                (div (@ (class "progress-bar")
+                        (role "progressbar")
+                        (aria-valuemin "0")
+                        (aria-valuemax "100")
                         (style "width: 0;"))))
            (div (@ (id "progress-data")))))))
 
