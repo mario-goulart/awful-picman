@@ -151,7 +151,9 @@
 (define render-tags (lambda args args)) ;; FIXME
 
 (define (render-pics path-or-album mode . rest) ;; FIXME
-  `(,(zoomed-pic-area)
+  `(,(if path-or-album ;; path-or-album is #f when listing albums
+         (zoomed-pic-area)
+         '())
     (div (@ (id "content")) ;; FIXME: move to a more generic place
          ,(case mode
             ((folder)
