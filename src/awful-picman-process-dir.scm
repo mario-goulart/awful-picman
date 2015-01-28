@@ -18,10 +18,9 @@
            (and (not (file-read-access? thumbnail))
                 (list image-file thumbnail dimension))))
        image-files)))
-  (apply append
-         (map (lambda (dim)
+  (append-map (lambda (dim)
                 (find-missing-thumbnails* dir dim))
-              (thumbnails/max-dimensions))))
+              (thumbnails/max-dimensions)))
 
 (define (insert-missing-pics/db! dir missing-thumbnails)
   (let* ((images-in-db (db-dir-pics dir))
