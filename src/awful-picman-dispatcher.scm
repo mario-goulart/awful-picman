@@ -76,8 +76,8 @@ $(document)
   ;;;
   (define-data "/conf" ;; FIXME: make a parameter
     (lambda ()
-      `((thumbnails/max-dimension . 300)
-        (thumbnails/zoom-dimension . 1700)
+      `((thumbnails/max-dimension . 300) ;; FIXME
+        (thumbnails/zoom-dimension . 1700) ;; FIXME
         (i18n-language . pt-br)))) ;; FIXME
 
 

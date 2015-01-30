@@ -311,15 +311,15 @@
           (render-pic-info)
           (set-pic-info-editable!))))
 
-(live-on ($ "#content") "click" "#save-pic-info" save-pic-info)
+(live-on ($ "body") "click" "#save-pic-info" save-pic-info)
 
-(live-on ($ "#content") "click" "#cancel-edit-pic-info" render-pic-info)
+(live-on ($ "body") "click" "#cancel-edit-pic-info" render-pic-info)
 
-(live-on ($ "#content") "click" ".remove-typeahead-icon"
+(live-on ($ "body") "click" ".remove-typeahead-icon"
          (lambda (event)
            (jremove (jparent (jcurrent-target event)))))
 
-(live-on ($ "#content") "click" ".add-typeahead-icon"
+(live-on ($ "body") "click" ".add-typeahead-icon"
          (lambda (event)
            (let* ((this (jcurrent-target event))
                   (ta-list (jsiblings this "ul"))

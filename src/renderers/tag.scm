@@ -10,7 +10,7 @@
         (literal "&nbsp;")
         (a (@ (href ,(conc "#tag-modal-" tag-id))
               (data-toggle "modal"))
-           (i (@ (class "icon-edit tag-edit"))))))
+           (span (@ (class "glyphicon glyphicon-edit"))))))
 
 (define (render-tag-modal tag tag-id)
   `(div (@ (id ,(conc "tag-modal-" tag-id))
@@ -42,6 +42,17 @@
                         (class "btn tag-cancel"))
                      ,(_ "Cancel")))))
 
+
+(define (update-tag!)
+  (with-request-variables (tag-id
+                           original-tag
+                           new-tag
+                           (remove? (nonempty as-boolean)))
+    (if (or (equal? new-tag "") remove?)
+        (db-remove-tag! original-tag)
+        (db-update-tag! original-tag new-tag))))
+
+
 (define (render-tags)
 
   (ajax "/update-tag" ".update-tag" 'click
@@ -58,7 +69,7 @@
                   "    $('#tag-' + tag_id).html($('#new-tag-' + tag_id).val());"
                   "$('#tag-modal-' + tag_id).modal('hide');"))
 
-  `(,(render-top-bar 'tag)
+  `(;,(render-top-bar 'tag)
     ,(let ((tags (db-tags)))
        (if (null? tags)
            `(div (@ (id "nothing-here"))

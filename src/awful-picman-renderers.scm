@@ -15,6 +15,8 @@
      awful-picman-image
      awful-picman-ocr)
 
+(include "renderers/tag.scm")
+
 (define (render-navbar-link href text active?)
   `(li (@ ,(if active?
                '(class "active")
@@ -148,7 +150,7 @@
            (map render-other-file-type other-files))))
 
 (define render-filters (lambda args args)) ;; FIXME
-(define render-tags (lambda args args)) ;; FIXME
+;(define render-tags (lambda args args)) ;; FIXME
 
 (define (render-pics path-or-album mode . rest) ;; FIXME
   `(,(if path-or-album ;; path-or-album is #f when listing albums
