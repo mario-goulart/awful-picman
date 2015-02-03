@@ -145,6 +145,13 @@ $(document)
     no-template: #t
     method: 'post)
 
+  (define-page (irregex "/remove-album/[0-9]+")
+    (lambda (path)
+      (let ((album-id (string->number (pathname-strip-directory path))))
+        (db-remove-album! album-id)))
+    no-template: #t
+    method: 'post)
+
   ;;;
   ;;; Thumbnails
   ;;;

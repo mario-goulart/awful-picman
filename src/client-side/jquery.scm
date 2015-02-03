@@ -10,6 +10,9 @@
 (define (jval jobj)
   (%inline .val jobj))
 
+(define (jval! jobj val)
+  (%inline .val jobj (jstring val)))
+
 (define (jtext jobj)
   (%inline .text jobj))
 

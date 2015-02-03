@@ -99,12 +99,9 @@ textarea, input, select {
 
 .add-typeahead-icon,
 .remove-typeahead-icon,
-.edit-album-info,
-.save-album-info,
-.remove-album {
+.edit-album-info {
     cursor: pointer;
 }
-
 
 #ajax-busy {
     z-index: 1100;

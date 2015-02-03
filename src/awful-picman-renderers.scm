@@ -152,6 +152,49 @@
 (define render-filters (lambda args args)) ;; FIXME
 ;(define render-tags (lambda args args)) ;; FIXME
 
+
+(define (render-album-edit-modal)
+  `(div (@ (class "modal fade")
+           (id "album-edit-modal"))
+        (div (@ (class "modal-dialog"))
+             (div (@ (class "modal-content"))
+                  (div (@ (class "modal-header"))
+                       (button (@ (type "button")
+                                  (class "close")
+                                  (data-dismiss "modal")
+                                  (aria-label "Close"))
+                               (span (@ (aria-hidden "true"))
+                                     (literal "&times;")))
+                       (h4 (@ (class "modal-title"))
+                           ,(_ "Edit album")))
+                  (div (@ (class "modal-body"))
+                       (h4 ,(_ "Title"))
+                       (input (@ (type "text")
+                                 (id "album-new-title")
+                                 (value "")))
+                       (h4 ,(_ "Description"))
+                       (textarea (@ (id "album-new-description"))
+                                 "")
+                       (hr)
+                       (p ,(_ "Remove album?")
+                          (literal "&nbsp;")
+                          (input (@ (type "checkbox")
+                                    (id "album-remove")))))
+                  (div (@ (class "modal-footer"))
+                       (button (@ (type "button")
+                                  (data-dismiss "modal")
+                                  (class "btn btn-default"))
+                               ,(_ "Cancel"))
+                       (button (@ (id "save-album-info")
+                                  (data-album-id "")
+                                  (type "button")
+                                  (class "btn btn-primary"))
+                               ,(_ "Submit")))))))
+
+(define (render-albums)
+  `(,(render-album-edit-modal)
+    (div (@ (id "albums-list")))))
+
 (define (render-pics path-or-album mode . rest) ;; FIXME
   `(,(if path-or-album ;; path-or-album is #f when listing albums
          (zoomed-pic-area)
@@ -169,6 +212,6 @@
             ((album)
              (if path-or-album
                  (render-thumbnails (db-get-pics-id/path-by-album path-or-album))
-                 `(div (@ (id "albums-list")))))))))
+                 (render-albums)))))))
 
 ) ;; end module
