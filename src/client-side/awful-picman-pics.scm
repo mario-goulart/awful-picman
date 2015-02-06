@@ -291,7 +291,13 @@
 (on ($ ".pic-thumbnail") "click"
     (lambda (event)
       (let ((target (jcurrent-target event)))
-        (zoom-pic target))))
+        (if (string? (jattr target "data-zoomed"))
+            ;; Only pic thumbnails have the data-zoomed attrib.
+            ;; Directory and other-file icons don't.
+            (zoom-pic target)
+            ;; default handler for click, which should be invoked for
+            ;; dir and other-file icons.
+            #t))))
 
 (on (%host-ref "$(window)") "resize"
     (lambda (event)
