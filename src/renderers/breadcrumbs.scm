@@ -5,18 +5,13 @@
         `(li (a (@ (href ,web-root-dir)) ,root-label))
         root-label))
 
-  (define divider '(li (span (@ (class "divider")) ">")))
-
   (define (make-path parts)
     (string-intersperse (cons web-root-dir parts) "/"))
 
-  (define (link-breadcrumb parts #!key with-divider?)
-    `(li (a (@ (href ,(make-path parts))) ,(last parts))
-         ,(if with-divider?
-              divider
-              '())))
+  (define (link-breadcrumb parts)
+    `(li (a (@ (href ,(make-path parts))) ,(last parts))))
 
-  `(ul (@ (class "breadcrumb"))
+  `(ol (@ (class "breadcrumb"))
        ,(if (or (equal? path ".") ;; Is this necessary?
                 (equal? path "/"))
             (home #f)
@@ -24,6 +19,6 @@
               (let loop ((parts parts)
                          (bc '()))
                 (if (null? parts)
-                    (intersperse (cons (home #t) bc) divider)
+                    (cons (home #t) bc)
                     (loop (butlast parts)
                           (cons (link-breadcrumb parts) bc))))))))

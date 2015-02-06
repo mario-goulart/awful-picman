@@ -26,7 +26,7 @@ msgid "Aborting."
 msgstr "Abortando."
 
 #: src/renderers/common.scm src/renderers/album.scm
-#: src/awful-picman-renderers.scm
+#: src/awful-picman-renderers.scm src/awful-picman-dispatcher.scm
 msgid "Albums"
 msgstr "Álbuns"
 
@@ -110,7 +110,7 @@ msgid "Filters"
 msgstr "Filtros"
 
 #: src/renderers/folder.scm src/renderers/common.scm
-#: src/awful-picman-renderers.scm
+#: src/awful-picman-renderers.scm src/awful-picman-dispatcher.scm
 msgid "Folders"
 msgstr "Pastas"
 

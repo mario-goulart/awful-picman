@@ -4,6 +4,7 @@
    render-tags
    render-filters
    render-navbar ;; FIXME: should be exported?
+   render-breadcrumbs ;; FIXME: should be exported?  Make a pic & album page render procedure
    )
 
 (import chicken scheme)
@@ -16,6 +17,7 @@
      awful-picman-ocr)
 
 (include "renderers/tag.scm")
+(include "renderers/breadcrumbs.scm")
 
 (define (render-navbar-link href text active?)
   `(li (@ ,(if active?

@@ -234,6 +234,7 @@ $(document)
              (album-index? (equal? album ".")))
         (list (ajax-spinner)
               (render-navbar 'albums)
+              (render-breadcrumbs (if album-index? "/" album) (_ "Albums") (albums-web-dir))
               (render-pics (if album-index?
                                #f ;; albums index
                                album)
@@ -261,6 +262,7 @@ $(document)
                 (if (or done (null? missing-thumbnails))
                     (list (ajax-spinner)
                           (render-navbar 'folders)
+                          (render-breadcrumbs dir (_ "Folders") (folders-web-dir))
                           (render-pics dir 'folder)
                           (include-javascript
                            "/assets/bootstrap/js/bootstrap.min.js"
