@@ -121,3 +121,9 @@ textarea, input, select {
     margin-left: auto;
     margin-right: auto;
 }
+
+.pic-select {
+    position: absolute;
+    right: 19px;
+    top: 0;
+}
