@@ -164,6 +164,7 @@
       (%inline .css ($ "#pic-info") (% "height" pic-height))
       (%inline .css ($ "#content") (% "margin-top" "0px"))
       (jhide ($ "#main-navbar"))
+      (jhide ($ ".breadcrumb"))
       (unshade-icon ($ "#edit-pic-info"))
       (%inline .addClass ($ "body") "modal-open")
       (jshow ($ "#pic-info-wrapper")))))
@@ -211,6 +212,7 @@
   (let ((pic-id (jattr ($ "#zoomed-pic img") "data-pic-id")))
     (jhide ($ "#zoomed-pic-area-wrapper"))
     (jshow ($ "#main-navbar"))
+    (jshow ($ ".breadcrumb"))
     (%inline .removeClass ($ "body") "modal-open")
     (%inline .css ($ "#content") (% "margin-top" "70px")) ;; FIXME: hardcoded
     (debug (string-append "focusing " pic-id))
