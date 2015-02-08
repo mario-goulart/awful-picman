@@ -214,7 +214,7 @@
     (jshow ($ "#main-navbar"))
     (jshow ($ ".breadcrumb"))
     (%inline .removeClass ($ "body") "modal-open")
-    (%inline .css ($ "#content") (% "margin-top" "70px")) ;; FIXME: hardcoded
+    (%inline .css ($ "#content") (% "margin-top" "95px")) ;; FIXME: hardcoded
     (debug (string-append "focusing " pic-id))
     (jfocus ($ (string-append "#" pic-id)))
     #f))
