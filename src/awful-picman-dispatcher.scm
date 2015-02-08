@@ -281,7 +281,32 @@ $(document)
     (lambda ()
       (debug 1 "tags handler")
       (list (ajax-spinner)
-            (render-tags))))
+            (render-navbar 'tags)
+            (render-tags)
+            (include-javascript
+             "/assets/bootstrap/js/bootstrap.min.js"
+             "/assets/spock/js/spock-runtime-debug.js" ;; FIXME: when debug, spock-runtime-debug.js
+             "/assets/load-image/js/load-image.all.min.js"
+             "/assets/awful-picman/js/awful-picman-tags.js"))))
+
+  (define-page (irregex "/edit-tag/[^/]+/.*")
+    (lambda (path)
+      (let* ((tokens (string-split path "/"))
+             (old-tag (cadr tokens))
+             (new-tag (caddr tokens)))
+        (db-update-tag! old-tag new-tag)
+        ""))
+    no-template: #t
+    method: 'post)
+
+  (define-page (irregex "/remove-tag/.*")
+    (lambda (path)
+      (let ((tag (pathname-strip-directory path)))
+        (db-remove-tag! tag)
+        ""))
+    no-template: #t
+    method: 'post)
+
 
   ;;;
   ;;; Filters

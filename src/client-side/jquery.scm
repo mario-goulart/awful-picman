@@ -74,3 +74,6 @@
 
 (define (jparent jobj)
   (%inline .parent jobj))
+
+(define (jfind jobj selector)
+  (%inline .find jobj (jstring selector)))

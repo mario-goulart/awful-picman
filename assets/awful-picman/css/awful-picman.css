@@ -103,9 +103,12 @@ textarea, input, select {
     border-width: 1px;
 }
 
+
+/* FIXME: add something like a "clickable" class */
 .add-typeahead-icon,
 .remove-typeahead-icon,
-.edit-album-info {
+.edit-album-info,
+.edit-tag {
     cursor: pointer;
 }
 

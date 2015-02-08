@@ -163,8 +163,6 @@
            (map render-other-file-type other-files))))
 
 (define render-filters (lambda args args)) ;; FIXME
-;(define render-tags (lambda args args)) ;; FIXME
-
 
 (define (render-album-edit-modal)
   `(div (@ (class "modal fade")

@@ -156,7 +156,9 @@
                           (print cmd)
                           (system* cmd)))))
        (set! client-side-targets (cons out-file-path client-side-targets))))
-   '("awful-picman-pics" "awful-picman-albums")))
+   '("awful-picman-pics"
+     "awful-picman-albums"
+     "awful-picman-tags")))
 
 
 ;; Command line app
