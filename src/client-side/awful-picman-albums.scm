@@ -18,8 +18,6 @@
               (span (@ (id ,(conc "album-descr-" album-id)))
                     ,descr)
               (span (@ (data-album-id ,album-id)
-                       ;(data-toggle "modal")
-                       ;(data-target "#album-edit-modal")
                        (class "edit-album-info glyphicon glyphicon-edit"))
                     "") ;; FIXME: spock needs this or it will nest spans.  Bug?
               ))))
@@ -42,7 +40,6 @@
 
 (define (set-album-info-read-only! album-id)
   (debug (conc "set-album-info-read-only!: album-id: " album-id))
-  (album-info-remove-from-edited! album-id)
   (unshade-icon ($ (string-append "#edit-album-info-" album-id)))
   (jhide ($ (string-append "#save-album-info-" album-id)))
   (remote-read (string-append "/read-album-info/" album-id)
