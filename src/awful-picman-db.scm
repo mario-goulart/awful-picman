@@ -78,7 +78,7 @@ create table pics (
       ;; Tags table
       (exec (sql db "
 create table tags (
-    pic_id,
+    pic_id integer,
     tag text)"))
 
       ;; Albums table
