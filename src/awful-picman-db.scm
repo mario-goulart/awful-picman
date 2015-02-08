@@ -54,6 +54,9 @@
 (use awful-picman-utils)
 
 (define (initialize-database db-file force?)
+  ;; This is the initial database schema, which can be modified by
+  ;; migrations.  See awful-picman-db-migrations.scm for the changes
+  ;; applied.
   (when (or (not (file-exists? db-file))
             force?)
     ;(info "Initializing database ~a" db-file)
