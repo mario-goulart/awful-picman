@@ -77,3 +77,9 @@
 
 (define (jfind jobj selector)
   (%inline .find jobj (jstring selector)))
+
+(define (jfilter jobj proc)
+  (%inline .filter jobj (callback proc)))
+
+(define (jchildren jobj)
+  (%inline .children jobj))

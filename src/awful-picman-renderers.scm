@@ -18,6 +18,7 @@
 
 (include "renderers/tag.scm")
 (include "renderers/breadcrumbs.scm")
+(include "renderers/filter.scm")
 
 (define (render-navbar-link href text active?)
   `(li (@ ,(if active?
@@ -162,8 +163,6 @@
                 pics-id/path)
            (map render-other-file-type other-files))))
 
-(define render-filters (lambda args args)) ;; FIXME
-
 (define (render-album-edit-modal)
   `(div (@ (class "modal fade")
            (id "album-edit-modal"))
@@ -206,7 +205,7 @@
   `(,(render-album-edit-modal)
     (div (@ (id "albums-list")))))
 
-(define (render-pics path-or-album mode . rest) ;; FIXME
+(define (render-pics path-or-album mode #!key pagenum) ;; FIXME
   `(,(if path-or-album ;; path-or-album is #f when listing albums
          (zoomed-pic-area)
          '())
@@ -223,6 +222,7 @@
             ((album)
              (if path-or-album
                  (render-thumbnails (db-get-pics-id/path-by-album path-or-album))
-                 (render-albums)))))))
+                 (render-albums))))
+              )))
 
 ) ;; end module

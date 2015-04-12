@@ -5,8 +5,7 @@
                               tag)))
            ,tag)
         (literal "&nbsp;")
-        (span (@ (data-tag ,tag) ;; FIXME: tags are restricted to HTML attribute values' syntax.
-                 (class "edit-tag glyphicon glyphicon-edit")))))
+        (span (@ (class "edit-tag glyphicon glyphicon-edit")))))
 
 (define (render-tag-edit-modal)
   `(div (@ (class "modal fade")
@@ -32,12 +31,14 @@
                           (input (@ (type "checkbox")
                                     (id "tag-remove")))))
                   (div (@ (class "modal-footer"))
+                       (span (@ (id "tag-old-text") ;; a hack: holds the old tag
+                                (style "visibility: hidden; display: none"))
+                             "")
                        (button (@ (type "button")
                                   (data-dismiss "modal")
                                   (class "btn btn-default"))
                                ,(_ "Cancel"))
                        (button (@ (id "save-tag")
-                                  (data-old-tag "") ;; FIXME: tags are restricted to HTML attribute values' syntax.
                                   (type "button")
                                   (class "btn btn-primary"))
                                ,(_ "Submit")))))))

@@ -1,15 +1,13 @@
 (define (tag-include tags)
-  (render-dynamic-inputs 'include-tags 0 tags))
+  "include-tags")
+  ;(render-dynamic-inputs 'include-tags 0 tags))
 
 (define (tag-exclude tags)
-  (render-dynamic-inputs 'exclude-tags 1 tags))
+  "exclude-tags")
+;(render-dynamic-inputs 'exclude-tags 1 tags))
 
 (define (render-filter-input include-tags exclude-tags)
-  (create-dynamic-input-ajax 'include-tags "/db/tags")
-  (create-dynamic-input-ajax 'exclude-tags "/db/tags")
-  (add-dynamic-input-javascript-utils)
-
-  `(,(render-top-bar 'filter)
+  `(;,(render-top-bar 'filter)
     (div (@ (class "filter-input"))
          (form (@ (method "get")
                   (action ,(make-pathname (filters-web-dir) "by-tags")))
@@ -51,22 +49,19 @@
            (debug 2 "render-filtered-pictures: filter results: ~S" filtered-pic-paths)
            `((div (@ (id "filter-matches"))
                   ,(render-matches filtered-pic-paths))
-             ,(render-paginated-pics filtered-pic-paths
-                                     page-num
-                                     'filter/by-tags
-                                     url-vars/vals: (form-tags include-tags exclude-tags)))))))
+             ,(render-thumbnails filtered-pic-paths))))))
 
 (define (render-filter/without-album page-num)
   (let ((pics-without-album (db-filter/without-album)))
     `((h3 ,(_ "Pics without album"))
       ,(render-matches pics-without-album)
-      ,(render-paginated-pics pics-without-album page-num 'filter/without-album))))
+      ,(render-thumbnails pics-without-album))))
 
 (define (render-filter/without-tag page-num)
   (let ((pics-without-tag (db-filter/without-tag)))
     `((h3 ,(_ "Pics without tag"))
       ,(render-matches pics-without-tag)
-      ,(render-paginated-pics pics-without-tag page-num 'filter/without-tag))))
+      ,(render-thumbnails pics-without-tag))))
 
 (define (render-filters-menu mode)
 
@@ -92,7 +87,7 @@
 (define (render-filters)
   (define (filter-link path text)
     `(li (a (@ (href ,(make-pathname (filters-web-dir) path))) ,text)))
-  `(,(render-top-bar 'filter)
+  `(;,(render-top-bar 'filter)
     (ul
      ,(filter-link "by-tags" (_ "Filter by tags"))
      ,(filter-link "without-album" (_ "Pics without album"))
