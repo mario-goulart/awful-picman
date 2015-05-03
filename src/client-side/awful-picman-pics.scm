@@ -64,6 +64,19 @@
   (set! pic-info-edit-mode? #f)
   (unshade-icon ($ "#edit-pic-info")))
 
+(define (render-pic-path pic-data)
+  (let* ((dir (pic-data 'dir))
+         (filename (pic-data 'filename))
+         (path (if (equal? dir ".")
+                   filename
+                   (string-append dir "/" filename))))
+    `(code ,(if (equal? dir ".")
+                filename
+                ;; FIXME: link all the dir chain
+                `((a (@ (href ,(string-append "/folders" "/" dir)))
+                     ,(string-append dir "/"))
+                  ,filename)))))
+
 (define (render-pic-info)
   (remote-read (string-append "/read-pic-info/" (get-pic-id))
                (lambda (pic-data)
@@ -87,6 +100,7 @@
                                   (h3 ,(_ "Albuns"))
                                   (div (@ (id "pic-albums"))
                                        ,(itemize (pic-data 'albums '())))
+                                  ,(render-pic-path pic-data)
                                   (div (@ (id "pic-info-edit-button-bar")
                                           (style "visibility: hidden;"))
                                        (button (@ (id "cancel-edit-pic-info"))
