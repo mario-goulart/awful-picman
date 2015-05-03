@@ -160,7 +160,9 @@
            (map render-folder folders)
            (map (lambda (id/path)
                   (render-thumbnail (car id/path) (cdr id/path)))
-                pics-id/path)
+                (sort pics-id/path
+                      (lambda (p1 p2)
+                        (string<? (cdr p1) (cdr p2)))))
            (map render-other-file-type other-files))))
 
 (define (render-album-edit-modal)
