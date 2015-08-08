@@ -157,7 +157,7 @@
 (define (render-thumbnails pics-id/path #!key (folders '()) (other-files '()))
   `(div (@ (id "thumbnails"))
         ,@(append
-           (map render-folder folders)
+           (map render-folder (sort folders string<?))
            (map (lambda (id/path)
                   (render-thumbnail (car id/path) (cdr id/path)))
                 (sort pics-id/path
