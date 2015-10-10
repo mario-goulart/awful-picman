@@ -55,7 +55,7 @@
                 (copy-file (make-pathname assets-install-dir asset)
                            (make-pathname metadata-dir asset)
                            prefix: metadata-dir))
-              '("assets" "img" "locale")))
+              '("assets" "locale")))
   (initialize-database (make-pathname metadata-dir db-filename) force?))
 
 (define (initialize #!optional recursive? force?)
