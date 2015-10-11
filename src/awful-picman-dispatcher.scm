@@ -63,7 +63,8 @@ $(document)
     (define-page matcher
       (case-lambda
         (args (apply (lambda args
-                       (awful-response-headers '((content-type text/plain)))
+                       (awful-response-headers '((content-type text/plain)
+                                                 (pragma (no-cache . #t))))
                        `(literal
                          ,(with-output-to-string
                             (lambda ()
