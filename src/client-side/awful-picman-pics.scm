@@ -1,4 +1,4 @@
-(define thumbnails/max-dimensions #f)
+(define thumbnails/small-dimension #f)
 (define thumbnails/zoom-dimension #f)
 
 ;; Keep track of rotated images to avoid caching issues.  Items of
@@ -17,7 +17,7 @@
                (debug "Configuration data from server:")
                (debug data)
                (debug (alist-ref 'i18n-language data))
-               (set! thumbnails/max-dimension (alist-ref 'thumbnails/max-dimension data))
+               (set! thumbnails/small-dimension (alist-ref 'thumbnails/small-dimension data))
                (set! thumbnails/zoom-dimension (alist-ref 'thumbnails/zoom-dimension data))
                (set! i18n-language
                      (case (alist-ref 'i18n-language data)

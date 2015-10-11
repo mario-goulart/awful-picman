@@ -114,10 +114,6 @@ msgstr "Filtros"
 msgid "Folders"
 msgstr "Pastas"
 
-#: src/awful-picman-process-dir.scm
-msgid "Generating thumbnails"
-msgstr "Gerando miniaturas"
-
 #: src/renderers/common.scm
 msgid "Language: "
 msgstr "Língua: "

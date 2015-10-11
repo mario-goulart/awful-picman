@@ -20,8 +20,7 @@
 
 .dir {
     text-align: center;
-    width: 300px;
-    height: 200px;
+    height: 120px;
 }
 
 .dir img {
@@ -32,7 +31,6 @@
 
 .other-file-type {
     text-align: center;
-    width: 300px;
     height: 200px;
 }
 

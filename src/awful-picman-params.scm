@@ -9,7 +9,7 @@
  filters-web-dir
 
  ;; Image-related parameters
- thumbnails/max-dimensions
+ thumbnails/small-dimension
  thumbnails/zoom-dimension
  thumbnails/default-extension
  thumbnails/page
@@ -27,6 +27,7 @@
  ;; Constants
  dot-dirname
  thumbnails-dirname
+ thumbnails-small-dirname
  db-filename
  assets-install-dir
  root-dir
@@ -74,7 +75,7 @@
 ;;;
 ;;; Image-related parameters
 ;;;
-(define thumbnails/max-dimensions (make-parameter '(300)))
+(define thumbnails/small-dimension (make-parameter 160))
 (define thumbnails/zoom-dimension (make-parameter 1700))
 (define thumbnails/default-extension
   ;; For when converting non-web image files to web image files
@@ -118,6 +119,7 @@
 ;;;
 (define dot-dirname ".awful-picman")
 (define thumbnails-dirname "thumbnails")
+(define thumbnails-small-dirname "small")
 (define db-filename "awful-picman.db")
 
 ;; Where chicken-install will install static files served by the web

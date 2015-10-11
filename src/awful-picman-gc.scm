@@ -77,15 +77,12 @@
 (define (unused-thumbnail-sets)
   (let* ((thumbnails-dir (make-pathname metadata-dir
                                         thumbnails-dirname))
-         (configured-dimensions
-          (cons (thumbnails/zoom-dimension)
-                (thumbnails/max-dimensions)))
          (available-thumbnail-sets
           (filter-map string->number
                       (directory thumbnails-dir)))
-         (to-remove (lset-difference =
-                                     available-thumbnail-sets
-                                     configured-dimensions)))
+         (to-remove (delete (thumbnails/zoom-dimension)
+                            available-thumbnail-sets
+                            =)))
     (map (lambda (dim)
            (make-pathname thumbnails-dir (number->string dim)))
          to-remove)))

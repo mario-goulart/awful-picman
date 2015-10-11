@@ -34,21 +34,19 @@
       (get-environment-variable "LANG")
       (get-environment-variable "LC_ALL")))
 
-(define (create-thumbnails-dirs path)
-  ;; path is relative to metadata-dir
-  (let ((thumbs-dir (make-pathname (list dot-dirname path)
-                                   thumbnails-dirname)))
-    (debug 1 "create-thumbnails-dirs: path = ~a" path)
+(define (create-thumbnails-dirs)
+  (let ((thumbs-dir (make-pathname dot-dirname thumbnails-dirname)))
     (debug 1 "create-thumbnails-dirs: thumbs-dir = ~a" thumbs-dir)
     (for-each (lambda (dimension)
                 (let ((dir (make-pathname thumbs-dir (->string dimension))))
-                  (debug 1 "create-thumbnails-dir: ~a" dir)
+                  (debug 1 "create-thumbnails-dirs: ~a" dir)
                   (create-directory dir 'with-parents)))
-              (thumbnails/max-dimensions))))
+              (list (thumbnails/small-dimension)
+                    (thumbnails/zoom-dimension)))))
 
 (define (initialize-metadata-dir force?)
   (create-directory metadata-dir)
-  (create-thumbnails-dirs ".")
+  (create-thumbnails-dirs)
   (parameterize ((setup-verbose-mode (verbose?))
                  (run-verbose (verbose?)))
     (for-each (lambda (asset)
@@ -58,11 +56,10 @@
               '("assets" "locale")))
   (initialize-database (make-pathname metadata-dir db-filename) force?))
 
-(define (initialize #!optional recursive? force?)
+(define (initialize #!optional force?)
   (info "Initializing ~a ..." (current-directory))
   (initialize-metadata-dir force?)
-  (let ((missing-thumbnails (find-missing-thumbnails ".")))
-    ((if recursive? process-dir/recursive process-dir) "." missing-thumbnails)))
+  (process-dir "."))
 
 (define (usage #!optional exit-code)
   (let ((this (pathname-strip-directory (program-name)))
@@ -77,17 +74,10 @@ Usage: #this [ <options> ]
 --init
   Initialize the current directory to be used in subsequent runs of
   this program.  It creates a directory (#dot-dirname) where metadata,
-  web server's static data and thumbnails are stored.  During the init
-  step, #this creates thumbnails for all images in the current directory.
-  If --recursive (see below) is not provided, it will not recur into
-  directories.  After all the initialization steps, it starts the web server.
+  web server's static data and thumbnails are stored.
 
 --init-only
   Does what --init does, but doesn't start the web server.
-
---recursive
-  To be used with --init.  Indicates that #this is to recur into
-  directories.
 
 --development-mode
   Put awful (the server) in development mode.
@@ -158,18 +148,9 @@ EOF
 
   (db-credentials (make-pathname metadata-dir db-filename))
 
-  ;; Add (thumbnails/max-dimensions) to the list of thumbnail
-  ;; dimensions (before initialize is called).
-  (unless (memq (thumbnails/zoom-dimension)
-                (thumbnails/max-dimensions))
-    (thumbnails/max-dimensions
-     (append (thumbnails/max-dimensions)
-             (list (thumbnails/zoom-dimension)))))
-
   (let ((init-only? (member "--init-only" args)))
     (when (or (member "--init" args) init-only?)
-      (initialize (and (member "--recursive" args) #t)
-                  (and (member "--force" args) #t)))
+      (initialize (and (member "--force" args) #t)))
 
     (unless (directory-exists? metadata-dir)
       (fprintf (current-error-port)

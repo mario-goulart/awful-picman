@@ -76,8 +76,8 @@ $(document)
   ;;;
   (define-data "/conf" ;; FIXME: make a parameter
     (lambda ()
-      `((thumbnails/max-dimension . 300) ;; FIXME
-        (thumbnails/zoom-dimension . 1700) ;; FIXME
+      `((thumbnails/small-dimension . ,(thumbnails/small-dimension))
+        (thumbnails/zoom-dimension . ,(thumbnails/zoom-dimension))
         (i18n-language . pt-br)))) ;; FIXME
 
 
@@ -159,11 +159,18 @@ $(document)
     (and (string-prefix? (make-absolute-pathname #f thumbnails-dirname)
                          req-path)
          (image-file? req-path)
-         (let ((thumbnail
-                (make-pathname metadata-dir
-                               (maybe-replace-thumbnail-extension req-path))))
-           (and (file-exists? thumbnail)
-                (list req-path thumbnail)))))
+         (and-let* ((thumbnail
+                     (make-pathname metadata-dir
+                                    (maybe-replace-thumbnail-extension req-path)))
+                    (path-parts (string-split req-path "/"))
+                    (dimension (string->number (cadr path-parts)))
+                    ((or (= dimension (thumbnails/small-dimension))
+                         (= dimension (thumbnails/zoom-dimension))))
+                    ;; drop thumbnails-dirname and dimension
+                    (image-file (string-intersperse (cddr path-parts) "/")))
+           (unless (file-exists? thumbnail)
+             (image->thumbnail image-file dimension))
+           (list image-file thumbnail))))
 
   (define-page thumbnail-matcher
     (lambda (req-path thumbnail)
@@ -182,7 +189,7 @@ $(document)
              (pic-path (db-pic-path pic-info)))
         (rotate-image! pic-path)
         (list pic-path
-              (default-thumbnail-dimension)
+              (thumbnails/small-dimension)
               (thumbnails/zoom-dimension)))))
 
   ;;;
@@ -270,19 +277,19 @@ $(document)
         (debug 1 "folders handler: handling ~a" path)
         (let ((dir (drop-web-path-prefix (folders-web-dir) path)))
           (if (file-exists? dir)
-              (let ((missing-thumbnails (find-missing-thumbnails dir)))
-                (if (or done (null? missing-thumbnails))
-                    (list (ajax-spinner)
-                          (render-navbar 'folders)
-                          (render-breadcrumbs dir (_ "Folders") (folders-web-dir))
-                          (render-pics dir 'folder)
-                          (include-javascript
-                           "/assets/bootstrap/js/bootstrap.min.js"
-                           "/assets/spock/js/spock-runtime-debug.js" ;; FIXME: when debug, spock-runtime-debug.js
-                           "/assets/load-image/js/load-image.all.min.js"
-                           "/assets/autocomplete/js/jquery.autocomplete.min.js"
-                           "/assets/awful-picman/js/awful-picman-pics.js")) ;;; FIXME: move to define-pics-page
-                    (poll-thumbnails-conversion dir path missing-thumbnails)))
+              (begin
+                (process-dir dir)
+                (list (render-navbar 'folders)
+                      (render-breadcrumbs dir (_ "Folders") (folders-web-dir))
+                      (render-pics dir 'folder)
+                      (include-javascript
+                       "/assets/bootstrap/js/bootstrap.min.js"
+                       ;; FIXME: when debug, spock-runtime-debug.js
+                       "/assets/spock/js/spock-runtime-debug.js"
+                       "/assets/load-image/js/load-image.all.min.js"
+                       "/assets/autocomplete/js/jquery.autocomplete.min.js"
+                       ;; FIXME: move to define-pics-page
+                       "/assets/awful-picman/js/awful-picman-pics.js")))
               (lambda ()
                 (send-status 404 "Not found")))))))
 
