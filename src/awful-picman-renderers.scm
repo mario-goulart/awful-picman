@@ -93,9 +93,7 @@
 
 (define (zoomed-pic-area)
   `(div (@ (id "zoomed-pic-area-wrapper"))
-        (div (@ (id "zoomed-pic-area") ;; FIXME: not needed
-                (data-pic-id "null"))
-             (div (@ (id "zoomed-pic"))))
+        (div (@ (id "zoomed-pic")))
         ,(pic-info-area)))
 
 (define (thumbnail-boilerplate thumbnail-markup)

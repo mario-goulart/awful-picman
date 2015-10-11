@@ -47,12 +47,6 @@
     z-index: 1;
 }
 
-#zoomed-pic-area {
-    position: relative;
-    top: 0;
-    left: 0;
-    z-index: 2;
-}
 
 /* Removes scrollbar.
    http://stackoverflow.com/questions/4904668/html5-vertical-spacing-issue-with-img
