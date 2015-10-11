@@ -1,6 +1,17 @@
 (define thumbnails/max-dimensions #f)
 (define thumbnails/zoom-dimension #f)
 
+;; Keep track of rotated images to avoid caching issues.  Items of
+;; this list are strings "pic-<id>".
+(define *rotated-pics* '())
+
+(define (was-rotated? pic-id)
+  (member pic-id *rotated-pics*))
+
+(define (add-to-rotated-pics! pic-id)
+  (unless (member pic-id *rotated-pics*)
+    (set! *rotated-pics* (cons pic-id *rotated-pics*))))
+
 (remote-read "/conf"
              (lambda (data)
                (debug "Configuration data from server:")
@@ -157,8 +168,13 @@
         (setup-typeahead-listener!))))
   (%inline .css ($ "#pic-info-edit-button-bar") "visibility" "visible"))
 
+(define (drop-pic-id-prefix pic-id)
+  ;; Given "pic-<id>", return "<id>"
+  (debug (conc "pic-id: " pic-id))
+  (substring pic-id 4))
+
 (define (get-pic-id)
-  (substring (jattr ($ "#zoomed-pic img") "data-pic-id") 4))
+  (drop-pic-id-prefix (jattr ($ "#zoomed-pic img") "data-pic-id")))
 
 (define (show-zoomed-pic)
   (let ((zoomed-pic-area-wrapper ($ "#zoomed-pic-area-wrapper"))
@@ -186,13 +202,16 @@
 (define-native loadImage)
 
 (define (load-image src id)
-  (debug (conc "Loading image. src=" src ", id=" id))
-  (loadImage src
-             (callback
-              (lambda (img)
-                (jattr! ($ img) "data-pic-id" id)
-                (jhtml! ($ "#zoomed-pic") (scale-pic img))
-                (show-zoomed-pic)))))
+  (let ((src (if (was-rotated? id)
+                 (jstring (conc src "?" (milliseconds))) ;; Avoid cache
+                 src)))
+    (debug (conc "Loading image. src=" src ", id=" id))
+    (loadImage src
+               (callback
+                (lambda (img)
+                  (jattr! ($ img) "data-pic-id" id)
+                  (jhtml! ($ "#zoomed-pic") (scale-pic img))
+                  (show-zoomed-pic))))))
 
 (define (current-pic-index pics)
   (let* ((pic-id (string-append "#" (jattr ($ "#zoomed-pic img") "data-pic-id")))
@@ -220,6 +239,24 @@
           (load-image (jattr ($ next-pic) "data-zoomed") (.id next-pic)))
         (shade-icon ($ "#next-pic")))
     #f))
+
+(define (rotate-pic! event)
+  (let* ((pic-id (jattr ($ "#zoomed-pic img") "data-pic-id"))
+         (hash-pic-id (string-append "#" pic-id))
+         (id (drop-pic-id-prefix pic-id)))
+    (remote-read (string-append "/rotate-pic/" id)
+                 (lambda (pic-path/dimensions)
+                   (debug pic-path/dimensions)
+                   (let ((pic-path (car pic-path/dimensions))
+                         (thumb-dimension (cadr pic-path/dimensions))
+                         (zoom-dimension (caddr pic-path/dimensions)))
+                     (add-to-rotated-pics! pic-id)
+                     (jattr! ($ hash-pic-id)
+                             "src"
+                             (conc "/thumbnails/" thumb-dimension "/" pic-path "?x=" (milliseconds)))
+                     (load-image (conc "/thumbnails/" zoom-dimension "/" pic-path)
+                                 pic-id))))))
+
 
 (define (close-zoomed-pic)
   (leave-pic-info-edit-mode!)
@@ -327,6 +364,8 @@
 
 (on ($ "#next-pic") "click" next-pic)
 
+(on ($ "#rotate-pic") "click" rotate-pic!)
+
 (on ($ "#edit-pic-info") "click"
     (lambda ()
       (if pic-info-edit-mode?
@@ -375,6 +414,9 @@
         ((69) ;; e
          (unless pic-info-edit-mode?
            (set-pic-info-editable!)))
+        ((82) ;; r
+         (unless pic-info-edit-mode?
+           (rotate-pic!)))
         ((83) ;; s
          (when (.ctrlKey event)
            (save-pic-info)

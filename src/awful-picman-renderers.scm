@@ -79,6 +79,8 @@
                 (class "glyphicon glyphicon-arrow-left")))
         (div (@ (id "next-pic")
                 (class "glyphicon glyphicon-arrow-right")))
+        (div (@ (id "rotate-pic")
+                (class "glyphicon glyphicon-repeat")))
         (div (@ (id "edit-pic-info")
                 (class "glyphicon glyphicon-edit")))
         (div (@ (id "close-zoomed-pic")

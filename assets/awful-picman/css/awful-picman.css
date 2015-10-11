@@ -93,7 +93,7 @@
     width: 90%;
 }
 
-#close-zoomed-pic, #prev-pic, #next-pic, #edit-pic-info {
+#close-zoomed-pic, #prev-pic, #next-pic, #edit-pic-info, #rotate-pic {
     cursor: pointer;
 }
 

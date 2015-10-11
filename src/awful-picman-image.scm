@@ -4,6 +4,7 @@
    thumbnail-path
    maybe-replace-thumbnail-extension
    images->thumbnails
+   rotate-image!
    )
 
 (import chicken scheme)
@@ -26,6 +27,17 @@
       (pathname-replace-extension thumbnail
                                   (thumbnails/default-extension))
       thumbnail))
+
+(define (rotate-image! pic-path)
+  (for-each (lambda (dir)
+              (let* ((thumb-path (thumbnail-path pic-path dir))
+                     (image (image-load thumb-path)))
+                (debug 2 "rotate-image!: rotating file ~a" thumb-path)
+                (image-save (image-orientate image 1) ;; rotate 90
+                            thumb-path)
+                (image-destroy image)))
+            (list (thumbnails/small-dimension)
+                  (thumbnails/zoom-dimension))))
 
 (define (image-scale/proportional image max-dimension)
   ;; Scale the given image keeping width/height proportion and

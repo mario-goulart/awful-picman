@@ -173,6 +173,18 @@ $(document)
           (send-static-file (pathname-strip-directory thumbnail)))))
     no-db: #t)
 
+
+  ;;; Thumbnail rotation
+  (define-data (irregex "/rotate-pic/[0-9]+")
+    (lambda (path)
+      (let* ((pic-id (string->number (pathname-strip-directory path)))
+             (pic-info (db-get-pic-by-id pic-id))
+             (pic-path (db-pic-path pic-info)))
+        (rotate-image! pic-path)
+        (list pic-path
+              (default-thumbnail-dimension)
+              (thumbnails/zoom-dimension)))))
+
   ;;;
   ;;; Assets
   ;;;
