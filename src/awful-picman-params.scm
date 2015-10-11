@@ -25,6 +25,7 @@
  debug-formatter
 
  ;; Constants
+ thumbnails/exif-dimension
  dot-dirname
  thumbnails-dirname
  thumbnails-small-dirname
@@ -121,6 +122,8 @@
 (define thumbnails-dirname "thumbnails")
 (define thumbnails-small-dirname "small")
 (define db-filename "awful-picman.db")
+
+(define thumbnails/exif-dimension 160) ;; "standard"?
 
 ;; Where chicken-install will install static files served by the web
 ;; server.  This stuff will be copied to the metadata dir on --init.

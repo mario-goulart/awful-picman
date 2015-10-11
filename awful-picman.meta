@@ -5,6 +5,7 @@
  (license "BSD")
  (depends (awful "0.41.0")
           awful-sql-de-lite
+          exif
           free-gettext
           hostinfo
           imlib2
