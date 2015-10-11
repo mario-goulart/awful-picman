@@ -73,7 +73,6 @@ msgid "Description"
 msgstr "Descrição"
 
 #: src/awful-picman-renderers.scm
-#, fuzzy
 msgid "Deselect all"
 msgstr "Desselecionar todas"
 
@@ -163,7 +162,6 @@ msgid "Not removing unused thumbnail directories."
 msgstr "Nenhum diretório de miniaturas não utilizadas removido."
 
 #: src/awful-picman-renderers.scm
-#, fuzzy
 msgid "Pics not in albums"
 msgstr "Fotos que não estão em álbums"
 
@@ -176,7 +174,6 @@ msgid "Pics without tag"
 msgstr "Fotos que não contêm marcadores"
 
 #: src/awful-picman-renderers.scm
-#, fuzzy
 msgid "Pics without tags"
 msgstr "Fotos que não contêm marcadores"
 
