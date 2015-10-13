@@ -31,6 +31,15 @@
 (define (jattr! jobj attr val)
   (%inline .attr jobj (jstring attr) (jstring val)))
 
+(define (jprop jobj prop)
+  (%inline .prop jobj (jstring prop)))
+
+(define (jprop! jobj prop val)
+  (%inline .prop jobj (jstring prop) (jstring val)))
+
+(define (jtrigger jobj event)
+  (%inline .trigger jobj (jstring event)))
+
 (define (on jobj event handler)
   (%inline .on jobj (jstring event) (callback handler)))
 

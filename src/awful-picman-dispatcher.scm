@@ -122,6 +122,26 @@ $(document)
     no-template: #t
     method: 'post)
 
+  (define-page "/write-pic-template"
+    (lambda ()
+      (let* ((data (read-from-request))
+             (pic-ids (alist-ref 'pic-ids data eq? '()))
+             (date (alist-ref 'date data)))
+        (debug 2 "write-pic-template: data: ~S" data)
+        (for-each
+         (lambda (pic-id)
+           (insert/update-pic! pic-id
+                               descr: (alist-ref 'description data)
+                               decade: (and date (car date))
+                               year: (and date (cadr date))
+                               month: (and date (caddr date))
+                               day: (and date (cadddr date))
+                               tags: (alist-ref 'tags data)
+                               albums: (alist-ref 'albums data)))
+         pic-ids))
+      "")
+    no-template: #t
+    method: 'post)
 
   ;;;
   ;;; Album info

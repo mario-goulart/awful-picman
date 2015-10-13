@@ -63,7 +63,7 @@
       (or val
           (if (null? default)
               #f
-              default)))))
+              (car default))))))
 
 (define pic-info-edit-mode? #f)
 
@@ -88,36 +88,45 @@
                      ,(string-append dir "/"))
                   ,filename)))))
 
-(define (render-pic-info)
-  (remote-read (string-append "/read-pic-info/" (get-pic-id))
+(define (render-pic-info pic-data . for-batch-edit?)
+  (let* ((id-prefix (if (null? for-batch-edit?)
+                        "pic-"
+                        "pic-template-"))
+         (prefix (lambda (id-suffix)
+                   (string-append id-prefix id-suffix))))
+    (sxml->html
+     (let* ((pic-data (make-pic-data-getter pic-data)))
+       `(div (@ (id ,(prefix "form")))
+             (h4 ,(_ "Description"))
+             (p (@ (id ,(prefix "description-wrapper")))
+                ,(pic-data 'description ""))
+             (h4 ,(_ "Date"))
+             (p (@ (id ,(prefix "date")))
+                ,(let ((date (pic-data 'date)))
+                   (if date
+                       (apply render-date date)
+                       "")))
+             (h4 ,(_ "Tags"))
+             (div (@ (id ,(prefix "tags")))
+                  ,(itemize (pic-data 'tags '())))
+             (h4 ,(_ "Albuns"))
+             (div (@ (id ,(prefix "albums")))
+                  ,(itemize (pic-data 'albums '())))
+             ,(if (null? for-batch-edit?)
+                  (render-pic-path pic-data)
+                  '())
+             (div (@ (id "pic-info-edit-button-bar")
+                     (style "visibility: hidden;"))
+                  (button (@ (id "cancel-edit-pic-info"))
+                          "Cancel")
+                  (button (@ (id "save-pic-info"))
+                          "Save")))))))
+
+(define (read&render-pic-info pic-id)
+  (remote-read (string-append "/read-pic-info/" pic-id)
                (lambda (pic-data)
                  (leave-pic-info-edit-mode!)
-                 (jhtml! ($ "#pic-info")
-                         (sxml->html
-                          (let* ((pic-data (make-pic-data-getter pic-data)))
-                            `(div (@ (id "pic-form"))
-                                  (h3 ,(_ "Description"))
-                                  (p (@ (id "pic-description-wrapper"))
-                                     ,(pic-data 'description ""))
-                                  (h3 ,(_ "Date"))
-                                  (p (@ (id "pic-date"))
-                                     ,(let ((date (pic-data 'date)))
-                                        (if date
-                                            (apply render-date date)
-                                            "")))
-                                  (h3 ,(_ "Tags"))
-                                  (div (@ (id "pic-tags"))
-                                       ,(itemize (pic-data 'tags '())))
-                                  (h3 ,(_ "Albuns"))
-                                  (div (@ (id "pic-albums"))
-                                       ,(itemize (pic-data 'albums '())))
-                                  ,(render-pic-path pic-data)
-                                  (div (@ (id "pic-info-edit-button-bar")
-                                          (style "visibility: hidden;"))
-                                       (button (@ (id "cancel-edit-pic-info"))
-                                               "Cancel")
-                                       (button (@ (id "save-pic-info"))
-                                               "Save")))))))))
+                 (jhtml! ($ "#pic-info") (render-pic-info pic-data)))))
 
 (define (render-typeahead-input class val)
   `(div (@ (class "remove-typeahead"))
@@ -137,51 +146,66 @@
     (span (@ (class "add-typeahead-icon glyphicon glyphicon-plus")
              (data-class ,class)))))
 
-(define (set-pic-info-editable!)
-  (enter-pic-info-edit-mode!)
-  (remote-read (string-append "/read-pic-info/" (get-pic-id))
-    (lambda (pic-data)
-      (let* ((pic-data (make-pic-data-getter pic-data))
-             (tags (pic-data 'tags '()))
-             (albums (pic-data 'albums '())))
-        (jhtml! ($ "#pic-description-wrapper")
+(define (set-pic-info-editable! pic-data . for-batch-edit?)
+  (let* ((id-prefix (if (null? for-batch-edit?)
+                        "pic-"
+                        "pic-template-"))
+         (prefix (lambda (id-suffix)
+                   (string-append id-prefix id-suffix)))
+         (hash-prefix (lambda (id-suffix)
+                        (string-append "#" id-prefix id-suffix))))
+    (let* ((pic-data (make-pic-data-getter pic-data))
+           (tags (pic-data 'tags '()))
+           (albums (pic-data 'albums '())))
+      (jhtml! ($ (hash-prefix "description-wrapper"))
+              (sxml->html
+               `(textarea (@ (id ,(prefix "description"))
+                             (rows 1))
+                          ,(pic-data 'description ""))))
+      (jhtml! ($ (hash-prefix "date"))
+              (let* ((date (pic-data 'date))
+                     (decade (if date (or (car date) "") ""))
+                     (year (if date (or (cadr date) "") ""))
+                     (month (if date (or (caddr date) "") ""))
+                     (day (if date (or (cadddr date) "") "")))
                 (sxml->html
-                 `(textarea (@ (id "pic-description")
-                               (rows 1))
-                            ,(pic-data 'description ""))))
-        (jhtml! ($ "#pic-date")
-                (let* ((date (pic-data 'date))
-                       (decade (if date (car date) ""))
-                       (year (if date (cadr date) ""))
-                       (month (if date (caddr date) ""))
-                       (day (if date (cadddr date) "")))
-                  (sxml->html
-                   `(,(combo-box "pic-date-decade" (iota 10 1920 10) #t decade "decade")
-                     ,(combo-box "pic-date-year" (iota 10) #t year "year")
-                     ,(combo-box "pic-date-month" (iota 12 1) #t month "month")
-                     ,(combo-box "pic-date-day" (iota 31 1) #t day "day")))))
-        (jhtml! ($ "#pic-tags")
-                (sxml->html (render-typeahead-inputs "tag-typeahead" tags)))
-        (jhtml! ($ "#pic-albums")
-                (sxml->html (render-typeahead-inputs "album-typeahead" albums)))
-        (jfocus ($ "#pic-description"))
-        (setup-typeahead-listener!))))
-  (%inline .css ($ "#pic-info-edit-button-bar") "visibility" "visible"))
+                 `(,(combo-box (prefix "date-decade") (iota 10 1920 10) #t decade "decade")
+                   ,(combo-box (prefix "date-year") (iota 10) #t year "year")
+                   ,(combo-box (prefix "date-month") (iota 12 1) #t month "month")
+                   ,(combo-box (prefix "date-day") (iota 31 1) #t day "day")))))
+      (jhtml! ($ (hash-prefix "tags"))
+              (sxml->html (render-typeahead-inputs "tag-typeahead" tags)))
+      (jhtml! ($ (hash-prefix "albums"))
+              (sxml->html (render-typeahead-inputs "album-typeahead" albums)))
+      (jfocus ($ (hash-prefix "description")))
+      (setup-typeahead-listener!)))
+  (when (null? for-batch-edit?)
+    (%inline .css ($ "#pic-info-edit-button-bar") "visibility" "visible")))
+
+(define (read&set-pic-info-editable!)
+  (enter-pic-info-edit-mode!)
+  (remote-read (string-append "/read-pic-info/" (get-zoomed-pic-id))
+               (lambda (pic-data)
+                 (set-pic-info-editable! pic-data))))
 
 (define (drop-pic-id-prefix pic-id)
   ;; Given "pic-<id>", return "<id>"
-  (debug (conc "pic-id: " pic-id))
   (substring pic-id 4))
 
-(define (get-pic-id)
+(define (get-zoomed-pic-id)
   (drop-pic-id-prefix (jattr ($ "#zoomed-pic img") "data-pic-id")))
+
+(define (get-selected-pic-ids)
+  (map (lambda (elt)
+         (string->number (%inline ".getAttribute" elt (jstring "data-pic-id"))))
+       (vector->list (%inline .toArray ($ ".pic-select:checked")))))
 
 (define (show-zoomed-pic)
   (let ((zoomed-pic-area-wrapper ($ "#zoomed-pic-area-wrapper"))
         (zoomed-pic-id (jattr ($ "#zoomed-pic img") "data-pic-id")))
     (%inline .css zoomed-pic-area-wrapper
              "top" (%host-ref "$(document).scrollTop()") "px;")
-    (render-pic-info)
+    (read&render-pic-info (get-zoomed-pic-id))
     (jshow zoomed-pic-area-wrapper)
     (let ((window-width (%host-ref "$(window).width()"))
           (pic-width (%inline .width ($ "#zoomed-pic img")))
@@ -270,36 +294,42 @@
     (jfocus ($ (string-append "#" pic-id)))
     #f))
 
-(define (save-pic-info)
-  (let ((pic-id (get-pic-id))
-        (description (jval ($ "#pic-description")))
-        (decade (jval ($ "#pic-date-decade")))
-        (year (jval ($ "#pic-date-year")))
-        (month (jval ($ "#pic-date-month")))
-        (day (jval ($ "#pic-date-day")))
-        (tags (filter-map (lambda (elt)
-                            (let ((val (.value elt)))
-                              (and (not (equal? val ""))
-                                   val)))
-                          (vector->list (%inline .toArray ($ ".tag-typeahead")))))
-        (albums (filter-map (lambda (elt)
-                              (let ((val (.value elt)))
-                                (and (not (equal? val ""))
-                                     val)))
-                            (vector->list (%inline .toArray ($ ".album-typeahead"))))))
-    (remote-write (string-append "/write-pic-info/" pic-id)
-                  `((id . ,(string->number pic-id))
+(define (save-pic-info for-batch-edit?)
+  (let* ((id-prefix (if for-batch-edit?
+                        "#pic-template-"
+                        "#pic-"))
+         (prefix (lambda (id-suffix)
+                   (string-append id-prefix id-suffix)))
+         (pic-id (if for-batch-edit?
+                     (get-selected-pic-ids)
+                     (string->number (get-zoomed-pic-id))))
+         (description (jval ($ (prefix "description"))))
+         (decade (jval ($ (prefix "date-decade"))))
+         (year (jval ($ (prefix "date-year"))))
+         (month (jval ($ (prefix "date-month"))))
+         (day (jval ($ (prefix "date-day"))))
+         (tags (filter-map (lambda (elt)
+                             (let ((val (.value elt)))
+                               (and (not (equal? val ""))
+                                    val)))
+                           (vector->list (%inline .toArray ($ ".tag-typeahead")))))
+         (albums (filter-map (lambda (elt)
+                               (let ((val (.value elt)))
+                                 (and (not (equal? val ""))
+                                      val)))
+                             (vector->list (%inline .toArray ($ ".album-typeahead"))))))
+    (remote-write (if for-batch-edit?
+                      "/write-pic-template"
+                      (conc "/write-pic-info/" pic-id))
+                  `((,(if for-batch-edit? 'pic-ids 'id) . ,pic-id)
                     (description . ,description)
                     (date ,@(map string->number (list decade year month day)))
                     (tags . ,tags)
                     (albums . ,albums)))
-    (remote-read (string-append "/read-pic-info/" pic-id)
-                 (lambda (pic-data)
-                   (jhtml! ($ "#pic-info")
-                           (sxml->html
-                            (render-pic-info pic-data)))))
-    (unshade-icon ($ "#edit-pic-info"))
-    (debug "saving pic info")))
+    (unless for-batch-edit?
+      (read&render-pic-info pic-id)
+      (unshade-icon ($ "#edit-pic-info"))
+      (debug "saving pic info"))))
 
 ;;; Thumbnails
 (define (zoom-pic target)
@@ -369,12 +399,42 @@
 (on ($ "#edit-pic-info") "click"
     (lambda ()
       (if pic-info-edit-mode?
-          (render-pic-info)
-          (set-pic-info-editable!))))
+          (read&render-pic-info (get-zoomed-pic-id))
+          (read&set-pic-info-editable!))))
 
-(live-on ($ "body") "click" "#save-pic-info" save-pic-info)
+(on ($ "#select-all") "click"
+    (lambda ()
+      (jprop! ($ ".pic-select") "checked" #t)))
 
-(live-on ($ "body") "click" "#cancel-edit-pic-info" render-pic-info)
+(on ($ "#deselect-all") "click"
+    (lambda ()
+      (jprop! ($ ".pic-select") "checked" #f)))
+
+(on ($ "#toggle-selection") "click"
+    (lambda ()
+      ;; FIXME: that feels a bit slow.  Can it be faster?
+      (jtrigger ($ ".pic-select") "click")))
+
+(on ($ "#batch-edit") "click"
+    (lambda ()
+      (jhtml! ($ "#pic-template-form-container")
+              (render-pic-info '() 'batch-edit))
+      (set-pic-info-editable! '() 'batch-edit)
+      (%inline .modal ($ "#pic-template-modal") "show")))
+
+(on ($ "#save-pic-template") "click"
+    (lambda ()
+      (save-pic-info 'batch-edit)
+      (jprop! ($ ".pic-select") "checked" #f)
+      (%inline .modal ($ "#pic-template-modal") "hide")))
+
+(live-on ($ "body") "click" "#save-pic-info"
+         (lambda ()
+           (save-pic-info #f)))
+
+(live-on ($ "body") "click" "#cancel-edit-pic-info"
+         (lambda ()
+           (read&render-pic-info (get-zoomed-pic-id))))
 
 (live-on ($ "body") "click" ".remove-typeahead-icon"
          (lambda (event)
@@ -409,17 +469,17 @@
            (next-pic event)))
         ((27) ;; esc
          (if pic-info-edit-mode?
-             (render-pic-info)
+             (read&render-pic-info (get-zoomed-pic-id))
              (close-zoomed-pic)))
         ((69) ;; e
          (unless pic-info-edit-mode?
-           (set-pic-info-editable!)))
+           (read&set-pic-info-editable!)))
         ((82) ;; r
          (unless pic-info-edit-mode?
            (rotate-pic!)))
         ((83) ;; s
          (when (.ctrlKey event)
-           (save-pic-info)
+           (save-pic-info #f)
            (%inline .preventDefault event))))
       (case (.keyCode event)
         ((37) ;; left arrow
