@@ -116,13 +116,15 @@
 (define (render-thumbnail pic-id pic-path)
   (let* ((pic-id (number->string pic-id))
          (thumbnail-path
-          (make-pathname (list (thumbnails-web-dir)
-                               (number->string (thumbnails/small-dimension)))
-                         pic-path))
+          (normalize-pathname
+           (make-pathname (list (thumbnails-web-dir)
+                                (number->string (thumbnails/small-dimension)))
+                          pic-path)))
          (zoomed-pic-path
-          (make-pathname (list (thumbnails-web-dir)
-                               (number->string (thumbnails/zoom-dimension)))
-                         pic-path)))
+          (normalize-pathname
+           (make-pathname (list (thumbnails-web-dir)
+                                (number->string (thumbnails/zoom-dimension)))
+                          pic-path))))
     (thumbnail-boilerplate
      `((img (@ (src ,thumbnail-path)
                (id ,(string-append "pic-" pic-id))
