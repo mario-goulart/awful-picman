@@ -1,7 +1,7 @@
 (define i18n-language #f)
 
 (define i18n-db
-  `(("Save" "Salvar")
+  '(("Save" "Salvar")
     ("Description" "Descrição")
     ("Date" "Data")
     ("Tags" "Marcadores")
@@ -9,17 +9,24 @@
     ("decade" "década")
     ("picture" "foto")
     ("pictures" "fotos")
+    ("No album available.  Make albums out of pictures from "
+     "Nenhum álbum disponível.  Crie álbuns a partir de fotos em ")
+    ("folders" "pastas")
     ))
 
+;; Language indexes
+(define i18n/en -1) ;; not really used as an index
 (define i18n/pt-br 0)
 
 (define (get-text-by-language text language)
-  (let ((translations (alist-ref text i18n-db)))
-    (if translations
-        (if (>= (length translations) language)
-            (list-ref translations language)
-            text)
-        text)))
+  (if (= i18n-language i18n/en) ;; en is the default language
+      text
+      (let ((translations (alist-ref text i18n-db)))
+        (if translations
+            (if (>= (length translations) language)
+                (list-ref translations language)
+                text)
+            text))))
 
 (define (_ text)
   (if i18n-language

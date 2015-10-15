@@ -79,7 +79,7 @@ $(document)
     (lambda ()
       `((thumbnails/small-dimension . ,(thumbnails/small-dimension))
         (thumbnails/zoom-dimension . ,(thumbnails/zoom-dimension))
-        (i18n-language . pt-br)))) ;; FIXME
+        (i18n-language . ,(language)))))
 
 
   (define (read-from-request) ;; FIXME: move to somewhere else (utils?)

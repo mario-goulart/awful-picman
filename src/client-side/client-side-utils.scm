@@ -109,3 +109,17 @@
                   (if first-empty?
                       (cons "" options)
                       options))))
+
+
+;;; awful-picman -specific
+
+(define (read-conf-from-server!)
+  (remote-read "/conf"
+               (lambda (data)
+                 (debug "Configuration data from server:")
+                 (debug data)
+                 (set! i18n-language
+                   (case (string->symbol (alist-ref 'i18n-language data))
+                     ((en en_US) i18n/en)
+                     ((pt_BR) i18n/pt-br)
+                     (else #f))))))

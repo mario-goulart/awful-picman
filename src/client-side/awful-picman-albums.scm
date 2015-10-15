@@ -2,6 +2,8 @@
 ;;; Albums
 ;;;
 
+(read-conf-from-server!)
+
 (define (render-album-info album)
   (let* ((title (alist-ref 'title album))
          (descr (alist-ref 'description album))

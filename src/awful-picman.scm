@@ -29,10 +29,9 @@
         "."))
 
 ;; gettext stuff
-(define (i18n-language)
-  (or (language)
-      (get-environment-variable "LANG")
-      (get-environment-variable "LC_ALL")))
+(unless (language)
+  (language (or (get-environment-variable "LANG")
+                (get-environment-variable "LC_ALL"))))
 
 (define (create-thumbnails-dirs)
   (let ((thumbs-dir (make-pathname dot-dirname thumbnails-dirname)))
@@ -125,27 +124,6 @@ EOF
 
   (debug 1 "metadata-dir: ~a" metadata-dir)
 
-  ;; Set _ for gettext
-  (set! _ (let ()
-            (textdomain "awful-picman")
-            ((make-gettext "awful-picman"
-                           (i18n-language)
-                           "./.awful-picman/locale")
-             'getter)))
-
-  ;; Set the default language for the OCR in case it is unset
-  (unless (ocr-default-language)
-    (ocr-default-language
-     (let ((lang (i18n-language)))
-       (and lang
-            (case (string->symbol (string-downcase lang))
-              ((pt_br) 'por)
-              ((de_de) 'deu)
-              ((fr_fr) 'fra)
-              ((it_it) 'ita)
-              ((es_es) 'spa)
-              (else "eng"))))))
-
   (db-credentials (make-pathname metadata-dir db-filename))
 
   (let ((init-only? (member "--init-only" args)))
@@ -174,6 +152,33 @@ EOF
       (begin
         (gc!)
         (exit 0))))
+
+  ;; Set _ for gettext
+  (set! _ (let ()
+            (debug 2 "Using ~S as language" (language))
+            (textdomain "awful-picman")
+            ((make-gettext "awful-picman"
+                           ;; detect-locale-encoding (from charconv as
+                           ;; of 1.3.5), which is used by
+                           ;; make-gettext, evilly mutates its input
+                           ;; parameter, so we make a copy
+                           (string-copy (language))
+                           (make-pathname metadata-dir "locale"))
+             'getter)))
+
+  ;; Set the default language for the OCR in case it is unset
+  (unless (ocr-default-language)
+    (ocr-default-language
+     (let ((lang (language)))
+       (and lang
+            (case (string->symbol (string-downcase lang))
+              ((pt_br) 'por)
+              ((de_de) 'deu)
+              ((fr_fr) 'fra)
+              ((it_it) 'ita)
+              ((es_es) 'spa)
+              ;; FIXME: why is eng a string and other language symbols?
+              (else "eng"))))))
 
   (let ((dev-mode? (and (member "--development-mode" args) #t))
         (port (cmd-line-arg "--port" args)))

@@ -1,5 +1,4 @@
-(define thumbnails/small-dimension #f)
-(define thumbnails/zoom-dimension #f)
+(read-conf-from-server!)
 
 ;; Keep track of rotated images to avoid caching issues.  Items of
 ;; this list are strings "pic-<id>".
@@ -11,19 +10,6 @@
 (define (add-to-rotated-pics! pic-id)
   (unless (member pic-id *rotated-pics*)
     (set! *rotated-pics* (cons pic-id *rotated-pics*))))
-
-(remote-read "/conf"
-             (lambda (data)
-               (debug "Configuration data from server:")
-               (debug data)
-               (debug (alist-ref 'i18n-language data))
-               (set! thumbnails/small-dimension (alist-ref 'thumbnails/small-dimension data))
-               (set! thumbnails/zoom-dimension (alist-ref 'thumbnails/zoom-dimension data))
-               (set! i18n-language
-                     (case (alist-ref 'i18n-language data)
-                       ((en) i18n/en)
-                       ((pt-br) i18n/pt-br)
-                       (else #f)))))
 
 (define (scale-pic pic)
   ;; pic is a DOM element
