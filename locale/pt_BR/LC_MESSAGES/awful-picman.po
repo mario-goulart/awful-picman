@@ -213,6 +213,10 @@ msgstr "Remover diretórios de miniaturas não utilizadas?"
 msgid "Rotate 90"
 msgstr "Rotacionar 90"
 
+#: src/awful-picman-renderers.scm
+msgid "Save"
+msgstr "Salvar"
+
 #: src/renderers/common.scm src/awful-picman-renderers.scm
 msgid "Select all"
 msgstr "Selecionar todas"

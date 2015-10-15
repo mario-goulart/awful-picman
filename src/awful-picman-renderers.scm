@@ -238,11 +238,11 @@
                 footer: `((button (@ (data-dismiss "modal")
                                      (type "button")
                                      (class "btn btn-default"))
-                                  "Cancel")
+                                  ,(_ "Cancel"))
                           (button (@ (id "save-pic-template")
                                      (type "button")
                                      (class "btn btn-primary"))
-                                  "Save"))))
+                                  ,(_ "Save")))))
 
 (define (render-albums)
   `(,(render-album-edit-modal)
