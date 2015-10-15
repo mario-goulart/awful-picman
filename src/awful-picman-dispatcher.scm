@@ -8,7 +8,8 @@
      awful-picman-image
      awful-picman-db
      awful-picman-process-dir
-     awful-picman-renderers)
+     awful-picman-renderers
+     awful-picman-export)
 
 (define (awful-picman)
 
@@ -288,6 +289,19 @@ $(document)
                    "/assets/awful-picman/js/awful-picman-albums.js"
                    "/assets/awful-picman/js/awful-picman-pics.js")) ;;; FIXME: move to define-pics-page
               ))))
+
+
+  (define-page (irregex "/export-album/.*")
+    (lambda (path)
+      (let ((album (drop-web-path-prefix "/export-album" path)))
+        (with-request-variables ((dir as-string)
+                                 (hi-res as-boolean))
+          (if dir
+              (begin
+                (export-album album dir hi-res)
+                `(p ,(_ "Album") " " (i ,album) " exported to " (code ,dir) "."))
+              `(p "Missing " (code "?dir=<dir>")))))))
+
 
   ;;;
   ;;; Folders

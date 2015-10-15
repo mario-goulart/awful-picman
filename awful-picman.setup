@@ -55,6 +55,10 @@
                    "filter.scm"
                    "folder.scm"
                    "tag.scm"))))
+    (awful-picman-export "awful-picman-params.import.so"
+                         "awful-picman-utils.import.so"
+                         "awful-picman-image.import.so"
+                         "awful-picman-db.import.so")
     (awful-picman-dispatcher "awful-picman-params.import.so"
                              "awful-picman-utils.import.so"
                              "awful-picman-image.import.so"

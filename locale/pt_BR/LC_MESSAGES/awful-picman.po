@@ -25,6 +25,10 @@ msgstr "diretórios de miniaturas não utilizadas foram removidos."
 msgid "Aborting."
 msgstr "Abortando."
 
+#: src/awful-picman-dispatcher.scm
+msgid "Album"
+msgstr "Álbum"
+
 #: src/renderers/common.scm src/renderers/album.scm
 #: src/awful-picman-renderers.scm src/awful-picman-dispatcher.scm
 msgid "Albums"
