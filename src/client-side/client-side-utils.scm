@@ -110,6 +110,13 @@
                       (cons "" options)
                       options))))
 
+;; Modals
+(define (show-modal jobj)
+  (%inline .modal jobj "show"))
+
+(define (hide-modal jobj)
+  (%inline .modal jobj "hide"))
+
 
 ;;; awful-picman -specific
 

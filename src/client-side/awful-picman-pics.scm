@@ -406,13 +406,13 @@
       (jhtml! ($ "#pic-template-form-container")
               (render-pic-info '() 'batch-edit))
       (set-pic-info-editable! '() 'batch-edit)
-      (%inline .modal ($ "#pic-template-modal") "show")))
+      (show-modal ($ "#pic-template-modal"))))
 
 (on ($ "#save-pic-template") "click"
     (lambda ()
       (save-pic-info 'batch-edit)
       (jprop! ($ ".pic-select") "checked" #f)
-      (%inline .modal ($ "#pic-template-modal") "hide")))
+      (hide-modal ($ "#pic-template-modal"))))
 
 (live-on ($ "body") "click" "#save-pic-info"
          (lambda ()

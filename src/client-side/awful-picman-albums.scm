@@ -63,7 +63,7 @@
                       `((id . ,(string->number album-id))
                         (title . ,album-title)
                         (description . ,album-description)))))
-  (%inline .modal ($ "#album-edit-modal") "hide")
+  (hide-modal ($ "#album-edit-modal"))
   (jattr! ($ "#album-remove") "checked" #f)
   (render-albums ($ "#albums-list"))) ;; FIXME: update only altered albums?
 
@@ -77,7 +77,7 @@
                           (alist-ref 'title album-info))
                    (jval! ($ "#album-new-description")
                           (alist-ref 'description album-info))
-                   (%inline .modal ($ "#album-edit-modal") "show")))))
+                   (show-modal ($ "#album-edit-modal"))))))
 
 
 ;;;
