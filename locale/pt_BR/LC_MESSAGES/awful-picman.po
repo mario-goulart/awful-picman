@@ -96,6 +96,14 @@ msgstr "Editar dados a serem aplicados a fotos selecionadas"
 msgid "Edit tag"
 msgstr "Editar marcador"
 
+#: src/awful-picman-renderers.scm
+msgid "Export"
+msgstr "Exportar"
+
+#: src/awful-picman-renderers.scm
+msgid "Export album"
+msgstr "Exportar álbum"
+
 #: src/renderers/common.scm
 msgid "Filename"
 msgstr "Arquivo"

@@ -223,6 +223,23 @@
                                      (class "btn btn-primary"))
                                   ,(_ "Submit")))))
 
+(define (render-album-export-modal)
+  (render-modal "album-export-modal"
+                title: (_ "Export album")
+                body: `((h4 (@ (id "album-export-title")))
+                        (p "Directory to save pictures in: "
+                           (input (@ (id "album-export-dir")
+                                     (type "text")))))
+                footer: `((button (@ (type "button")
+                                     (data-dismiss "modal")
+                                     (class "btn btn-default"))
+                                  ,(_ "Cancel"))
+                          (button (@ (id "export-album")
+                                     (data-album-id "")
+                                     (type "button")
+                                     (class "btn btn-primary"))
+                                  ,(_ "Export")))))
+
 
 (define (render-pic-template-modal)
   (render-modal "pic-template-modal"
@@ -246,6 +263,7 @@
 
 (define (render-albums)
   `(,(render-album-edit-modal)
+    ,(render-album-export-modal)
     (div (@ (id "albums-list")))))
 
 (define (render-pics path-or-album mode #!key pagenum) ;; FIXME

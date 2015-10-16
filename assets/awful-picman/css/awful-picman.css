@@ -100,8 +100,13 @@ textarea, input, select {
 .add-typeahead-icon,
 .remove-typeahead-icon,
 .edit-album-info,
+.export-album,
 .edit-tag {
     cursor: pointer;
+}
+
+.album-button-bar {
+    margin-left: 5px;
 }
 
 #ajax-busy {

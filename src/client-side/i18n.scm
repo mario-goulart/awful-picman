@@ -4,6 +4,8 @@
   '(("Save" "Salvar")
     ("Description" "Descrição")
     ("Date" "Data")
+    ("Edit" "Editar")
+    ("Export" "Exportar")
     ("Tags" "Marcadores")
     ("Albums" "Álbuns")
     ("decade" "década")

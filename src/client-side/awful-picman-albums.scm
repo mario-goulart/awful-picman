@@ -20,7 +20,12 @@
               (span (@ (id ,(conc "album-descr-" album-id)))
                     ,descr)
               (span (@ (data-album-id ,album-id)
-                       (class "edit-album-info glyphicon glyphicon-edit"))
+                       (title ,(_ "Edit"))
+                       (class "edit-album-info album-button-bar glyphicon glyphicon-edit"))
+                    "") ;; FIXME: spock needs this or it will nest spans.  Bug?
+              (span (@ (data-album-id ,album-id)
+                       (title ,(_ "Export"))
+                       (class "export-album album-button-bar glyphicon glyphicon-share"))
                     "") ;; FIXME: spock needs this or it will nest spans.  Bug?
               ))))
 
@@ -79,6 +84,20 @@
                           (alist-ref 'description album-info))
                    (show-modal ($ "#album-edit-modal"))))))
 
+(define (popup-export-album-modal event)
+  (let* ((this (jcurrent-target event))
+         (album-id (jattr this "data-album-id"))
+         (album-title (jtext ($ (string-append "#album-title-" album-id)))))
+    (jtext! ($ "#album-export-title") album-title)
+    (show-modal ($ "#album-export-modal"))))
+
+(define (export-album)
+  (remote-read (string-append "/export-album/"
+                              (jtext ($ "#album-export-title"))
+                              "?dir=" (jval ($ "#album-export-dir")))
+               (lambda (__)
+                 (hide-modal ($ "#album-export-modal")))))
+
 
 ;;;
 ;;; Event handlers
@@ -86,7 +105,11 @@
 
 (on ($ "#save-album-info") "click" save-album-info)
 
-(live-on ($ "#content") "click"  ".edit-album-info" edit-album-info)
+(live-on ($ "#content") "click" ".edit-album-info" edit-album-info)
+
+(live-on ($ "#content") "click" ".export-album" popup-export-album-modal)
+
+(on ($ "#export-album") "click" export-album)
 
 
 ;;;
