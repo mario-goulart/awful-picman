@@ -291,16 +291,23 @@ $(document)
               ))))
 
 
-  (define-page (irregex "/export-album/.*")
+  (define-data (irregex "/export-album/.*")
     (lambda (path)
       (let ((album (drop-web-path-prefix "/export-album" path)))
         (with-request-variables ((dir as-string)
                                  (hi-res as-boolean))
           (if dir
-              (begin
-                (export-album album dir hi-res)
-                `(p ,(_ "Album") " " (i ,album) " exported to " (code ,dir) "."))
-              `(p "Missing " (code "?dir=<dir>")))))))
+              (handle-exceptions exn
+                `((status . error)
+                  (reason . unknown)
+                  (error . ,(with-output-to-string
+                              (lambda ()
+                                (print-error-message exn)))))
+                (begin
+                  (export-album album dir hi-res)
+                  `((status . ok))))
+              `((status . error)
+                (reason . missing-dir)))))))
 
 
   ;;;

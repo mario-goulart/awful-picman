@@ -25,10 +25,6 @@ msgstr "diretórios de miniaturas não utilizadas foram removidos."
 msgid "Aborting."
 msgstr "Abortando."
 
-#: src/awful-picman-dispatcher.scm
-msgid "Album"
-msgstr "Álbum"
-
 #: src/renderers/common.scm src/renderers/album.scm
 #: src/awful-picman-renderers.scm src/awful-picman-dispatcher.scm
 msgid "Albums"
@@ -80,10 +76,6 @@ msgstr "Descrição"
 msgid "Deselect all"
 msgstr "Desselecionar todas"
 
-#: src/awful-picman-renderers.scm
-msgid "Directory to save pictures in: "
-msgstr "Diretório aonde salvar fotos: "
-
 #: src/renderers/common.scm src/awful-picman-renderers.scm
 msgid "Edit"
 msgstr "Editar"
@@ -99,10 +91,6 @@ msgstr "Editar dados a serem aplicados a fotos selecionadas"
 #: src/renderers/tag.scm
 msgid "Edit tag"
 msgstr "Editar marcador"
-
-#: src/awful-picman-renderers.scm
-msgid "Export"
-msgstr "Exportar"
 
 #: src/awful-picman-renderers.scm
 msgid "Export album"
@@ -326,14 +314,5 @@ msgstr "fotos"
 msgid "unused thumbnail directories found."
 msgstr "Nenhum diretório de miniaturas não utilizadas foi encontrado."
 
-#, fuzzy
-#~ msgid "Album edit"
-#~ msgstr "Álbuns"
-
-#, fuzzy
-#~ msgid "By pics without tags"
-#~ msgstr "Fotos que não contêm marcadores"
-
-#, fuzzy
-#~ msgid "Invert selection"
-#~ msgstr "Inverter seleção"
+#~ msgid "Export"
+#~ msgstr "Exportar"

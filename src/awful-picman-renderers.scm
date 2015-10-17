@@ -225,21 +225,7 @@
 
 (define (render-album-export-modal)
   (render-modal "album-export-modal"
-                title: (_ "Export album")
-                body: `((h4 (@ (id "album-export-title")))
-                        (p ,(_ "Directory to save pictures in: ")
-                           (input (@ (id "album-export-dir")
-                                     (type "text")))))
-                footer: `((button (@ (type "button")
-                                     (data-dismiss "modal")
-                                     (class "btn btn-default"))
-                                  ,(_ "Cancel"))
-                          (button (@ (id "export-album")
-                                     (data-album-id "")
-                                     (type "button")
-                                     (class "btn btn-primary"))
-                                  ,(_ "Export")))))
-
+                title: (_ "Export album")))
 
 (define (render-pic-template-modal)
   (render-modal "pic-template-modal"

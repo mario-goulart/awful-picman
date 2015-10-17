@@ -88,16 +88,65 @@
   (let* ((this (jcurrent-target event))
          (album-id (jattr this "data-album-id"))
          (album-title (jtext ($ (string-append "#album-title-" album-id)))))
-    (jtext! ($ "#album-export-title") album-title)
+    (jhtml! ($ "#album-export-modal .modal-body")
+            (sxml->html
+             `((h4 (@ (id "album-export-title")) ,album-title)
+               (p ,(_ "Directory to save pictures in: ")
+                  (input (@ (id "album-export-dir")
+                            (type "text"))))
+               (p ,(_ "Export original pics (high resolution)? ")
+                  (input (@ (id "album-export-hi-res")
+                            (type "checkbox")))))))
+    (jhtml! ($ "#album-export-modal .modal-footer")
+            (sxml->html
+             `((button (@ (type "button")
+                          (data-dismiss "modal")
+                          (class "btn btn-default"))
+                       ,(_ "Cancel"))
+               (button (@ (id "export-album")
+                          (data-album-id "")
+                          (type "button")
+                          (class "btn btn-primary"))
+                       ,(_ "Export")))))
     (show-modal ($ "#album-export-modal"))))
 
 (define (export-album)
-  (remote-read (string-append "/export-album/"
-                              (jtext ($ "#album-export-title"))
-                              "?dir=" (jval ($ "#album-export-dir")))
-               (lambda (__)
-                 (hide-modal ($ "#album-export-modal")))))
-
+  (let ((dir (jval ($ "#album-export-dir")))
+        (hi-res (if (jprop ($ "#album-export-hi-res") "checked")
+                    "1"
+                    "0")))
+    (remote-read (string-append "/export-album/"
+                                (jtext ($ "#album-export-title"))
+                                "?dir=" dir
+                                "&hi-res=" hi-res)
+                 (lambda (response)
+                   (let ((status (alist-ref 'status response)))
+                     (cond ((eq? status 'ok)
+                            (jhtml! ($ "#album-export-modal .modal-body")
+                                    (sxml->html
+                                     `(p ,(_ "Album successfully exported to ")
+                                         (code ,dir)))))
+                           (else
+                            (let* ((reason (alist-ref 'reason response))
+                                   (error-message (alist-ref 'error response))
+                                   (message
+                                    (case reason
+                                      ((missing-dir)
+                                       (_ "The target directory must be specified."))
+                                      (else
+                                       (_ "An error occurred while exporting the album.")))))
+                              (jhtml! ($ "#album-export-modal .modal-body")
+                                      (sxml->html
+                                       `((p ,message)
+                                         ,(if error-message
+                                              `(pre ,error-message)
+                                              '())))))))
+                     (jhtml! ($ "#album-export-modal .modal-footer")
+                             (sxml->html
+                              `(button (@ (type "button")
+                                          (data-dismiss "modal")
+                                          (class "btn btn-primary"))
+                                       ,(_ "Close")))))))))
 
 ;;;
 ;;; Event handlers
@@ -109,7 +158,7 @@
 
 (live-on ($ "#content") "click" ".export-album" popup-export-album-modal)
 
-(on ($ "#export-album") "click" export-album)
+(live-on ($ "#content") "click" "#export-album" export-album)
 
 
 ;;;

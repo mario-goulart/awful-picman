@@ -2,6 +2,8 @@
 
 (define i18n-db
   '(("Save" "Salvar")
+    ("Close" "Fechar")
+    ("Cancel" "Cancelar")
     ("Description" "Descrição")
     ("Date" "Data")
     ("Edit" "Editar")
@@ -14,6 +16,16 @@
     ("No album available.  Make albums out of pictures from "
      "Nenhum álbum disponível.  Crie álbuns a partir de fotos em ")
     ("folders" "pastas")
+    ("Directory to save pictures in: "
+     "Diretório aonde salvar fotos: ")
+    ("Export original pics (high resolution)? "
+     "Exportar fotos originais (alta resolução)? ")
+    ("The target directory must be specified."
+     "O Diretório de destino deve ser especificado")
+    ("Album successfully exported to "
+     "Álbum exportado com sucesso para ")
+    ("An error occurred while exporting the album."
+     "Ocorreu um erro ao exportar o álbum.")
     ))
 
 ;; Language indexes
