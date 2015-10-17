@@ -80,6 +80,10 @@ msgstr "Descrição"
 msgid "Deselect all"
 msgstr "Desselecionar todas"
 
+#: src/awful-picman-renderers.scm
+msgid "Directory to save pictures in: "
+msgstr "Diretório aonde salvar fotos: "
+
 #: src/renderers/common.scm src/awful-picman-renderers.scm
 msgid "Edit"
 msgstr "Editar"

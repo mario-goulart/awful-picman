@@ -227,7 +227,7 @@
   (render-modal "album-export-modal"
                 title: (_ "Export album")
                 body: `((h4 (@ (id "album-export-title")))
-                        (p "Directory to save pictures in: "
+                        (p ,(_ "Directory to save pictures in: ")
                            (input (@ (id "album-export-dir")
                                      (type "text")))))
                 footer: `((button (@ (type "button")
