@@ -43,16 +43,19 @@
               (list (thumbnails/small-dimension)
                     (thumbnails/zoom-dimension)))))
 
-(define (initialize-metadata-dir force?)
-  (create-directory metadata-dir)
-  (create-thumbnails-dirs)
+(define (initialize-assets&locale)
   (parameterize ((setup-verbose-mode (verbose?))
                  (run-verbose (verbose?)))
     (for-each (lambda (asset)
                 (copy-file (make-pathname assets-install-dir asset)
                            (make-pathname metadata-dir asset)
                            prefix: metadata-dir))
-              '("assets" "locale")))
+              '("assets" "locale"))))
+
+(define (initialize-metadata-dir force?)
+  (create-directory metadata-dir)
+  (create-thumbnails-dirs)
+  (initialize-assets&locale)
   (initialize-database (make-pathname metadata-dir db-filename) force?))
 
 (define (initialize #!optional force?)
@@ -77,6 +80,10 @@ Usage: #this [ <options> ]
 
 --init-only
   Does what --init does, but doesn't start the web server.
+
+--update-assets
+  Update assets and locale files in the current directory's
+  metadata directory.  The database file will not be touched.
 
 --development-mode
   Put awful (the server) in development mode.
@@ -179,6 +186,10 @@ EOF
               ((es_es) 'spa)
               ;; FIXME: why is eng a string and other language symbols?
               (else "eng"))))))
+
+  (when (member "--update-assets" args)
+    (debug 2 "Updating assets, as requested by --update-assets.")
+    (initialize-assets&locale))
 
   (let ((dev-mode? (and (member "--development-mode" args) #t))
         (port (cmd-line-arg "--port" args)))
