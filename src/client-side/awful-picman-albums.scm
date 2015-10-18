@@ -96,6 +96,9 @@
                             (type "text"))))
                (p ,(_ "Export original pics (high resolution)? ")
                   (input (@ (id "album-export-hi-res")
+                            (type "checkbox"))))
+               (p ,(_ "Create index page? ")
+                  (input (@ (id "album-export-index")
                             (type "checkbox")))))))
     (jhtml! ($ "#album-export-modal .modal-footer")
             (sxml->html
@@ -114,11 +117,15 @@
   (let ((dir (jval ($ "#album-export-dir")))
         (hi-res (if (jprop ($ "#album-export-hi-res") "checked")
                     "1"
-                    "0")))
+                    "0"))
+        (index (if (jprop ($ "#album-export-index") "checked")
+                   "1"
+                   "0")))
     (remote-read (string-append "/export-album/"
                                 (jtext ($ "#album-export-title"))
                                 "?dir=" dir
-                                "&hi-res=" hi-res)
+                                "&hi-res=" hi-res
+                                "&index=" index)
                  (lambda (response)
                    (let ((status (alist-ref 'status response)))
                      (cond ((eq? status 'ok)

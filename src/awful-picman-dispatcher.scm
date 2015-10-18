@@ -295,7 +295,8 @@ $(document)
     (lambda (path)
       (let ((album (drop-web-path-prefix "/export-album" path)))
         (with-request-variables ((dir as-string)
-                                 (hi-res as-boolean))
+                                 (hi-res as-boolean)
+                                 (index as-boolean))
           (if dir
               (handle-exceptions exn
                 `((status . error)
@@ -304,7 +305,7 @@ $(document)
                               (lambda ()
                                 (print-error-message exn)))))
                 (begin
-                  (export-album album dir hi-res)
+                  (export-album album dir hi-res index)
                   `((status . ok))))
               `((status . error)
                 (reason . missing-dir)))))))
