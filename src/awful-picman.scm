@@ -150,16 +150,6 @@ EOF
     (when init-only?
       (exit 0)))
 
-  (when (member "--gc" args)
-    (handle-exceptions exn
-      (begin
-        (print-call-chain (current-error-port))
-        (print-error-message exn (current-error-port))
-        (exit 1))
-      (begin
-        (gc!)
-        (exit 0))))
-
   ;; Set _ for gettext
   (set! _ (let ()
             (debug 2 "Using ~S as language" (language))
@@ -172,6 +162,16 @@ EOF
                            (string-copy (language))
                            (make-pathname metadata-dir "locale"))
              'getter)))
+
+  (when (member "--gc" args)
+    (handle-exceptions exn
+      (begin
+        (print-call-chain (current-error-port))
+        (print-error-message exn (current-error-port))
+        (exit 1))
+      (begin
+        (gc!)
+        (exit 0))))
 
   ;; Set the default language for the OCR in case it is unset
   (unless (ocr-default-language)
