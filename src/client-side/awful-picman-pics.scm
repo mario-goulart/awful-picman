@@ -433,7 +433,9 @@
                   (class (jattr this "data-class")))
              (jappend ta-list
                       (sxml->html
-                       (render-typeahead-input class ""))))))
+                       `(li ,(render-typeahead-input class ""))))
+             (jfocus (jfind (jlast (jsiblings this "ul")) "input")))
+           (setup-typeahead-listener!)))
 
 (define (setup-typeahead-listener!)
   (%inline .autocomplete ($ ".album-typeahead")

@@ -64,6 +64,9 @@
 (define (jfocus jobj)
   (%inline .focus jobj))
 
+(define (jlast jobj)
+  (%inline .last jobj))
+
 (define (jhas-class? jobj class)
   (%inline .hasClass jobj (jstring class)))
 
