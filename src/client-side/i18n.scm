@@ -27,6 +27,8 @@
      "Álbum exportado com sucesso para ")
     ("An error occurred while exporting the album."
      "Ocorreu um erro ao exportar o álbum.")
+    ("You must select exactly two pictures."
+     "Você precisa selecionar exatamente duas fotos.")
     ))
 
 ;; Language indexes

@@ -401,6 +401,26 @@
       ;; FIXME: that feels a bit slow.  Can it be faster?
       (jtrigger ($ ".pic-select") "click")))
 
+(on ($ "#select-from-to") "click"
+    (lambda ()
+      (let ((selected (vector->list
+                       (%inline .toArray ($ ".pic-select:checked")))))
+        (if (= 2 (length selected))
+            (let* ((pics ($ ".pic-thumbnail"))
+                   (pic-id1 (jattr ($ (car selected)) "data-pic-id"))
+                   (pic-id2 (jattr ($ (cadr selected)) "data-pic-id"))
+                   (pic1 ($ (string-append "#pic-" pic-id1)))
+                   (pic2 ($ (string-append "#pic-" pic-id2)))
+                   (from (%inline .index pics pic1))
+                   (to (%inline .index pics pic2)))
+              (let loop ((current (+ from 1)))
+                (unless (= current to)
+                  (let* ((pic ($ (vector-ref pics current)))
+                         (checkbox (jfind (jparent pic) "input")))
+                    (jprop! checkbox "checked" #t)
+                    (loop (+ current 1))))))
+            (%inline alert (_ "You must select exactly two pictures."))))))
+
 (on ($ "#batch-edit") "click"
     (lambda ()
       (jhtml! ($ "#pic-template-form-container")

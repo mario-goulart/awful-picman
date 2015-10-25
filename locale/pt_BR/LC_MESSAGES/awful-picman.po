@@ -221,6 +221,10 @@ msgstr "Salvar"
 msgid "Select all"
 msgstr "Selecionar todas"
 
+#: src/awful-picman-renderers.scm
+msgid "Select from/to"
+msgstr "Selecionar de/até"
+
 #: src/renderers/filter.scm
 msgid "Show pictures tagged with "
 msgstr "Exibir fotos marcadas com "
