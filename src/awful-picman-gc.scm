@@ -80,9 +80,11 @@
          (available-thumbnail-sets
           (filter-map string->number
                       (directory thumbnails-dir)))
-         (to-remove (delete (thumbnails/zoom-dimension)
-                            available-thumbnail-sets
-                            =)))
+         (sets-in-use (list (thumbnails/small-dimension)
+                            (thumbnails/zoom-dimension)))
+         (to-remove (remove (lambda (dim)
+                              (memq dim sets-in-use))
+                            available-thumbnail-sets)))
     (map (lambda (dim)
            (make-pathname thumbnails-dir (number->string dim)))
          to-remove)))
