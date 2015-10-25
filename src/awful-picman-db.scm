@@ -400,7 +400,7 @@ create table albums_pics (
   (with-transaction (db-connection)
     (lambda ()
       (map db-get-album-by-id
-           (map car ($db "select distinct album_id from albums"))))))
+           (map car ($db "select distinct album_id from albums order by title"))))))
 
 (define (db-albums->alist)
   (map db-album->alist (db-albums)))
