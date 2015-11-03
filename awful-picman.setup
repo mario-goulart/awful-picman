@@ -144,7 +144,6 @@
               "client-side-utils.scm"
               "i18n.scm")))
       (assets-dir (make-pathname (list ".." "assets" "awful-picman") "js")))
-  (create-directory assets-dir 'recursively)
   (for-each
    (lambda (file)
      (let* ((out-file-path (make-pathname assets-dir file "js"))
@@ -157,6 +156,7 @@
                         (let ((cmd (sprintf "chicken-spock ~a > ~a"
                                        (string-intersperse sources)
                                        out-file-path)))
+                          (create-directory assets-dir 'recursively)
                           (print cmd)
                           (system* cmd)))))
        (set! client-side-targets (cons out-file-path client-side-targets))))
