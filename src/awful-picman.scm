@@ -50,7 +50,16 @@
                 (copy-file (make-pathname assets-install-dir asset)
                            (make-pathname metadata-dir asset)
                            prefix: metadata-dir))
-              '("assets" "locale"))))
+              '("assets" "locale"))
+    ;; Spock stuff
+    (let ((runtime-files '("spock-runtime-debug.js" ;; FIXME: what if not debug?
+                           "spock-runtime-min.js")))
+      (map (lambda (runtime-file)
+             (copy-file (make-pathname (list (repository-path) "spock") runtime-file)
+                        (make-pathname (list metadata-dir "assets" "spock" "js") runtime-file)
+                        prefix: metadata-dir))
+           runtime-files))))
+
 
 (define (initialize-metadata-dir force?)
   (create-directory metadata-dir)
