@@ -203,6 +203,7 @@
                   "min-height" pic-height))
       (%inline .css ($ "#pic-info") (% "height" pic-height))
       (%inline .css ($ "#content") (% "margin-top" "0px"))
+      (%inline .css ($ "#thumbnails") (% "opacity" 0))
       (jhide ($ "#main-navbar"))
       (jhide ($ ".breadcrumb"))
       (unshade-icon ($ "#edit-pic-info"))
@@ -276,6 +277,7 @@
     (jshow ($ ".breadcrumb"))
     (%inline .removeClass ($ "body") "modal-open")
     (%inline .css ($ "#content") (% "margin-top" "95px")) ;; FIXME: hardcoded
+    (%inline .css ($ "#thumbnails") (% "opacity" 1))
     (debug (string-append "focusing " pic-id))
     (jfocus ($ (string-append "#" pic-id)))
     #f))
