@@ -276,10 +276,9 @@ $(document)
         (list (ajax-spinner)
               (render-navbar 'albums)
               (render-breadcrumbs (if album-index? "/" album) (_ "Albums") (albums-web-dir))
-              (render-pics (if album-index?
-                               #f ;; albums index
-                               album)
-                           'album)
+              (render-pics 'album
+                           album: (if album-index? #f album)
+                           with-zoomed-area?: (not album-index?))
               (include-javascript
                "/assets/bootstrap/js/bootstrap.min.js"
                "/assets/spock/js/spock-runtime-debug.js" ;; FIXME: when debug, spock-runtime-debug.js
@@ -324,7 +323,7 @@ $(document)
                 (process-dir dir)
                 (list (render-navbar 'folders)
                       (render-breadcrumbs dir (_ "Folders") (folders-web-dir))
-                      (render-pics dir 'folder)
+                      (render-pics 'folder path: dir)
                       (include-javascript
                        "/assets/bootstrap/js/bootstrap.min.js"
                        ;; FIXME: when debug, spock-runtime-debug.js

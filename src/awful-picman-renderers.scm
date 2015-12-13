@@ -255,24 +255,22 @@
     ,(render-album-export-modal)
     (div (@ (id "albums-list")))))
 
-(define (render-pics path-or-album mode #!key pagenum) ;; FIXME
-  `(,(if path-or-album ;; path-or-album is #f when listing albums
-         (zoomed-pic-area)
-         '())
+(define (render-pics mode #!key pagenum (with-zoomed-area? #t) path album)
+  `(,(if with-zoomed-area? (zoomed-pic-area) '())
     (div (@ (id "content")) ;; FIXME: move to a more generic place
          ,(render-pic-template-modal)
          ,(case mode
             ((folder)
-             (let ((all-files (glob (make-pathname path-or-album "*"))))
-               (render-thumbnails (db-get-pics-id/path-by-directory path-or-album)
+             (let ((all-files (glob (make-pathname path "*"))))
+               (render-thumbnails (db-get-pics-id/path-by-directory path)
                                   folders: (filter directory? all-files)
                                   other-files: (remove (lambda (f)
                                                          (or (image-file? f)
                                                              (directory? f)))
                                                        all-files))))
             ((album)
-             (if path-or-album
-                 (render-thumbnails (db-get-pics-id/path-by-album path-or-album))
+             (if album
+                 (render-thumbnails (db-get-pics-id/path-by-album album))
                  (render-albums))))
               )))
 
