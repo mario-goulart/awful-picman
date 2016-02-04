@@ -31,7 +31,8 @@
 ;; gettext stuff
 (unless (language)
   (language (or (get-environment-variable "LANG")
-                (get-environment-variable "LC_ALL"))))
+                (get-environment-variable "LC_ALL")
+                "en")))
 
 (define (create-thumbnails-dirs)
   (let ((thumbs-dir (make-pathname dot-dirname thumbnails-dirname)))
