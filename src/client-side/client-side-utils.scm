@@ -139,6 +139,18 @@
                    args
                    (string-append str (string char)))))))))
 
+(define (album-title->directory-name title)
+  (let loop ((chars (string->list title))
+             (dirname ""))
+    (if (null? chars)
+        dirname
+        (let ((char (car chars)))
+          (loop (cdr chars)
+                (string-append dirname
+                               (if (char=? char #\/)
+                                   "-"
+                                   (string char))))))))
+
 (define (itemize items)
   (if (null? items)
       '()

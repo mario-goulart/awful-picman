@@ -99,7 +99,8 @@
                             (size 40)
                             (value ,(if album-export-dir-suggestion
                                         (sprintf album-export-dir-suggestion
-                                                 album-title)
+                                                 (album-title->directory-name
+                                                  album-title))
                                         "")))))
                (p ,(_ "Export original pics (high resolution)? ")
                   (input (@ (id "album-export-hi-res")
