@@ -38,7 +38,7 @@
    db-pic->alist
 
    db-get-pic-by-id
-   db-get-pics-id/path-by-album
+   db-get-pics-id/path-by-album-id
    db-get-pics-id/path-by-directory
    get-pic-from-db
    insert/update-pic!
@@ -232,17 +232,17 @@ create table albums_pics (
            (cons (car d) (make-pathname (cadr d) (caddr d))))
          data)))
 
-(define (db-get-pics-id/path-by-album album)
+(define (db-get-pics-id/path-by-album-id album-id)
   (map (lambda (id/dir/f)
          (cons (car id/dir/f)
                (make-pathname (cadr id/dir/f) (caddr id/dir/f))))
        ($db (string-append
              "select pics.pic_id, pics.dir, pics.filename from pics, albums, albums_pics "
-             "where albums.title=? and "
+             "where albums.album_id=? and "
              "albums.album_id=albums_pics.album_id and "
              "pics.pic_id=albums_pics.pic_id "
              "order by pics.pic_id")
-            values: (list album))))
+            values: (list album-id))))
 
 (define (db-get-pic-by-id id)
   ;; Return #f if there's no pic with the given id in the database.

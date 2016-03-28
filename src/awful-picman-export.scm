@@ -31,12 +31,14 @@
                                                            pic-filename)))))))
                     pic-filenames))))))))))
 
-(define (export-album album-title dir hi-res? index?)
+(define (export-album album-id dir hi-res? index?)
   (create-directory dir 'recursively)
   (when index?
     (create-directory (make-pathname dir "thumbnails") 'recursively))
-  (let ((pic-ids/paths (db-get-pics-id/path-by-album album-title))
-        (pic-filenames '()))
+  (let* ((album (db-get-album-by-id album-id))
+         (album-title (db-album-title album))
+         (pic-ids/paths (db-get-pics-id/path-by-album-id album-id))
+         (pic-filenames '()))
     (for-each
      (lambda (pic-id/path)
        (let* ((pic-id (car pic-id/path))

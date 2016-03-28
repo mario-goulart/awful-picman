@@ -269,16 +269,25 @@ $(document)
   ;;;
   ;;; Albums
   ;;;
-  (define-pics-page (irregex (string-append (albums-web-dir) "(/.*)*"))
+  (define-pics-page (irregex (string-append (albums-web-dir) "(/[0-9]*)*"))
     (lambda (path)
       (debug 1 "albums handler: handling ~a" path)
-      (let* ((album (drop-web-path-prefix (albums-web-dir) path))
-             (album-index? (equal? album ".")))
+      (let* ((album-id (string->number
+                        (drop-web-path-prefix (albums-web-dir) path)))
+             (album-index? (not album-id)))
         (list (ajax-spinner)
               (render-navbar 'albums)
-              (render-breadcrumbs (if album-index? "/" album) (_ "Albums") (albums-web-dir))
+              (render-breadcrumbs
+               (if album-index?
+                   "/"
+                   (let ((album (db-get-album-by-id album-id)))
+                     ;; Special case for albums (a pair as argument to
+                     ;; render-breadcrumbs)
+                     (cons album-id (db-album-title album))))
+               (_ "Albums")
+               (albums-web-dir))
               (render-pics 'album
-                           album: (if album-index? #f album)
+                           album-id: (if album-index? #f album-id)
                            with-zoomed-area?: (not album-index?))
               (include-javascript
                "/assets/bootstrap/js/bootstrap.min.js"
@@ -291,9 +300,9 @@ $(document)
               ))))
 
 
-  (define-data (irregex "/export-album/.*")
+  (define-data (irregex "/export-album/[0-9]+")
     (lambda (path)
-      (let ((album (drop-web-path-prefix "/export-album" path)))
+      (let ((album-id (drop-web-path-prefix "/export-album" path)))
         (with-request-variables ((dir as-string)
                                  (hi-res as-boolean)
                                  (index as-boolean))
@@ -305,7 +314,7 @@ $(document)
                               (lambda ()
                                 (print-error-message exn)))))
                 (begin
-                  (export-album album dir hi-res index)
+                  (export-album album-id dir hi-res index)
                   `((status . ok))))
               `((status . error)
                 (reason . missing-dir)))))))

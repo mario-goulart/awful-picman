@@ -11,7 +11,7 @@
          (num-pics (alist-ref 'num-pics album)))
     (and (> num-pics 0)
          `(li (@ (id ,(conc "album-" album-id)))
-              (a (@ (href ,(string-append "/albums/" title)))
+              (a (@ (href ,(conc "/albums/" album-id)))
                  (span (@ (id ,(conc "album-title-" album-id))) ,title))
               ,(conc " (" num-pics " "
                      (if (> num-pics 1)
@@ -90,7 +90,9 @@
          (album-title (jtext ($ (string-append "#album-title-" album-id)))))
     (jhtml! ($ "#album-export-modal .modal-body")
             (sxml->html
-             `((h4 (@ (id "album-export-title")) ,album-title)
+             `((h4 (@ (id "album-export-id")
+                      (data-album-id ,album-id))
+                   ,album-title)
                (p ,(_ "Directory to save pictures in: ")
                   (input (@ (id "album-export-dir")
                             (type "text")
@@ -127,7 +129,7 @@
                    "1"
                    "0")))
     (remote-read (string-append "/export-album/"
-                                (jtext ($ "#album-export-title"))
+                                (jattr ($ "#album-export-id") "data-album-id")
                                 "?dir=" dir
                                 "&hi-res=" hi-res
                                 "&index=" index)

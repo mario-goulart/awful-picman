@@ -262,7 +262,7 @@
 (define (render-pics mode #!key pagenum
                                 (with-zoomed-area? #t)
                                 path
-                                album
+                                album-id
                                 tags)
   `(,(if with-zoomed-area? (zoomed-pic-area) '())
     (div (@ (id "content")) ;; FIXME: move to a more generic place
@@ -277,8 +277,8 @@
                                                              (directory? f)))
                                                        all-files))))
             ((album)
-             (if album
-                 (render-thumbnails (db-get-pics-id/path-by-album album))
+             (if album-id
+                 (render-thumbnails (db-get-pics-id/path-by-album-id album-id))
                  (render-albums)))
             ((filter/by-tags)
              (render-filter/by-tags (car tags) (cdr tags)))
