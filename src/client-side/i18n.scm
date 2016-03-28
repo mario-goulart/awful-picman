@@ -29,6 +29,11 @@
      "Ocorreu um erro ao exportar o álbum.")
     ("You must select exactly two pictures."
      "Você precisa selecionar exatamente duas fotos.")
+    ("Show pictures tagged with"
+     "Exibir fotos marcadas com")
+    ("except those tagged with"
+     "exceto as marcadas com")
+    ("Filter" "Filtrar")
     ))
 
 ;; Language indexes

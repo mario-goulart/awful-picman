@@ -114,24 +114,6 @@
                  (leave-pic-info-edit-mode!)
                  (jhtml! ($ "#pic-info") (render-pic-info pic-data)))))
 
-(define (render-typeahead-input class val)
-  `(div (@ (class "remove-typeahead"))
-        (input (@ (type "text")
-                  (class ,class)
-                  (value ,val)))
-        (span (@ (class "remove-typeahead-icon glyphicon glyphicon-minus")))))
-
-(define (render-typeahead-inputs class items)
-  `(div
-    ,(itemize
-      (if (null? items)
-          (list (render-typeahead-input class ""))
-          (map (lambda (item)
-                 (render-typeahead-input class item))
-               items)))
-    (span (@ (class "add-typeahead-icon glyphicon glyphicon-plus")
-             (data-class ,class)))))
-
 (define (set-pic-info-editable! pic-data . for-batch-edit?)
   (let* ((id-prefix (if (null? for-batch-edit?)
                         "pic-"
@@ -504,3 +486,54 @@
 
 ;; Focus the first thumbnail
 (jfocus (jfirst ($ ".pic-thumbnail")))
+
+
+;;;
+;;; For the filtering stuff
+;;;
+
+(define (render-filter-input)
+  (let* ((filter-tags ($ "#filter-tags"))
+         (include-tags
+          (string-split (jattr filter-tags "data-include-tags") #\tab))
+         (exclude-tags
+          (string-split (jattr filter-tags "data-exclude-tags") #\tab)))
+    (jhtml! ($ "#filter-input-container")
+            (sxml->html
+             `(div (@ (class "filter-input"))
+                   ,(_ "Show pictures tagged with")
+                   ,(render-typeahead-inputs "tag-typeahead include-tag-typeahead"
+                                             include-tags)
+                   ,(_ "except those tagged with")
+                   ,(render-typeahead-inputs "tag-typeahead exclude-tag-typeahead"
+                                             exclude-tags)
+                   (input (@ (id "filter-by-tags")
+                             (type "submit")
+                             (value ,(_ "Filter")))))))
+    (%inline .autocomplete ($ ".include-tag-typeahead")
+             (% "serviceUrl" "/db/tags"))
+    (%inline .autocomplete ($ ".exclude-tag-typeahead")
+             (% "serviceUrl" "/db/tags"))))
+
+(render-filter-input)
+
+(on ($ "#filter-by-tags") "click"
+    (lambda ()
+      (let* ((url (string-append document.location.protocol
+                                 "//"
+                                 document.location.host
+                                 "/filter/by-tags?")) ;; FIXME: hardcoded
+             (encode-vals
+              (lambda (class)
+                (%inline "encodeURIComponent"
+                         (jstring
+                          (string-intersperse
+                           (map (lambda (elt)
+                                  (.value elt))
+                                (vector->list (%inline .toArray ($ class))))
+                           "\t")))))
+             (query (string-append
+                     "include-tags=" (encode-vals ".include-tag-typeahead")
+                     "&"
+                     "exclude-tags=" (encode-vals ".exclude-tag-typeahead"))))
+        (%inline "window.location.assign" (jstring (string-append url query))))))

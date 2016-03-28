@@ -44,9 +44,12 @@
                              ,(_ "Filters") " " (span (@ (class "caret"))))
                           (ul (@ (class "dropdown-menu")
                                  (role "menu"))
-                              (li (a (@ (href "#")) ,(_ "By tags")))
-                              (li (a (@ (href "#")) ,(_ "Pics not in albums")))
-                              (li (a (@ (href "#")) ,(_ "Pics without tags"))))))
+                              (li (a (@ (href ,(make-absolute-pathname (filters-web-dir)
+                                                                       "by-tags")))
+                                     ,(_ "By tags")))
+                              ;(li (a (@ (href "#")) ,(_ "Pics not in albums")))
+                              ;(li (a (@ (href "#")) ,(_ "Pics without tags")))
+                              )))
                   ;; (form (@ (class "navbar-form navbar-left")
                   ;;          (role "search"))
                   ;;       (div (@ (class "form-group"))
@@ -255,7 +258,12 @@
     ,(render-album-export-modal)
     (div (@ (id "albums-list")))))
 
-(define (render-pics mode #!key pagenum (with-zoomed-area? #t) path album)
+
+(define (render-pics mode #!key pagenum
+                                (with-zoomed-area? #t)
+                                path
+                                album
+                                tags)
   `(,(if with-zoomed-area? (zoomed-pic-area) '())
     (div (@ (id "content")) ;; FIXME: move to a more generic place
          ,(render-pic-template-modal)
@@ -271,7 +279,9 @@
             ((album)
              (if album
                  (render-thumbnails (db-get-pics-id/path-by-album album))
-                 (render-albums))))
-              )))
+                 (render-albums)))
+            ((filter/by-tags)
+             (render-filter/by-tags (car tags) (cdr tags)))
+            ))))
 
 ) ;; end module

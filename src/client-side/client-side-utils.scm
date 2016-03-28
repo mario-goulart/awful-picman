@@ -79,6 +79,30 @@
 (define (delete x l)
   (filter (lambda (i) (not (equal? i x))) l))
 
+(define (%string-split chars sep)
+  (let loop ((chars chars)
+             (token '()))
+    (if (null? chars)
+        (if (null? token)
+            '()
+            (list (list->string (reverse token))))
+        (let ((char (car chars)))
+          (if (char=? char sep)
+              (cons (list->string (reverse token))
+                    (%string-split (cdr chars) sep))
+              (loop (cdr chars) (cons char token)))))))
+
+(define (string-split str sep)
+  (delete "" (%string-split (string->list str) sep)))
+
+(define (string-intersperse l sep)
+  (cond ((null? l)
+         "")
+        ((null? (cdr l))
+         (car l))
+        (else
+         (string-append (car l) sep (string-intersperse (cdr l) sep)))))
+
 (define (itemize items)
   (if (null? items)
       '()
@@ -116,6 +140,26 @@
 
 (define (hide-modal jobj)
   (%inline .modal jobj "hide"))
+
+
+;; Typeahead
+(define (render-typeahead-input class val)
+  `(div (@ (class "remove-typeahead"))
+        (input (@ (type "text")
+                  (class ,class)
+                  (value ,val)))
+        (span (@ (class "remove-typeahead-icon glyphicon glyphicon-minus")))))
+
+(define (render-typeahead-inputs class items)
+  `(div
+    ,(itemize
+      (if (null? items)
+          (list (render-typeahead-input class ""))
+          (map (lambda (item)
+                 (render-typeahead-input class item))
+               items)))
+    (span (@ (class "add-typeahead-icon glyphicon glyphicon-plus")
+             (data-class ,class)))))
 
 
 ;;; awful-picman -specific

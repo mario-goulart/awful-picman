@@ -334,10 +334,10 @@ create table albums_pics (
         (let ((query
                (if (null? include-tags)
                    (sprintf
-                    "select pics.dir, pics.filename from pics where pic_id not in (~a)"
+                    "select pics.pic_id, pics.dir, pics.filename from pics where pic_id not in (~a)"
                     (select-pics exclude-tags ""))
                    (string-append
-                    "select pics.dir, pics.filename from pics where pic_id in ("
+                    "select pics.pic_id, pics.dir, pics.filename from pics where pic_id in ("
                     (select-pics include-tags "intersect")
                     (if (null? exclude-tags)
                         ""
@@ -346,8 +346,9 @@ create table albums_pics (
                          (select-pics exclude-tags "except")))
                     ") order by pic_id"))))
           (debug 2 "db-tag-filter: query: ~S" query)
-          (map (lambda (dir/f)
-                 (make-pathname (car dir/f) (cadr dir/f)))
+          (map (lambda (id/dir/f)
+                 (cons (car id/dir/f)
+                       (make-pathname (cadr id/dir/f) (caddr id/dir/f))))
                ($db query values: (if (null? include-tags)
                                       exclude-tags
                                       (append include-tags exclude-tags))))))))

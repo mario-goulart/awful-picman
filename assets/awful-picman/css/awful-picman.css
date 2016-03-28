@@ -134,3 +134,7 @@ textarea, input, select {
     right: 19px;
     top: 0;
 }
+
+#filter-tags {
+    display: none;
+}

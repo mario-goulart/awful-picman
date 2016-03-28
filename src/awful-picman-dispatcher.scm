@@ -374,30 +374,42 @@ $(document)
   ;;;
   (define-pics-page (irregex (string-append (filters-web-dir) "(/.*)*"))
     (lambda (path)
-      (let ((page (or ($ 'page as-number) 0)))
-        (debug 1 "filters handler: ~S" path)
-        (list
-         (ajax-spinner)
-         (match (cdr (path-split path))
-                (("by-tags")
-                 (with-request-variables ((include-tags as-list)
-                                          (exclude-tags as-list))
-                   (let ((include-tags (if include-tags
-                                           (delete "" (map string-trim-both include-tags) equal?)
-                                           '()))
-                         (exclude-tags (if exclude-tags
-                                           (delete "" (map string-trim-both exclude-tags) equal?)
-                                           '())))
-                     (debug 1 "include-tags: ~S" include-tags)
-                     (render-pics (cons include-tags exclude-tags) 'filter/by-tags page))))
+      (debug 1 "filters handler: ~S" path)
+      (list
+       (ajax-spinner)
+       (render-navbar #f)
+       (match (cdr (path-split path))
+         (("by-tags")
+          (with-request-variables (include-tags exclude-tags)
+            (let* ((parse-tags
+                    (lambda (tag-val)
+                      (if tag-val
+                          (delete "" (map string-trim-both
+                                          (string-split tag-val "\t"))
+                                  equal?)
+                          '())))
+                   (include-tags (parse-tags include-tags))
+                   (exclude-tags (parse-tags exclude-tags)))
+              (debug 1 "include-tags: ~S" include-tags)
+              (render-pics 'filter/by-tags tags: (cons include-tags exclude-tags)))))
 
-                (("without-album")
-                 (render-pics #f 'filter/without-album page))
+         (("without-album")
+          (render-pics 'filter/without-album))
 
-                (("without-tag")
-                 (render-pics #f 'filter/without-tag page))
+         (("without-tag")
+          (render-pics 'filter/without-tag))
 
-                (else (render-filters)))))))
+         (else (render-filters)))
+
+       (include-javascript
+        "/assets/bootstrap/js/bootstrap.min.js"
+        ;; FIXME: when debug, spock-runtime-debug.js
+        "/assets/spock/js/spock-runtime-debug.js"
+        "/assets/load-image/js/load-image.all.min.js"
+        "/assets/autocomplete/js/jquery.autocomplete.min.js"
+        ;; FIXME: move to define-pics-page
+        "/assets/awful-picman/js/awful-picman-pics.js"))))
+
   ;;
   ;; /
   ;;
