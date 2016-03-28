@@ -93,7 +93,12 @@
              `((h4 (@ (id "album-export-title")) ,album-title)
                (p ,(_ "Directory to save pictures in: ")
                   (input (@ (id "album-export-dir")
-                            (type "text"))))
+                            (type "text")
+                            (size 40)
+                            (value ,(if album-export-dir-suggestion
+                                        (sprintf album-export-dir-suggestion
+                                                 album-title)
+                                        "")))))
                (p ,(_ "Export original pics (high resolution)? ")
                   (input (@ (id "album-export-hi-res")
                             (type "checkbox"))))

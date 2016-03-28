@@ -23,6 +23,7 @@
  start-decade
  debug-level
  debug-formatter
+ album-export-dir-suggestion
 
  ;; Constants
  thumbnails/exif-dimension
@@ -114,6 +115,11 @@
 ;;;
 (define start-decade (make-parameter 1900))
 
+(define album-export-dir-suggestion
+  ;; A string to be used as a suggestion for directory where to save
+  ;; albuns.  ~a gets substituted by the album name.  #f means no
+  ;; suggestion.
+  (make-parameter #f))
 
 ;;;
 ;;; Constants

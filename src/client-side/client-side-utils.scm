@@ -1,5 +1,7 @@
 (define debug-enabled? #t)
 
+(define album-export-dir-suggestion #f)
+
 (define (debug msg)
   (when debug-enabled?
     (%inline console.log
@@ -103,6 +105,40 @@
         (else
          (string-append (car l) sep (string-intersperse (cdr l) sep)))))
 
+(define (sprintf fmt . args)
+  ;; Cheap implementation of sprintf (only supports ~a, ~A and ~~)
+  (let loop ((chars (string->list fmt))
+             (args args)
+             (str ""))
+    (if (null? chars)
+        str
+        (let ((char (car chars)))
+          (case char
+            ((#\~)
+             (if (null? (cdr chars))
+                 (error 'sprintf
+                        "Invalid format specification (missing specifier for ~)")
+                 (let ((spec (cadr chars)))
+                   (case  spec
+                     ((#\~)
+                      (loop (cddr chars)
+                            args
+                            (string-append str "~")))
+                     (else
+                      (if (null? args)
+                          (error 'sprintf "too few arguments to format.")
+                          (case spec
+                            ((#\a #\A)
+                             (loop (cddr chars)
+                                   (cdr args)
+                                   (string-append str (car args))))
+                            (else
+                             (error 'sprintf "Invalid specifier for ~")))))))))
+            (else
+             (loop (cdr chars)
+                   args
+                   (string-append str (string char)))))))))
+
 (define (itemize items)
   (if (null? items)
       '()
@@ -173,4 +209,7 @@
                    (case (string->symbol (alist-ref 'i18n-language data))
                      ((en en_US) i18n/en)
                      ((pt_BR) i18n/pt-br)
-                     (else #f))))))
+                     (else #f)))
+                 (let ((dir-suggestion (alist-ref 'album-export-dir-suggestion data)))
+                   (when dir-suggestion
+                     (set! album-export-dir-suggestion dir-suggestion))))))

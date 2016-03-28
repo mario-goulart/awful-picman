@@ -80,6 +80,7 @@ $(document)
     (lambda ()
       `((thumbnails/small-dimension . ,(thumbnails/small-dimension))
         (thumbnails/zoom-dimension . ,(thumbnails/zoom-dimension))
+        (album-export-dir-suggestion . ,(album-export-dir-suggestion))
         (i18n-language . ,(language)))))
 
 
