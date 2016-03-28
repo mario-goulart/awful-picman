@@ -10,7 +10,7 @@
      awful-picman-image
      awful-picman-db)
 
-(define (write-index dir album-title pic-filenames)
+(define (write-index dir album-title album-descr pic-filenames)
   (with-output-to-file (make-pathname dir "index.html")
     (lambda ()
       (display
@@ -24,6 +24,7 @@
             (style "ul li { display: inline; list-style-type: none }"))
            (body
             (h1 ,album-title)
+            (blockquote ,album-descr)
             (ul
              ,@(map (lambda (pic-filename)
                       `(li (a (@ (href ,pic-filename))
@@ -37,6 +38,7 @@
     (create-directory (make-pathname dir "thumbnails") 'recursively))
   (let* ((album (db-get-album-by-id album-id))
          (album-title (db-album-title album))
+         (album-descr (db-album-descr album))
          (pic-ids/paths (db-get-pics-id/path-by-album-id album-id))
          (pic-filenames '()))
     (for-each
@@ -70,6 +72,6 @@
                     'clobber)))
      pic-ids/paths)
     (when index?
-      (write-index dir album-title pic-filenames))))
+      (write-index dir album-title album-descr pic-filenames))))
 
 ) ;; end module
