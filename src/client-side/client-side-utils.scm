@@ -53,9 +53,9 @@
                   (cadr maybe-start+step))))
     (let ((last-val (+ start (* (- count 1) step))))
       (do ((count count (- count 1))
-	   (val last-val (- val step))
-	   (ans '() (cons val ans)))
-	  ((<= count 0)  ans)))))
+           (val last-val (- val step))
+           (ans '() (cons val ans)))
+          ((<= count 0)  ans)))))
 
 (define (filter-map f lis1)
   (let recur ((lis lis1))
