@@ -427,16 +427,16 @@ create table albums_pics (
         0
         (caar count))))
 
-(define (db-album-pics album)
+(define (db-album-pics album-id)
   (map (lambda (dir/f)
          (make-pathname (car dir/f) (cadr dir/f)))
        ($db (string-append
              "select pics.dir, pics.filename from pics, albums, albums_pics "
-             "where albums.title=? and "
+             "where albums.album_id=? and "
              "albums.album_id=albums_pics.album_id and "
              "pics.pic_id=albums_pics.pic_id "
              "order by pics.pic_id")
-            values: (list album))))
+            values: (list album-id))))
 
 (define (db-dir-pics dir)
   (call-with-database (db-credentials)

@@ -420,6 +420,31 @@ $(document)
         ;; FIXME: move to define-pics-page
         "/assets/awful-picman/js/awful-picman-pics.js"))))
 
+
+  ;;
+  ;; Raw output (for CLI tools)
+  ;;
+  (define (define-raw matcher handler)
+    (define-page matcher
+      (case-lambda
+        (() (handler))
+        ((path) (handler path))
+        (args (apply handler args)))
+      no-template: #t))
+
+  (define-raw "/raw/list-albums"
+    (lambda ()
+      (map (lambda (album)
+             (sprintf "~a\t~a\n" (db-album-id album) (db-album-title album)))
+           (db-albums))))
+
+  (define-raw (irregex "/raw/album-pic-files/[0-9]+")
+    (lambda (path)
+      (let ((album-id (string->number (pathname-strip-directory path))))
+        (map (lambda (path)
+               (sprintf "~a\n" (make-pathname (current-directory) path)))
+             (db-album-pics album-id)))))
+
   ;;
   ;; /
   ;;
