@@ -104,9 +104,9 @@
              (div (@ (id "pic-info-edit-button-bar")
                      (style "visibility: hidden;"))
                   (button (@ (id "cancel-edit-pic-info"))
-                          "Cancel")
+                          ,(_ "Cancel"))
                   (button (@ (id "save-pic-info"))
-                          "Save")))))))
+                          ,(_ "Save"))))))))
 
 (define (read&render-pic-info pic-id)
   (remote-read (string-append "/read-pic-info/" pic-id)
