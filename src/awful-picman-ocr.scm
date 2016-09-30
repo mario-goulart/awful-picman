@@ -6,12 +6,14 @@
    )
 
 (import chicken scheme)
-(use files ports posix utils)
+(use files ports posix utils srfi-13)
 (use awful-picman-params awful-picman-utils)
 
 (define (ocr-supported-pic-format? pic-file)
   (let ((extension (pathname-extension pic-file)))
-    (and (member extension (ocr-supported-formats)) #t)))
+    (and (member (string-downcase extension)
+                 (map string-downcase (ocr-supported-formats)))
+         #t)))
 
 (define (ocr-installed?)
   (program-available? (ocr-program)))
