@@ -67,12 +67,12 @@
          (path (if (equal? dir ".")
                    filename
                    (string-append dir "/" filename))))
-    `(code ,(if (equal? dir ".")
-                filename
-                ;; FIXME: link all the dir chain
-                `((a (@ (href ,(string-append "/folders" "/" dir)))
-                     ,(string-append dir "/"))
-                  ,filename)))))
+    `(p (code ,(if (equal? dir ".")
+                   filename
+                   ;; FIXME: link all the dir chain
+                   `((a (@ (href ,(string-append "/folders" "/" dir)))
+                        ,(string-append dir "/"))
+                     ,filename))))))
 
 (define (render-pic-info pic-data . for-batch-edit?)
   (let* ((id-prefix (if (null? for-batch-edit?)
