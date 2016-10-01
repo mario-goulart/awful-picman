@@ -493,26 +493,32 @@
 
 (define (render-filter-input)
   (let* ((filter-tags ($ "#filter-tags"))
-         (include-tags
-          (string-split (jattr filter-tags "data-include-tags") #\tab))
-         (exclude-tags
-          (string-split (jattr filter-tags "data-exclude-tags") #\tab)))
-    (jhtml! ($ "#filter-input-container")
-            (sxml->html
-             `(div (@ (class "filter-input"))
-                   ,(_ "Show pictures tagged with")
-                   ,(render-typeahead-inputs "tag-typeahead include-tag-typeahead"
-                                             include-tags)
-                   ,(_ "except those tagged with")
-                   ,(render-typeahead-inputs "tag-typeahead exclude-tag-typeahead"
-                                             exclude-tags)
-                   (input (@ (id "filter-by-tags")
-                             (type "submit")
-                             (value ,(_ "Filter")))))))
-    (%inline .autocomplete ($ ".include-tag-typeahead")
-             (% "serviceUrl" "/db/tags"))
-    (%inline .autocomplete ($ ".exclude-tag-typeahead")
-             (% "serviceUrl" "/db/tags"))))
+         (data-include-tags (jattr filter-tags "data-include-tags"))
+         (data-exclude-tags (jattr filter-tags "data-exclude-tags")))
+    ;; data-include-tags and data-exclude-tags are undefined when not
+    ;; in tags page
+    (when (and (not (void? data-include-tags))
+               (not (void? data-exclude-tags)))
+      (let ((include-tags (string-split data-include-tags #\tab))
+            (exclude-tags (string-split data-exclude-tags #\tab)))
+        (jhtml! ($ "#filter-input-container")
+                (sxml->html
+                 `(div (@ (class "filter-input"))
+                       ,(_ "Show pictures tagged with")
+                       ,(render-typeahead-inputs
+                         "tag-typeahead include-tag-typeahead"
+                         include-tags)
+                       ,(_ "except those tagged with")
+                       ,(render-typeahead-inputs
+                         "tag-typeahead exclude-tag-typeahead"
+                         exclude-tags)
+                       (input (@ (id "filter-by-tags")
+                                 (type "submit")
+                                 (value ,(_ "Filter")))))))
+        (%inline .autocomplete ($ ".include-tag-typeahead")
+                 (% "serviceUrl" "/db/tags"))
+        (%inline .autocomplete ($ ".exclude-tag-typeahead")
+                 (% "serviceUrl" "/db/tags"))))))
 
 (render-filter-input)
 
