@@ -34,6 +34,10 @@
          (if obj "#t" "#f"))
         ((symbol? obj)
          (symbol->string obj))
+        ((void? obj)
+         "undefined")
+        ((procedure? obj)
+         "#<procedure>")
         (else obj)))
 
 (define (conc . things)
