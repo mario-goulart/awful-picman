@@ -329,6 +329,12 @@
       (unshade-icon ($ "#edit-pic-info"))
       (debug "saving pic info"))))
 
+(define (toggle-pic-info-visibility)
+  (let ((pic-info ($ "#pic-info-wrapper")))
+    (if (jis pic-info ":visible")
+        (jhide pic-info)
+        (jshow pic-info))))
+
 (define (run-ocr event)
   (let* ((pic-id (jattr ($ "#zoomed-pic img") "data-pic-id"))
          (hash-pic-id (string-append "#" pic-id))
@@ -515,10 +521,13 @@
         ((82) ;; r
          (unless pic-info-edit-mode?
            (rotate-pic!)))
-        ((83) ;; s
+        ((83) ;; C-s
          (when (.ctrlKey event)
            (save-pic-info #f)
-           (%inline .preventDefault event))))
+           (%inline .preventDefault event)))
+        ((88) ;; C-x
+         (when (.ctrlKey event)
+           (toggle-pic-info-visibility))))
       (case (.keyCode event)
         ((37) ;; left arrow
          (prev-thumbnail))
