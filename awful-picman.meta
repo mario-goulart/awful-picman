@@ -12,6 +12,6 @@
           make
           matchable
           slice
-          spock)
+          (spock 0.098))
  (test-depends test)
  (foreign-depends))
