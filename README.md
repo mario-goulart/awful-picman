@@ -18,6 +18,7 @@ with regard to backward compatibility.
 
 * [CHICKEN](http://call-cc.org) & some eggs
 * imlib2 development files (libimlib2-dev package on Debian & derivatives)
+* libexif development files (libexif-dev package on Debian & derivatives)
 * [Tesseract](https://code.google.com/p/tesseract-ocr/) (optional, for OCR support)
 
 ## Installing
