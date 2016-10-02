@@ -9,6 +9,7 @@
 (use files ports posix utils srfi-13)
 (use awful-picman-params awful-picman-utils)
 
+;; FIXME: probably not used
 (define (ocr-supported-pic-format? pic-file)
   (let ((extension (pathname-extension pic-file)))
     (and (member (string-downcase extension)
@@ -23,12 +24,13 @@
     (handle-exceptions exn
       (begin
         (delete-file* temp-file)
-        (info-error "Error running OCR on ~a: ~a"
-                    pic-file
-                    (with-output-to-string
-                      (lambda ()
-                        (print-error-message exn))))
-        "")
+        `((status . error)
+          (msg .,(sprintf "Error running ~a on ~a: ~a"
+                          (ocr-program)
+                          pic-file
+                          (with-output-to-string
+                            (lambda ()
+                              (print-error-message exn)))))))
       (let ((cmd
              (sprintf "~a ~a > ~a 2>&1"
                       (ocr-program)
@@ -42,6 +44,7 @@
                (text (with-input-from-file text-file read-all)))
           (delete-file temp-file)
           (delete-file text-file)
-          text)))))
+          `((status . ok)
+            (msg . ,text)))))))
 
 ) ;; end module

@@ -34,6 +34,8 @@
     ("except those tagged with"
      "exceto as marcadas com")
     ("Filter" "Filtrar")
+    ("Language" "Língua")
+    ("Run OCR" "Executar OCR")
     ))
 
 ;; Language indexes

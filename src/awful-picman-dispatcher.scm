@@ -9,6 +9,7 @@
      awful-picman-db
      awful-picman-process-dir
      awful-picman-renderers
+     awful-picman-ocr
      awful-picman-export)
 
 (define (awful-picman)
@@ -81,6 +82,9 @@ $(document)
       `((thumbnails/small-dimension . ,(thumbnails/small-dimension))
         (thumbnails/zoom-dimension . ,(thumbnails/zoom-dimension))
         (album-export-dir-suggestion . ,(album-export-dir-suggestion))
+        (ocr-installed . ,(ocr-installed?))
+        (ocr-supported-formats . ,(ocr-supported-formats))
+        (ocr-languages . ,(ocr-languages))
         (i18n-language . ,(language)))))
 
 
@@ -147,6 +151,16 @@ $(document)
       "")
     no-template: #t
     method: 'post)
+
+  (define-data (irregex "/run-ocr/.*/[0-9]+")
+    (lambda (path)
+      (let* ((pic-id (string->number (pathname-strip-directory path)))
+             (lang (pathname-strip-directory (pathname-directory path)))
+             (pic-info (db-get-pic-by-id pic-id))
+             (pic-path (db-pic-path pic-info)))
+        (debug 2 "run-ocr: pic-id: ~a, lang: ~a, pic-path: ~a"
+               pic-id lang pic-path)
+        (run-ocr pic-path lang))))
 
   ;;;
   ;;; Album info
@@ -334,7 +348,8 @@ $(document)
           (if (file-exists? dir)
               (begin
                 (process-dir dir)
-                (list (render-navbar 'folders)
+                (list (ajax-spinner)
+                      (render-navbar 'folders)
                       (render-breadcrumbs dir (_ "Folders") (folders-web-dir))
                       (render-pics 'folder path: dir)
                       (include-javascript

@@ -1,6 +1,10 @@
 (define debug-enabled? #t)
 
+;; Will be set by read-conf-from-server!
 (define album-export-dir-suggestion #f)
+(define ocr-installed? #f)
+(define ocr-supported-formats '())
+(define ocr-languages '())
 
 (define (debug msg)
   (when debug-enabled?
@@ -68,7 +72,6 @@
           (cond ((f (car lis)) => (lambda (x) (cons x tail)))
                 (else tail))))))
 
-
 (define (filter pred lis)
   (let recur ((lis lis))
     (if (null? lis)
@@ -81,6 +84,14 @@
                     lis
                     (cons head new-tail)))
               (recur tail))))))
+
+(define (last-pair lis)
+  (let lp ((lis lis))
+    (let ((tail (cdr lis)))
+      (if (pair? tail) (lp tail) lis))))
+
+(define (last lis)
+  (car (last-pair lis)))
 
 (define (delete x l)
   (filter (lambda (i) (not (equal? i x))) l))
@@ -108,6 +119,18 @@
          (car l))
         (else
          (string-append (car l) sep (string-intersperse (cdr l) sep)))))
+
+(define (string-map proc s)
+  (let* ((len (string-length s))
+         (ans (make-string len)))
+    (do ((i 0 (+ i 1))
+         (j 0 (+ j 1)))
+        ((>= i len))
+      (string-set! ans i (proc (string-ref s j))))
+    ans))
+
+(define (string-downcase str)
+  (string-map char-downcase str))
 
 (define (sprintf fmt . args)
   ;; Cheap implementation of sprintf (only supports ~a, ~A and ~~)
@@ -220,12 +243,22 @@
   (remote-read "/conf"
                (lambda (data)
                  (debug "Configuration data from server:")
-                 (debug data)
+                 (for-each debug data)
                  (set! i18n-language
                    (case (string->symbol (alist-ref 'i18n-language data))
                      ((en en_US) i18n/en)
                      ((pt_BR) i18n/pt-br)
                      (else #f)))
+                 (set! ocr-installed? (alist-ref 'ocr-installed data))
+                 (set! ocr-supported-formats
+                   (map string-downcase (alist-ref 'ocr-supported-formats data)))
+                 (set! ocr-languages (alist-ref 'ocr-languages data))
                  (let ((dir-suggestion (alist-ref 'album-export-dir-suggestion data)))
                    (when dir-suggestion
                      (set! album-export-dir-suggestion dir-suggestion))))))
+
+;; OCR stuff
+(define (ocr-supported-pic-format? pic-file)
+  (let ((extension (last (string-split pic-file #\.))))
+    (and (member (string-downcase extension) ocr-supported-formats)
+         #t)))

@@ -74,39 +74,49 @@
                         ,(string-append dir "/"))
                      ,filename))))))
 
-(define (render-pic-info pic-data . for-batch-edit?)
-  (let* ((id-prefix (if (null? for-batch-edit?)
+(define (render-pic-info pic-data-alist . for-batch-edit?)
+  (let* ((pic-data (make-pic-data-getter pic-data-alist))
+         (id-prefix (if (null? for-batch-edit?)
                         "pic-"
                         "pic-template-"))
          (prefix (lambda (id-suffix)
-                   (string-append id-prefix id-suffix))))
+                   (string-append id-prefix id-suffix)))
+         (use-ocr? (and ocr-installed?
+                        (null? for-batch-edit?)
+                        (ocr-supported-pic-format? (pic-data 'filename)))))
     (sxml->html
-     (let* ((pic-data (make-pic-data-getter pic-data)))
-       `(div (@ (id ,(prefix "form")))
-             (h4 ,(_ "Description"))
-             (p (@ (id ,(prefix "description-wrapper")))
-                ,(pic-data 'description ""))
-             (h4 ,(_ "Date"))
-             (p (@ (id ,(prefix "date")))
-                ,(let ((date (pic-data 'date)))
-                   (if date
-                       (apply render-date date)
-                       "")))
-             (h4 ,(_ "Tags"))
-             (div (@ (id ,(prefix "tags")))
-                  ,(itemize (pic-data 'tags '())))
-             (h4 ,(_ "Albuns"))
-             (div (@ (id ,(prefix "albums")))
-                  ,(itemize (pic-data 'albums '())))
-             ,(if (null? for-batch-edit?)
-                  (render-pic-path pic-data)
-                  '())
-             (div (@ (id "pic-info-edit-button-bar")
-                     (style "visibility: hidden;"))
-                  (button (@ (id "cancel-edit-pic-info"))
-                          ,(_ "Cancel"))
-                  (button (@ (id "save-pic-info"))
-                          ,(_ "Save"))))))))
+     `(div (@ (id ,(prefix "form")))
+           (h4 ,(_ "Description")
+               ,(if use-ocr?
+                    `(" " (span (@ (id ,(prefix "maybe-ocr-icon")))))
+                    '()))
+           ,(if use-ocr?
+                `(span (@ (id "ocr-controls"))
+                       "") ;; this space is required.  Probably a bug somewhere.
+                '())
+           (p (@ (id ,(prefix "description-wrapper")))
+              ,(pic-data 'description ""))
+           (h4 ,(_ "Date"))
+           (p (@ (id ,(prefix "date")))
+              ,(let ((date (pic-data 'date)))
+                 (if date
+                     (apply render-date date)
+                     "")))
+           (h4 ,(_ "Tags"))
+           (div (@ (id ,(prefix "tags")))
+                ,(itemize (pic-data 'tags '())))
+           (h4 ,(_ "Albuns"))
+           (div (@ (id ,(prefix "albums")))
+                ,(itemize (pic-data 'albums '())))
+           ,(if (null? for-batch-edit?)
+                (render-pic-path pic-data)
+                '())
+           (div (@ (id "pic-info-edit-button-bar")
+                   (style "visibility: hidden;"))
+                (button (@ (id "cancel-edit-pic-info"))
+                        ,(_ "Cancel"))
+                (button (@ (id "save-pic-info"))
+                        ,(_ "Save")))))))
 
 (define (read&render-pic-info pic-id)
   (remote-read (string-append "/read-pic-info/" pic-id)
@@ -114,17 +124,26 @@
                  (leave-pic-info-edit-mode!)
                  (jhtml! ($ "#pic-info") (render-pic-info pic-data)))))
 
-(define (set-pic-info-editable! pic-data . for-batch-edit?)
-  (let* ((id-prefix (if (null? for-batch-edit?)
+(define (set-pic-info-editable! pic-data-alist . for-batch-edit?)
+  (let* ((pic-data (make-pic-data-getter pic-data-alist))
+         (id-prefix (if (null? for-batch-edit?)
                         "pic-"
                         "pic-template-"))
          (prefix (lambda (id-suffix)
                    (string-append id-prefix id-suffix)))
          (hash-prefix (lambda (id-suffix)
-                        (string-append "#" id-prefix id-suffix))))
-    (let* ((pic-data (make-pic-data-getter pic-data))
-           (tags (pic-data 'tags '()))
+                        (string-append "#" id-prefix id-suffix)))
+         (use-ocr? (and ocr-installed?
+                        (null? for-batch-edit?)
+                        (ocr-supported-pic-format? (pic-data 'filename)))))
+    (let* ((tags (pic-data 'tags '()))
            (albums (pic-data 'albums '())))
+      (when use-ocr?
+        (jhtml! ($ (hash-prefix "maybe-ocr-icon"))
+                (sxml->html
+                 `(span (@ (id "show-ocr-controls")
+                           (title "OCR")
+                           (class "show-ocr-controls glyphicon glyphicon-eye-open"))))))
       (jhtml! ($ (hash-prefix "description-wrapper"))
               (sxml->html
                `(textarea (@ (id ,(prefix "description"))
@@ -149,6 +168,16 @@
       (setup-typeahead-listener!)))
   (when (null? for-batch-edit?)
     (%inline .css ($ "#pic-info-edit-button-bar") "visibility" "visible")))
+
+(define (show-ocr-controls event)
+  (let* ((pic-id (jattr ($ "#zoomed-pic img") "data-pic-id")))
+    (debug (conc "show-ocr-controls, pic-id: " pic-id))
+    (jhtml! ($ "#ocr-controls")
+            (sxml->html
+             `(div (@ (class "ocr-controls-bar"))
+                   (,(_ "Language") ": "
+                    ,(combo-box "ocr-lang" ocr-languages #f "eng" "ocr-lang")
+                    (button (@ (id "run-ocr")) ,(_ "Run OCR"))))))))
 
 (define (read&set-pic-info-editable!)
   (enter-pic-info-edit-mode!)
@@ -300,6 +329,20 @@
       (unshade-icon ($ "#edit-pic-info"))
       (debug "saving pic info"))))
 
+(define (run-ocr event)
+  (let* ((pic-id (jattr ($ "#zoomed-pic img") "data-pic-id"))
+         (hash-pic-id (string-append "#" pic-id))
+         (id (drop-pic-id-prefix pic-id))
+         (lang (jval ($ "#ocr-lang"))))
+    (remote-read (string-append "/run-ocr/" lang "/" id)
+                 (lambda (result)
+                   (debug result)
+                   (let ((descr ($ "#pic-description")))
+                     (jval! descr
+                            (string-append (jtext descr)
+                                           "\n"
+                                           (alist-ref 'msg result))))))))
+
 ;;; Thumbnails
 (define (zoom-pic target)
   (load-image (jattr target "data-zoomed")
@@ -420,6 +463,10 @@
 (live-on ($ "body") "click" "#save-pic-info"
          (lambda ()
            (save-pic-info #f)))
+
+(live-on ($ "body") "click" "#run-ocr" run-ocr)
+
+(live-on ($ "body") "click" "#show-ocr-controls" show-ocr-controls)
 
 (live-on ($ "body") "click" "#cancel-edit-pic-info"
          (lambda ()

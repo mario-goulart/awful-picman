@@ -103,7 +103,8 @@ textarea, input, select {
 .remove-typeahead-icon,
 .edit-album-info,
 .export-album,
-.edit-tag {
+.edit-tag,
+.show-ocr-controls {
     cursor: pointer;
 }
 
@@ -138,4 +139,10 @@ textarea, input, select {
 
 #filter-tags {
     display: none;
+}
+
+/* OCR */
+.ocr-controls-bar {
+    margin: 5px;
+    font-size: 65%;
 }

@@ -175,6 +175,8 @@
   ;; tesseract doesn't provide any easy way to list the supported
   ;; languages, so we list some of them here (it's possible that not
   ;; all of them are installed!)
+  ;;
+  ;; FIXME: newer tesseract versions support --list-langs
   (make-parameter
    `((eng . "English")
      (deu . "German")
