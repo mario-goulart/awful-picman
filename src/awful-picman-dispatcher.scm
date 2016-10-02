@@ -93,10 +93,13 @@ $(document)
             ((not content-length)
              (error 'echo-service "Set content-length, sloppy client"))
             (else
-             (with-input-from-string
-                 (read-string content-length
-                              (request-port req))
-               read)))))
+             (handle-exceptions exn
+               (debug 1 "read-from-request: error reading: ~a"
+                      (with-output-to-string
+                        (lambda ()
+                          (print-error-message exn))))
+               (let ((body (read-string content-length (request-port req))))
+                 (with-input-from-string body read)))))))
 
   ;;;
   ;;; Pic info
