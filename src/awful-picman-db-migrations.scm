@@ -32,6 +32,33 @@
    ;; version 0 didn't have a version table
    (db-query db "create table version (version integer)")))
 
+;; version 1 -> 2
+(add-migration!
+ 2
+ (lambda (db)
+   ;; Make records in albums_pics and tags tables unique
+   (db-query db "create table tmp1 (pic_id integer, album_id integer)")
+   (db-query db "insert into tmp1 select distinct * from albums_pics")
+   (db-query db "drop table albums_pics")
+   (db-query db "create table albums_pics (
+                   pic_id integer,
+                   album_id integer,
+                   constraint uniq primary key (pic_id, album_id))")
+   (db-query db "insert into albums_pics select * from tmp1")
+   (db-query db "drop table tmp1")
+
+   (db-query db "create table tmp2 (pic_id integer, tag text)")
+   (db-query db "insert into tmp2 select distinct * from tags")
+   (db-query db "drop table tags")
+   (db-query db "create table tags (
+                   pic_id integer,
+                   tag text,
+                   constraint uniq primary key (pic_id, tag))")
+   (db-query db "insert into tags select * from tmp2")
+   (db-query db "drop table tmp2")
+   ))
+
+
 ;;; end migrations
 
 (define (version-table-exists?)
