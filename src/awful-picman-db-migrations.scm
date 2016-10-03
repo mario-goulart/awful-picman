@@ -1,9 +1,9 @@
 (module awful-picman-db-migrations (maybe-migrate-db!)
 
 (import chicken scheme)
-(use srfi-1)
+(use files posix srfi-1)
 (use awful sql-de-lite)
-(use awful-picman-utils awful-picman-db)
+(use awful-picman-params awful-picman-utils awful-picman-db)
 
 (define *db-migrations* '())
 
@@ -85,6 +85,16 @@
       (for-each
        (lambda (migration version)
          (let ((next-version (+ version 1)))
+           (debug 1 "Backing up the database before running the migration")
+           (let ((old-dbs-dir (make-pathname metadata-dir "old-dbs")))
+             (create-directory old-dbs-dir)
+             (file-copy (make-pathname metadata-dir db-filename)
+                        (make-pathname old-dbs-dir
+                                       (sprintf "~a.~a-~a"
+                                                db-filename
+                                                (- next-version 1)
+                                                next-version))
+                        'clobber))
            (info "Running migration from version ~a to ~a..." version next-version)
            (handle-exceptions exn
              (begin

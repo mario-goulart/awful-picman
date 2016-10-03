@@ -67,7 +67,8 @@
                              "awful-picman-renderers.import.so"
                              "awful-picman-process-dir.import.so"
                              "awful-picman-ocr.import.so")
-    (awful-picman-db-migrations "awful-picman-utils.import.so"
+    (awful-picman-db-migrations "awful-picman-params.import.so"
+                                "awful-picman-utils.import.so"
                                 "awful-picman-db.import.so")
     (awful-picman-gc "awful-picman-params.import.so"
                      "awful-picman-utils.import.so"
