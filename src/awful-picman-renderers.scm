@@ -236,14 +236,7 @@
 (define (render-pic-template-modal)
   (render-modal "pic-template-modal"
                 title: (_ "Template data for selected pictures")
-                body: `((div (@ (class "alert"))
-                             (button (@ (type "button")
-                                        (class "close")
-                                        (data-dismiss "alert"))
-                                     (literal "&times;"))
-                             (strong ,(_ "Warning:")) " "
-                             ,(_ "All the selected pictures will have their metadata overwritten with the data filled here."))
-                        (div (@ (id "pic-template-form-container"))))
+                body: `((div (@ (id "pic-template-form-container"))))
                 footer: `((button (@ (data-dismiss "modal")
                                      (type "button")
                                      (class "btn btn-default"))

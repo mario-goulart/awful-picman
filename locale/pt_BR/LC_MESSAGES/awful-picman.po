@@ -26,7 +26,7 @@ msgstr "Abortando."
 msgid "Albums"
 msgstr "Álbuns"
 
-#: src/renderers/common.scm src/awful-picman-renderers.scm
+#: src/renderers/common.scm
 msgid ""
 "All the selected pictures will have their metadata overwritten with the data "
 "filled here."
@@ -238,7 +238,7 @@ msgstr "Inverter seleção"
 msgid "Unselect all"
 msgstr "Desselecionar todas"
 
-#: src/renderers/common.scm src/awful-picman-renderers.scm
+#: src/renderers/common.scm
 msgid "Warning:"
 msgstr "Atenção:"
 

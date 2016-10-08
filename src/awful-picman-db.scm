@@ -100,33 +100,39 @@ create table albums_pics (
                              (sql db-conn q))
                        values)))
 
-(define (update-pic-data! db pic-id descr decade year month day tags albums)
+(define (update-pic-data! db pic-id descr decade year month day tags albums overwrite?)
   ;; This is ugly:
-  (when descr
-    (db-query db "update pics set descr=? where pic_id=?"
-              values: (list descr pic-id)))
-  (when decade
-    (db-query db "update pics set decade=? where pic_id=?"
-              values: (list decade pic-id)))
-  (when year
-    (db-query db "update pics set year=? where pic_id=?"
-              values: (list year pic-id)))
-  (when month
-    (db-query db "update pics set month=? where pic_id=?"
-              values: (list month pic-id)))
-  (when day
-    (db-query db "update pics set day=? where pic_id=?"
-              values: (list day pic-id)))
+  (define (maybe-overwrite field overwrite?)
+    (if overwrite?
+        (sprintf "?, nullif(~a, '')" field)
+        (sprintf "nullif(~a, ''), ?" field)))
+  (debug 2 "update-pic-data!: pic-id: ~S descr: ~S date: ~a-~a-~a-~a overwrite?: ~a"
+         pic-id descr decade year month day overwrite?)
+  (db-query db (sprintf "update pics set descr=coalesce(~a) where pic_id=?"
+                        (maybe-overwrite "descr" overwrite?))
+            values: (list (or descr "") pic-id))
+  (db-query db (sprintf "update pics set decade=coalesce(~a) where pic_id=?"
+                        (maybe-overwrite "decade" overwrite?))
+            values: (list (or decade "") pic-id))
+  (db-query db (sprintf "update pics set year=coalesce(~a) where pic_id=?"
+                        (maybe-overwrite "year" overwrite?))
+            values: (list (or year "") pic-id))
+  (db-query db (sprintf "update pics set month=coalesce(~a) where pic_id=?"
+                        (maybe-overwrite "month" overwrite?))
+            values: (list (or month "") pic-id))
+  (db-query db (sprintf "update pics set day=coalesce(~a) where pic_id=?"
+                        (maybe-overwrite "day" overwrite?))
+            values: (list (or day "") pic-id))
   ;; update tags
-  (debug 2 "update-pics-data!: pic-id: ~S tags: ~S" pic-id tags)
-  (when tags
+  (debug 2 "update-pic-data!: pic-id: ~S tags: ~S" pic-id tags)
+  (when (and tags overwrite?)
     (db-query db "delete from tags where pic_id=?"
               values: (list pic-id)))
   (insert-tags! db pic-id tags)
 
   ;; update albums
-  (debug 2 "update-pics-data!: pic-id: ~S albums: ~S" pic-id albums)
-  (when albums
+  (debug 2 "update-pic-data!: pic-id: ~S albums: ~S" pic-id albums)
+  (when (and albums overwrite?)
     (db-query db "delete from albums_pics where pic_id=?"
               values: (list pic-id)))
   (insert-albums! db pic-id albums))
@@ -150,7 +156,8 @@ create table albums_pics (
                                                  month
                                                  day
                                                  tags
-                                                 albums)
+                                                 albums
+                                                 overwrite?)
   ;; This procedure doesn't use awful-sql-de-lite stuff because it can
   ;; be called before awful is started
   (let ((path (and (string? pic-id-or-path) pic-id-or-path))
@@ -167,11 +174,11 @@ create table albums_pics (
                                  ((not (null? data)))
                                  (pic-id (caar data)))
                         ;; pic is in db.  Update its data.
-                        (update-pic-data! db pic-id descr decade year month day tags albums))
+                        (update-pic-data! db pic-id descr decade year month day tags albums overwrite?))
                       ;; pic is NOT in db.  Add it.
                       (insert-pic-data! db dir filename descr decade year month day tags albums)))
                 ;; pid-id has been given.  Update pic.
-                (update-pic-data! db pic-id descr decade year month day tags albums))
+                (update-pic-data! db pic-id descr decade year month day tags albums overwrite?))
             #t))))))
 
 (define (insert-multiple-pics! dir pics)

@@ -36,6 +36,11 @@
     ("Filter" "Filtrar")
     ("Language" "Língua")
     ("Run OCR" "Executar OCR")
+    ("Overwrite pictures' data?"
+     "Sobrescrever dados das fotos?")
+    ("Warning" "Atenção")
+    ("unfilled fields will remove pictures' corresponding data."
+     "campos não preenchidos anularão os dados correspondentes das fotos.")
     ))
 
 ;; Language indexes

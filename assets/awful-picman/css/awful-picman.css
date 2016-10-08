@@ -141,6 +141,11 @@ textarea, input, select {
     display: none;
 }
 
+#batch-edit-overwrite-container {
+    margin: 15px 0 -15px 0;
+}
+
+
 /* OCR */
 .ocr-controls-bar {
     margin: 5px;

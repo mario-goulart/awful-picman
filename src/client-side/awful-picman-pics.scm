@@ -110,7 +110,14 @@
                 ,(itemize (pic-data 'albums '())))
            ,(if (null? for-batch-edit?)
                 (render-pic-path pic-data)
-                '())
+                `(div (@ (id "batch-edit-overwrite-container"))
+                      (hr)
+                      (input (@ (id "batch-edit-overwrite") (type "checkbox")))
+                      " "
+                      (,(_ "Overwrite pictures' data?")
+                       " "
+                       (b ,(_ "Warning")) ": "
+                       ,(_ "unfilled fields will remove pictures' corresponding data."))))
            (div (@ (id "pic-info-edit-button-bar")
                    (style "visibility: hidden;"))
                 (button (@ (id "cancel-edit-pic-info"))
@@ -323,7 +330,8 @@
                     (description . ,description)
                     (date ,@(map string->number (list decade year month day)))
                     (tags . ,tags)
-                    (albums . ,albums)))
+                    (albums . ,albums)
+                    (overwrite? . ,(jis ($ "#batch-edit-overwrite") ":checked"))))
     (unless for-batch-edit?
       (read&render-pic-info pic-id)
       (unshade-icon ($ "#edit-pic-info"))
