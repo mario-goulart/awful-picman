@@ -49,8 +49,8 @@
    )
 
 (import chicken scheme)
-(use data-structures files srfi-1 srfi-13)
-(use awful awful-sql-de-lite matchable sql-de-lite)
+(use data-structures files ports srfi-1 srfi-13)
+(use awful awful-sql-de-lite exif matchable sql-de-lite)
 (use awful-picman-utils)
 
 (define (initialize-database db-file force?)
@@ -181,6 +181,34 @@ create table albums_pics (
                 (update-pic-data! db pic-id descr decade year month day tags albums overwrite?))
             #t))))))
 
+(define (get-exif-date-from-file file)
+  (and-let* ((exif-info
+              (handle-exceptions exn
+                (begin
+                  (info-error "Error extracting exif info from ~a: ~a"
+                              file
+                              (with-output-to-string
+                                (lambda ()
+                                  (print-error-message exn))))
+                  #f)
+                (tag-alist-from-file file)))
+             (date/time
+                (or (alist-ref 'date-time exif-info)
+                    (alist-ref 'date-time-original exif-info)))
+             (date (car (string-split date/time)))
+             (date-tokens (string-split date ":"))
+             (decade+year-str (car date-tokens))
+             (decade+year (string->number decade+year-str))
+             ((> decade+year 1700))
+             ((= (string-length decade+year-str) 4))
+             (decade (string->number
+                      (string-append (substring decade+year-str 0 3) "0")))
+             (year (string->number (substring decade+year-str 3)))
+             (month (string->number (cadr date-tokens)))
+             (day (string->number (caddr date-tokens))))
+    (debug 2 "exif date for ~a: ~a" file (list decade year month day))
+    (list decade year month day)))
+
 (define (insert-multiple-pics! dir pics)
   (let* ((num-query-args 7)
          (max-query-args 999) ;; default value for SQLITE_MAX_VARIABLE_NUMBER
@@ -195,8 +223,12 @@ create table albums_pics (
              (values (let loop ((pics pics))
                        (if (null? pics)
                            '()
-                           (append (list dir (car pics) "" "" "" "" "")
-                                   (loop (cdr pics)))))))
+                           (let* ((pic (car pics))
+                                  (date (get-exif-date-from-file (make-pathname dir pic)))
+                                  (db-date (or date '("" "" "" ""))))
+                             (append (append (list dir pic "")
+                                             db-date)
+                                     (loop (cdr pics))))))))
          (call-with-database (db-credentials)
                              (lambda (db)
                                (db-query db query values: values)))))
