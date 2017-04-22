@@ -46,6 +46,10 @@
 
    db-get-album-by-id
    db-album->alist
+
+   ;; Export get-exif-date-from-file for bin/insert-exif-date.scm
+   ;; (this procedure should be somewhere else, actually)
+   get-exif-date-from-file
    )
 
 (import chicken scheme)
