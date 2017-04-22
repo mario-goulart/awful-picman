@@ -332,10 +332,24 @@
                     (tags . ,tags)
                     (albums . ,albums)
                     (overwrite? . ,(jis ($ "#batch-edit-overwrite") ":checked"))))
-    (unless for-batch-edit?
-      (read&render-pic-info pic-id)
-      (unshade-icon ($ "#edit-pic-info"))
-      (debug "saving pic info"))))
+    (cond (for-batch-edit?
+           (let ((reset-elts-by-class!
+                  (lambda (class)
+                    (for-each (lambda (elt)
+                                (set! (.value elt) ""))
+                              (vector->list (%inline .toArray ($ class))))))
+                 (reset-elt-by-id!
+                  (lambda (id)
+                    (jval! ($ (prefix id)) ""))))
+             (reset-elts-by-class! ".tag-typeahead")
+             (reset-elts-by-class! ".album-typeahead")
+             (for-each reset-elt-by-id!
+                       '("description" "date-decade" "date-year"
+                         "date-month" "date-day"))))
+          (else
+           (read&render-pic-info pic-id)
+           (unshade-icon ($ "#edit-pic-info"))
+           (debug "saving pic info")))))
 
 (define (toggle-pic-info-visibility)
   (let ((pic-info ($ "#pic-info-wrapper")))
