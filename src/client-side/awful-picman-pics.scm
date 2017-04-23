@@ -527,10 +527,10 @@
 (define (handle-keypress event)
   (if (jis ($ "#zoomed-pic") ":visible")
       (case (.keyCode event)
-        ((37) ;; left arrow
+        ((37 80) ;; left arrow, p
          (unless pic-info-edit-mode?
            (prev-pic event)))
-        ((39) ;; right arrow
+        ((39 78) ;; right arrow, n
          (unless pic-info-edit-mode?
            (next-pic event)))
         ((27) ;; esc
