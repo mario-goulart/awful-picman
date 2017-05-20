@@ -167,6 +167,15 @@
            (p (a (@ (href ,web-path)) ,dirname))
            ,(render-dir-stat (make-pathname root-dir dir-path))))))
 
+(define (render-video-file file-path)
+  (let ((filename (pathname-strip-directory file-path)))
+    (thumbnail-boilerplate
+     `(div (@ (class "video-file-type pic-thumbnail"))
+           (a (@ (href ,(make-absolute-pathname #f file-path)))
+              (img (@ (src "/assets/awful-picman/img/video.png")
+                      (alt ,filename))))
+           (p ,filename)))))
+
 (define (render-other-file-type file-path)
   (let ((filename (pathname-strip-directory file-path)))
     (thumbnail-boilerplate
@@ -174,7 +183,9 @@
            (img (@ (src "/assets/awful-picman/img/unknown.png") (alt ,filename)))
            (p ,filename)))))
 
-(define (render-thumbnails pics-id/path #!key (folders '()) (other-files '()))
+(define (render-thumbnails pics-id/path #!key (folders '())
+                                              (video-files '())
+                                              (other-files '()))
   `(div (@ (id "thumbnails"))
         ,@(append
            (map render-folder (sort folders string<?))
@@ -183,6 +194,7 @@
                 (sort pics-id/path
                       (lambda (p1 p2)
                         (string<? (cdr p1) (cdr p2)))))
+           (map render-video-file video-files)
            (map render-other-file-type other-files))))
 
 (define (render-modal id #!key (title "") (body '()) (footer '()))
@@ -265,8 +277,10 @@
              (let ((all-files (glob (make-pathname path "*"))))
                (render-thumbnails (db-get-pics-id/path-by-directory path)
                                   folders: (filter directory? all-files)
+                                  video-files: (filter video-file? all-files)
                                   other-files: (remove (lambda (f)
                                                          (or (image-file? f)
+                                                             (video-file? f)
                                                              (directory? f)))
                                                        all-files))))
             ((album)

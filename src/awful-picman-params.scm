@@ -40,6 +40,9 @@
  image-file-extensions
  non-web-image-file-extensions
 
+ ;; Video
+ video-file-extensions
+
  ;; OCR
  ocr-supported-formats
  ocr-program
@@ -153,6 +156,11 @@
 (define non-web-image-file-extensions
   '("tiff" "tif"))
 
+;;;
+;;; Video stuff
+;;;
+(define video-file-extensions
+  '("avi" "mov" "mp4" "ogv"))
 
 ;;;
 ;;; OCR stuff

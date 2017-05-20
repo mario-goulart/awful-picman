@@ -1,6 +1,7 @@
 (module awful-picman-utils
 
   (image-file?
+   video-file?
    non-web-image-file?
 
    ;; Reporting
@@ -50,6 +51,12 @@
   (let ((extension (pathname-extension file)))
     (and extension
          (member (string-downcase extension) image-file-extensions)
+         #t)))
+
+(define (video-file? file)
+  (let ((extension (pathname-extension file)))
+    (and extension
+         (member (string-downcase extension) video-file-extensions)
          #t)))
 
 (define (non-web-image-file? file)
