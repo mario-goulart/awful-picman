@@ -21,6 +21,8 @@
     ("Export original pics (high resolution)? "
      "Exportar fotos originais (alta resolução)? ")
     ("Create index page? " "Criar página de índice? ")
+    ("Use fancy gallery? (implies index page creation) "
+     "Criar galeria? (implica criação de página de índice) ")
     ("The target directory must be specified."
      "O Diretório de destino deve ser especificado")
     ("Album successfully exported to "

@@ -107,7 +107,11 @@
                             (type "checkbox"))))
                (p ,(_ "Create index page? ")
                   (input (@ (id "album-export-index")
-                            (type "checkbox")))))))
+                            (type "checkbox"))))
+               (p ,(_ "Use fancy gallery? (implies index page creation) ")
+                  (input (@ (id "album-export-fancy-gallery")
+                            (type "checkbox"))))
+               )))
     (jhtml! ($ "#album-export-modal .modal-footer")
             (sxml->html
              `((button (@ (type "button")
@@ -128,12 +132,16 @@
                     "0"))
         (index (if (jprop ($ "#album-export-index") "checked")
                    "1"
-                   "0")))
+                   "0"))
+        (fancy-gallery (if (jprop ($ "#album-export-fancy-gallery") "checked")
+                           "1"
+                           "0")))
     (remote-read (string-append "/export-album/"
                                 (jattr ($ "#album-export-id") "data-album-id")
                                 "?dir=" dir
                                 "&hi-res=" hi-res
-                                "&index=" index)
+                                "&index=" index
+                                "&fancy-gallery=" fancy-gallery)
                  (lambda (response)
                    (let ((status (alist-ref 'status response)))
                      (cond ((eq? status 'ok)
