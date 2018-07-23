@@ -117,6 +117,9 @@ Usage: #this [ <options> ]
   Performs garbage collection on thumbnails and the database:
   removes all records that reference files that don't exist anymore.
 
+--privileged-code=<file1>[,<file2> ...]
+  Files with code to be run with administrator privileges (e.g., setting
+  port < 1024).
 EOF
              port)
     (when exit-code
@@ -202,7 +205,8 @@ EOF
     (initialize-assets&locale))
 
   (let ((dev-mode? (and (member "--development-mode" args) #t))
-        (port (cmd-line-arg "--port" args)))
+        (port (cmd-line-arg "--port" args))
+        (privileged-code (cmd-line-arg "--privileged-code" args)))
 
     (info "Starting the server on port ~a." (or port (server-port)))
     (awful-start
@@ -212,6 +216,11 @@ EOF
                        ;; line (maybe a bug in awful?)
        (awful-picman))
      port: (and port (string->number port))
-     dev-mode?: dev-mode?)))
+     dev-mode?: dev-mode?
+     privileged-code: (and privileged-code
+                           (lambda ()
+                             (for-each (lambda (file)
+                                         (load file))
+                                       (string-split privileged-code ",")))))))
 
 ) ;; end module
