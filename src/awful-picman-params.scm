@@ -13,6 +13,7 @@
  thumbnails/zoom-dimension
  thumbnails/default-extension
  thumbnails/page
+ thumbnails/auto-rotate-based-on-exif-info?
 
  ;; i18n
  language
@@ -89,6 +90,10 @@
 (define thumbnails/page
   ;; Max number of thumbnails per page.
   (make-parameter 50))
+
+(define thumbnails/auto-rotate-based-on-exif-info?
+  ;; If non-#f, auto rotate thumbnails based on exif information.
+  (make-parameter #t))
 
 ;;;
 ;;; i18n
