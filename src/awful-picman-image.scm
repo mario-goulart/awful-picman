@@ -24,18 +24,20 @@
                                   (thumbnails/default-extension))
       thumbnail))
 
-(define (rotate-image! pic-path #!optional (orientation 1))
+(define (rotate-image! pic-path #!key (orientation 1)
+                       (dimensions (list (thumbnails/small-dimension)
+                                         (thumbnails/zoom-dimension))))
   ;; Rotate image `orientation' times 90 degrees.
-  (for-each (lambda (dir)
-              (let ((thumb-path (thumbnail-path pic-path dir)))
-                (when (file-exists? thumb-path) ;; FIXME: subject to race conditions
-                  (let ((image (image-load thumb-path)))
-                    (debug 2 "rotate-image!: rotating file ~a" thumb-path)
-                    (image-save (image-orientate image orientation)
-                                thumb-path)
-                    (image-destroy image)))))
-            (list (thumbnails/small-dimension)
-                  (thumbnails/zoom-dimension))))
+  (for-each
+   (lambda (dir)
+     (let ((thumb-path (thumbnail-path pic-path dir)))
+       (when (file-exists? thumb-path) ;; FIXME: subject to race conditions
+         (let ((image (image-load thumb-path)))
+           (debug 2 "rotate-image!: rotating file ~a" thumb-path)
+           (image-save (image-orientate image orientation)
+                       thumb-path)
+           (image-destroy image)))))
+   dimensions))
 
 (define (image-scale/proportional image max-dimension)
   ;; Scale the given image keeping width/height proportion and
@@ -87,7 +89,7 @@
                    'clobber))
     (image-destroy image)))
 
-(define (maybe-rotate-thumbnails! image-file)
+(define (maybe-rotate-thumbnails! image-file dimension)
   ;; When `orientation' is available in the exif data for the given
   ;; `image-file`, auto-rotate it if
   ;; `thumbnails/auto-rotate-based-on-exif-info?' is non-#f.
@@ -101,15 +103,15 @@
           ((Right-top)
            (debug 2 "maybe-rotate-thumbnails!: auto rotating (1) image based on exif data: ~a"
                   image-file)
-           (rotate-image! image-file))
+           (rotate-image! image-file dimensions: (list dimension)))
           ((Bottom-right)
            (debug 2 "maybe-rotate-thumbnails!: auto rotating (2) image based on exif data: ~a"
                   image-file)
-           (rotate-image! image-file 2))
+           (rotate-image! image-file orientation: 2 dimensions: (list dimension)))
           ((Left-bottom)
            (debug 2 "maybe-rotate-thumbnails!: auto rotating (3) image based on exif data: ~a"
                   image-file)
-           (rotate-image! image-file 3))
+           (rotate-image! image-file orientation: 3 dimensions: (list dimension)))
           (else (void)))))))
 
 (define (image->thumbnail image-file dimension)
@@ -121,6 +123,6 @@
           (debug 2 "Failed to extract exif thumbnail data from ~a" image-file)
           (image->thumbnail/imlib2 image-file thumb-path dimension))
         (image->thumbnail/imlib2 image-file thumb-path dimension))
-    (maybe-rotate-thumbnails! image-file)))
+    (maybe-rotate-thumbnails! image-file dimension)))
 
 ) ;; end module
