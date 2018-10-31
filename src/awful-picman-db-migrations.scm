@@ -1,7 +1,7 @@
 (module awful-picman-db-migrations (maybe-migrate-db!)
 
 (import chicken scheme)
-(use files posix srfi-1)
+(use extras files posix srfi-1)
 (use awful sql-de-lite)
 (use awful-picman-params awful-picman-utils awful-picman-db)
 

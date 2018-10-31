@@ -8,7 +8,7 @@
    )
 
 (import chicken scheme)
-(use data-structures files ports posix srfi-1)
+(use data-structures extras files ports posix srfi-1)
 (use awful json slice simple-sha1 uri-common)
 (use awful-picman-params
      awful-picman-utils

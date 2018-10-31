@@ -53,7 +53,7 @@
    )
 
 (import chicken scheme)
-(use data-structures files ports srfi-1 srfi-13)
+(use data-structures extras files ports srfi-1 srfi-13)
 (use awful awful-sql-de-lite exif matchable sql-de-lite)
 (use awful-picman-utils)
 

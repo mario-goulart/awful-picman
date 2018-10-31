@@ -6,7 +6,7 @@
    )
 
 (import chicken scheme)
-(use files ports posix utils srfi-13)
+(use extras files ports posix utils srfi-13)
 (use awful-picman-params awful-picman-utils)
 
 ;; FIXME: probably not used
