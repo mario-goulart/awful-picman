@@ -290,33 +290,35 @@ $(document)
   ;;;
   (define-pics-page (irregex (string-append (albums-web-dir) "(/[0-9]*)*"))
     (lambda (path)
-      (debug 1 "albums handler: handling ~a" path)
-      (let* ((album-id (string->number
-                        (drop-web-path-prefix (albums-web-dir) path)))
-             (album-index? (not album-id)))
-        (list (ajax-spinner)
-              (render-navbar 'albums)
-              (render-breadcrumbs
-               (if album-index?
-                   "/"
-                   (let ((album (db-get-album-by-id album-id)))
-                     ;; Special case for albums (a pair as argument to
-                     ;; render-breadcrumbs)
-                     (cons album-id (db-album-title album))))
-               (_ "Albums")
-               (albums-web-dir))
-              (render-pics 'album
-                           album-id: (if album-index? #f album-id)
-                           with-zoomed-area?: (not album-index?))
-              (include-javascript
-               "/assets/bootstrap/js/bootstrap.min.js"
-               "/assets/spock/js/spock-runtime-debug.js" ;; FIXME: when debug, spock-runtime-debug.js
-               "/assets/load-image/js/load-image.all.min.js"
-               "/assets/autocomplete/js/jquery.autocomplete.min.js"
-               (if album-index?
-                   "/assets/awful-picman/js/awful-picman-albums.js"
-                   "/assets/awful-picman/js/awful-picman-pics.js")) ;;; FIXME: move to define-pics-page
-              ))))
+      (with-request-variables ((pagenum as-number))
+        (debug 1 "albums handler: handling ~a" path)
+        (let* ((album-id (string->number
+                          (drop-web-path-prefix (albums-web-dir) path)))
+               (album-index? (not album-id)))
+          (list (ajax-spinner)
+                (render-navbar 'albums)
+                (render-breadcrumbs
+                 (if album-index?
+                     "/"
+                     (let ((album (db-get-album-by-id album-id)))
+                       ;; Special case for albums (a pair as argument to
+                       ;; render-breadcrumbs)
+                       (cons album-id (db-album-title album))))
+                 (_ "Albums")
+                 (albums-web-dir))
+                (render-pics 'album
+                             album-id: (if album-index? #f album-id)
+                             with-zoomed-area?: (not album-index?)
+                             pagenum: pagenum)
+                (include-javascript
+                 "/assets/bootstrap/js/bootstrap.min.js"
+                 "/assets/spock/js/spock-runtime-debug.js" ;; FIXME: when debug, spock-runtime-debug.js
+                 "/assets/load-image/js/load-image.all.min.js"
+                 "/assets/autocomplete/js/jquery.autocomplete.min.js"
+                 (if album-index?
+                     "/assets/awful-picman/js/awful-picman-albums.js"
+                     "/assets/awful-picman/js/awful-picman-pics.js")) ;;; FIXME: move to define-pics-page
+                )))))
 
 
   (define-data (irregex "/export-album/[0-9]+")
@@ -345,7 +347,7 @@ $(document)
   ;;;
   (define-pics-page (irregex (string-append (folders-web-dir) "(/.*)*"))
     (lambda (path)
-      (with-request-variables (done)
+      (with-request-variables ((pagenum as-number))
         (debug 1 "folders handler: handling ~a" path)
         (let ((dir (drop-web-path-prefix (folders-web-dir) path)))
           (if (file-exists? dir)
@@ -354,7 +356,7 @@ $(document)
                 (list (ajax-spinner)
                       (render-navbar 'folders)
                       (render-breadcrumbs dir (_ "Folders") (folders-web-dir))
-                      (render-pics 'folder path: dir)
+                      (render-pics 'folder path: dir pagenum: pagenum)
                       (include-javascript
                        "/assets/bootstrap/js/bootstrap.min.js"
                        ;; FIXME: when debug, spock-runtime-debug.js
@@ -409,9 +411,9 @@ $(document)
       (list
        (ajax-spinner)
        (render-navbar #f)
-       (match (cdr (path-split path))
-         (("by-tags")
-          (with-request-variables (include-tags exclude-tags)
+       (with-request-variables (include-tags exclude-tags (pagenum as-number))
+         (match (cdr (path-split path))
+           (("by-tags")
             (let* ((parse-tags
                     (lambda (tag-val)
                       (if tag-val
@@ -422,15 +424,19 @@ $(document)
                    (include-tags (parse-tags include-tags))
                    (exclude-tags (parse-tags exclude-tags)))
               (debug 1 "include-tags: ~S" include-tags)
-              (render-pics 'filter/by-tags tags: (cons include-tags exclude-tags)))))
+              (render-pics 'filter/by-tags
+                           tags: (cons include-tags exclude-tags)
+                           pagenum: pagenum)))
 
-         (("without-album")
-          (render-pics 'filter/without-album))
+           (("without-album")
+            (render-pics 'filter/without-album
+                         pagenum: pagenum))
 
-         (("without-tag")
-          (render-pics 'filter/without-tag))
+           (("without-tag")
+            (render-pics 'filter/without-tag
+                         pagenum: pagenum))
 
-         (else (render-filters)))
+           (else (render-filters))))
 
        (include-javascript
         "/assets/bootstrap/js/bootstrap.min.js"

@@ -9,7 +9,10 @@
 
 (import chicken scheme)
 (use data-structures extras files ports posix srfi-1)
-(use awful json slice simple-sha1 uri-common)
+(use awful json slice simple-sha1 uri-common
+     (only intarweb request-uri)
+     (only spiffy current-request)
+     (only uri-common uri-path))
 (use awful-picman-params
      awful-picman-utils
      awful-picman-db
@@ -85,6 +88,33 @@
                               (li (a (@ (href "#")
                                         (id "batch-edit"))
                                      ,(_ "Edit selected thumbnails template"))))))))))
+
+
+(define (render-pager num-pics pagenum)
+  (let* ((num-pages (inexact->exact
+                     (ceiling (/ num-pics (thumbnails/page)))))
+         (req-path (uri-path->string (uri-path (request-uri (current-request)))))
+         (vars (uri-query (request-uri (current-request))))
+         (link-page (lambda (pagenum)
+                      (sprintf "~a?~a"
+                               req-path
+                               (parameterize ((form-urlencoded-separator "&"))
+                                 (form-urlencode
+                                  (alist-update 'pagenum pagenum vars)))))))
+    (if (< num-pages 2)
+        '()
+        `(div (@ (id "pager"))
+              (ul (@ (class "pagination pagination-centered"))
+                  ,@(map (lambda (i)
+                           (let ((current-page? (= i pagenum)))
+                             `(li ,(if current-page?
+                                       `(@ (class "active"))
+                                       '())
+                                  (a (@ (href ,(if current-page?
+                                                   "#"
+                                                        (link-page i))))
+                                          ,(+ i 1)))))
+                              (iota num-pages)))))))
 
 (define (pic-toolbar)
   `(div (@ (id "pic-toolbar"))
@@ -183,9 +213,10 @@
            (img (@ (src "/assets/awful-picman/img/unknown.png") (alt ,filename)))
            (p ,filename)))))
 
-(define (render-thumbnails pics-id/path #!key (folders '())
-                                              (video-files '())
-                                              (other-files '()))
+(define (render-thumbnails pics-id/path
+                           #!key (folders '())
+                                 (video-files '())
+                                 (other-files '()))
   `(div (@ (id "thumbnails"))
         ,@(append
            (map render-folder (sort folders string<?))
@@ -269,26 +300,43 @@
                                 path
                                 album-id
                                 tags)
-  `(,(if with-zoomed-area? (zoomed-pic-area) '())
-    (div (@ (id "content")) ;; FIXME: move to a more generic place
-         ,(render-pic-template-modal)
-         ,(case mode
-            ((folder)
-             (let ((all-files (glob (make-pathname path "*"))))
-               (render-thumbnails (db-get-pics-id/path-by-directory path)
-                                  folders: (filter directory? all-files)
-                                  video-files: (filter video-file? all-files)
-                                  other-files: (remove (lambda (f)
-                                                         (or (image-file? f)
-                                                             (video-file? f)
-                                                             (directory? f)))
-                                                       all-files))))
-            ((album)
-             (if album-id
-                 (render-thumbnails (db-get-pics-id/path-by-album-id album-id))
-                 (render-albums)))
-            ((filter/by-tags)
-             (render-filter/by-tags (car tags) (cdr tags)))
-            ))))
+  (let* ((pagenum (or pagenum 0))
+         (tag-filter-mode? (eq? mode 'filter/by-tags))
+         (include-tags (and tag-filter-mode? (car tags)))
+         (exclude-tags (and tag-filter-mode? (cdr tags)))
+         (filtered-pic-paths ;; hack
+          (if tag-filter-mode?
+              (db-tag-filter include-tags exclude-tags)
+              0))
+         (num-pics
+          (case mode
+            ((folder) (db-dir-pics-count path))
+            ((album)  (if album-id (db-album-pics-count album-id) 0))
+            ((filter/by-tags) (length filtered-pic-paths))
+            (else 0))))
+    `(,(if with-zoomed-area? (zoomed-pic-area) '())
+      (div (@ (id "content")) ;; FIXME: move to a more generic place
+           ,(render-pic-template-modal)
+           ,(case mode
+              ((folder)
+               (let ((all-files (glob (make-pathname path "*"))))
+                 (render-thumbnails (db-get-pics-id/path-by-directory path pagenum)
+                                    folders: (filter directory? all-files)
+                                    video-files: (filter video-file? all-files)
+                                    other-files: (remove (lambda (f)
+                                                           (or (image-file? f)
+                                                               (video-file? f)
+                                                               (directory? f)))
+                                                         all-files))))
+              ((album)
+               (if album-id
+                   (render-thumbnails (db-get-pics-id/path-by-album-id album-id pagenum))
+                   (render-albums)))
+              ((filter/by-tags)
+               (render-filter/by-tags filtered-pic-paths
+                                      include-tags
+                                      exclude-tags
+                                      pagenum)))
+           ,(render-pager num-pics pagenum)))))
 
 ) ;; end module

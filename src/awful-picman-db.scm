@@ -40,6 +40,7 @@
    db-get-pic-by-id
    db-get-pics-id/path-by-album-id
    db-get-pics-id/path-by-directory
+   db-dir-pics-count
    get-pic-from-db
    insert/update-pic!
    insert-multiple-pics!
@@ -55,7 +56,7 @@
 (import chicken scheme)
 (use data-structures extras files ports srfi-1 srfi-13)
 (use awful awful-sql-de-lite exif matchable sql-de-lite)
-(use awful-picman-utils)
+(use awful-picman-params awful-picman-utils)
 
 (define (initialize-database db-file force?)
   ;; This is the initial database schema, which can be modified by
@@ -268,14 +269,18 @@ create table albums_pics (
 (define (db-pic-path db-pic)
   (make-pathname (db-pic-dir db-pic) (db-pic-filename db-pic)))
 
-(define (db-get-pics-id/path-by-directory dir)
-  (let ((data ($db "select pic_id, dir, filename from pics where dir=?"
-                   values: (list dir))))
+(define (db-get-pics-id/path-by-directory dir pagenum)
+  (let ((data ($db "select pic_id, dir, filename from pics where dir=? limit ? offset ?"
+                   values: (list dir
+                                 (thumbnails/page)
+                                 (* (thumbnails/page) pagenum)))))
     (map (lambda (d)
            (cons (car d) (make-pathname (cadr d) (caddr d))))
          data)))
 
-(define (db-get-pics-id/path-by-album-id album-id)
+(define (db-get-pics-id/path-by-album-id album-id #!optional pagenum)
+  ;; pagenum is optional here because `export-album' does not support
+  ;; pagination
   (map (lambda (id/dir/f)
          (cons (car id/dir/f)
                (make-pathname (cadr id/dir/f) (caddr id/dir/f))))
@@ -284,8 +289,15 @@ create table albums_pics (
              "where albums.album_id=? and "
              "albums.album_id=albums_pics.album_id and "
              "pics.pic_id=albums_pics.pic_id "
-             "order by pics.pic_id")
-            values: (list album-id))))
+             "order by pics.pic_id "
+             (if pagenum
+                 "limit ? offset ?"
+                 ""))
+            values: (cons album-id
+                          (if pagenum
+                              (list (thumbnails/page)
+                                    (* (thumbnails/page) pagenum))
+                              '())))))
 
 (define (db-get-pic-by-id id)
   ;; Return #f if there's no pic with the given id in the database.
@@ -466,6 +478,14 @@ create table albums_pics (
                "select count(albums_pics.pic_id) from albums, albums_pics where "
                "albums_pics.album_id=albums.album_id and albums.album_id=?")
               values: (list album-id))))
+    (if (null? count)
+        0
+        (caar count))))
+
+(define (db-dir-pics-count dir)
+  (let ((count
+         ($db "select count(pic_id) from pics where dir=?"
+              values: (list dir))))
     (if (null? count)
         0
         (caar count))))

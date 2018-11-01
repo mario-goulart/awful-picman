@@ -32,6 +32,9 @@
    current-year
    current-decade
 
+   ;; URIs
+   uri-path->string
+
    ;; Misc
    flonum->fixnum
    combo-box
@@ -190,6 +193,19 @@
 
 (define (path-join parts)
   (string-intersperse parts "/"))
+
+(define (uri-path->string uri-path)
+  ;; uri-path is a path as represented by uri-common
+  ;; Examples:
+  ;;   /foo => '(/ "foo")
+  ;;   /foo/ => '(/ "foo" "")
+  (cond
+   ((equal? uri-path '(/))
+    "/")
+   (else
+    (if (equal? (last uri-path) "")
+        (make-absolute-pathname (butlast (cdr uri-path)) "/")
+        (make-absolute-pathname (butlast (cdr uri-path)) (last uri-path))))))
 
 (define (format-size/bytes n)
   (define num/si ;; Stolen from fmt
