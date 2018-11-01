@@ -80,3 +80,8 @@
            '()
            (render-filter-matches items))
       ,(render-thumbnails items pagenum))))
+
+(define (render-filter/without-tag items pagenum)
+  (list
+   (render-filter-matches items)
+   (render-thumbnails items pagenum)))

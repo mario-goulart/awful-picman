@@ -195,6 +195,10 @@ msgid "Pics without tag"
 msgstr "Fotos que não contêm marcadores"
 
 #: src/awful-picman-renderers.scm
+msgid "Pics without tags"
+msgstr "Fotos que não contêm marcadores"
+
+#: src/awful-picman-renderers.scm
 msgid "Previous"
 msgstr "Anterior"
 
@@ -346,9 +350,6 @@ msgstr "Nenhum diretório de miniaturas não utilizadas foi encontrado."
 
 #~ msgid "Pics not in albums"
 #~ msgstr "Fotos que não estão em álbums"
-
-#~ msgid "Pics without tags"
-#~ msgstr "Fotos que não contêm marcadores"
 
 #~ msgid "Show pictures tagged with "
 #~ msgstr "Exibir fotos marcadas com "

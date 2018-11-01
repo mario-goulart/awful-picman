@@ -54,7 +54,9 @@
                                                                        "by-tags")))
                                      ,(_ "By tags")))
                               ;(li (a (@ (href "#")) ,(_ "Pics not in albums")))
-                              ;(li (a (@ (href "#")) ,(_ "Pics without tags")))
+                              (li (a (@ (href ,(make-absolute-pathname (filters-web-dir)
+                                                                       "without-tag")))
+                                     ,(_ "Pics without tags")))
                               )))
                   ;; (form (@ (class "navbar-form navbar-left")
                   ;;          (role "search"))
@@ -346,6 +348,11 @@
                     '())
                 start-date
                 end-date
-                pagenum)))))))
+                pagenum))
+
+              ((filter/without-tag)
+               (render-filter/without-tag (db-filter/without-tag) pagenum))
+
+              )))))
 
 ) ;; end module
