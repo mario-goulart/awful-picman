@@ -5,7 +5,7 @@
 
    ;; Albums
    db-dir-pics
-   db-filter/without-album
+   db-filter/not-in-albums
    db-albums
    db-albums->alist
    db-album-pics
@@ -459,10 +459,14 @@ create table albums_pics (
                                       exclude-tags
                                       (append include-tags exclude-tags))))))))
 
-(define (db-filter/without-album)
-  (map (lambda (dir/f)
-         (make-pathname (car dir/f) (cadr dir/f)))
-       ($db "select dir, filename from pics where pics.pic_id not in (select distinct pic_id from albums_pics)")))
+(define (db-filter/not-in-albums)
+  (map (lambda (id/dir/f)
+         (cons (car id/dir/f)
+               (make-pathname (cadr id/dir/f) (caddr id/dir/f))))
+       ($db
+        (string-append
+         "select pic_id, dir, filename from pics where pics.pic_id not in "
+         "(select distinct pic_id from albums_pics)"))))
 
 (define (db-filter/without-tag)
   (map (lambda (id/dir/f)

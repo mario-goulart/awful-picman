@@ -447,8 +447,8 @@ $(document)
                                                 end-year
                                                 end-month
                                                 end-day))))
-           (("without-album")
-            (render-pics 'filter/without-album
+           (("not-in-albums")
+            (render-pics 'filter/not-in-albums
                          pagenum: pagenum))
 
            (("without-tag")

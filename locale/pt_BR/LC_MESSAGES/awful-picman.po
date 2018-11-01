@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: awful-picman\n"
-"PO-Revision-Date: 2018-11-01 20:37+0100\n"
+"PO-Revision-Date: 2018-11-01 21:31+0100\n"
 "Last-Translator: Mario Domenech Goulart\n"
 "Language-Team: Portuguese\n"
 "Language: \n"
@@ -186,8 +186,8 @@ msgstr "Nenhuma miniatura removida."
 msgid "Not removing unused thumbnail directories."
 msgstr "Nenhum diretório de miniaturas não utilizadas removido."
 
-#: src/renderers/filter.scm
-msgid "Pics without album"
+#: src/renderers/filter.scm src/awful-picman-renderers.scm
+msgid "Pics not in albums"
 msgstr "Fotos que não estão em álbums"
 
 #: src/renderers/filter.scm
@@ -347,9 +347,6 @@ msgstr "Nenhum diretório de miniaturas não utilizadas foi encontrado."
 
 #~ msgid "Filter"
 #~ msgstr "Filtrar"
-
-#~ msgid "Pics not in albums"
-#~ msgstr "Fotos que não estão em álbums"
 
 #~ msgid "Show pictures tagged with "
 #~ msgstr "Exibir fotos marcadas com "

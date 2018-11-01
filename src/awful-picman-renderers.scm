@@ -53,10 +53,12 @@
                               (li (a (@ (href ,(make-absolute-pathname (filters-web-dir)
                                                                        "by-tags")))
                                      ,(_ "By tags")))
-                              ;(li (a (@ (href "#")) ,(_ "Pics not in albums")))
                               (li (a (@ (href ,(make-absolute-pathname (filters-web-dir)
                                                                        "without-tag")))
                                      ,(_ "Pics without tags")))
+                              (li (a (@ (href ,(make-absolute-pathname (filters-web-dir)
+                                                                       "not-in-albums")))
+                                     ,(_ "Pics not in albums")))
                               )))
                   ;; (form (@ (class "navbar-form navbar-left")
                   ;;          (role "search"))
@@ -352,6 +354,9 @@
 
               ((filter/without-tag)
                (render-filter/without-tag (db-filter/without-tag) pagenum))
+
+              ((filter/not-in-albums)
+               (render-filter/not-in-albums (db-filter/not-in-albums) pagenum))
 
               )))))
 

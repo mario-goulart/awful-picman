@@ -13,7 +13,7 @@
     (div (@ (id "content")) ;; FIXME: move to a more generic place
          (ul
           ,(filter-link "by-tags" (_ "Filter by tags"))
-          ,(filter-link "without-album" (_ "Pics without album"))
+          ,(filter-link "not-in-albums" (_ "Pics not in albums"))
           ,(filter-link "without-tag" (_ "Pics without tag"))))))
 
 (define (render-filter/by-tags filtered-pic-paths include-tags exclude-tags pagenum)
@@ -82,6 +82,11 @@
       ,(render-thumbnails items pagenum))))
 
 (define (render-filter/without-tag items pagenum)
+  (list
+   (render-filter-matches items)
+   (render-thumbnails items pagenum)))
+
+(define (render-filter/not-in-albums items pagenum)
   (list
    (render-filter-matches items)
    (render-thumbnails items pagenum)))
