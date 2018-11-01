@@ -9,10 +9,7 @@
 
 (import chicken scheme)
 (use data-structures extras files ports posix srfi-1)
-(use awful json slice simple-sha1 uri-common
-     (only intarweb request-uri)
-     (only spiffy current-request)
-     (only uri-common uri-path))
+(use awful json slice uri-common)
 (use awful-picman-params
      awful-picman-utils
      awful-picman-db
@@ -76,6 +73,30 @@
                                 (data-toggle "dropdown")
                                 (role "button")
                                 (aria-expanded "false"))
+                             ,(_ "Pics/page") " " (span (@ (class "caret"))))
+                          (ul (@ (class "dropdown-menu")
+                                 (role "menu"))
+                              ,@(map
+                                 (lambda (thumbs/page)
+                                   `(li
+                                     (@ ,(if (= thumbs/page (thumbnails/page))
+                                             '(class "disabled")
+                                             '()))
+                                     (a (@ (href
+                                            ,(string-append
+                                              "/set-thumbnails-per-page?"
+                                              (form-urlencode
+                                               `((thumbs-per-page . ,thumbs/page)
+                                                 (go-back-to . ,(update-url-query-string
+                                                                 `((pagenum . 0)))))))))
+                                        ,thumbs/page)))
+                                 (thumbnails/page-steps))))
+                      (li (@ (class "dropdown"))
+                          (a (@ (href "#")
+                                (class "dropdown-toggle")
+                                (data-toggle "dropdown")
+                                (role "button")
+                                (aria-expanded "false"))
                              ,(_ "Batch edit") " " (span (@ (class "caret"))))
                           (ul (@ (class "dropdown-menu")
                                  (role "menu"))
@@ -100,14 +121,8 @@
 (define (render-pager num-pics pagenum)
   (let* ((num-pages (inexact->exact
                      (ceiling (/ num-pics (thumbnails/page)))))
-         (req-path (uri-path->string (uri-path (request-uri (current-request)))))
-         (vars (uri-query (request-uri (current-request))))
          (link-page (lambda (pagenum)
-                      (sprintf "~a?~a"
-                               req-path
-                               (parameterize ((form-urlencoded-separator "&"))
-                                 (form-urlencode
-                                  (alist-update 'pagenum pagenum vars)))))))
+                      (update-url-query-string `((pagenum . ,pagenum))))))
     (if (< num-pages 2)
         '()
         `(div (@ (id "pager")

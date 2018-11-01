@@ -491,6 +491,17 @@ $(document)
                (sprintf "~a\n" (make-pathname (current-directory) path)))
              (db-album-pics album-id)))))
 
+  ;;;
+  ;;; Set thumbnails per page
+  ;;;
+  (define-page "/set-thumbnails-per-page"
+    (lambda ()
+      (with-request-variables ((thumbs-per-page as-number)
+                               go-back-to)
+        (thumbnails/page thumbs-per-page)
+        (redirect-to go-back-to)))
+    no-template: #t)
+
   ;;
   ;; /
   ;;

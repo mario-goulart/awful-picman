@@ -43,13 +43,14 @@
 
    ;; URIs
    uri-path->string
+   query-string
+   append-url-query-string
+   update-url-query-string
 
    ;; Misc
    flonum->fixnum
    combo-box
    maybe-string-null->false
-   query-string
-   append-to-query-string
    format-size/bytes
    program-available?
    )
@@ -213,8 +214,25 @@
 (define (query-string)
   (uri-query (request-uri (current-request))))
 
-(define (append-to-query-string vars/vals)
-  (form-urlencode (append vars/vals (query-string))))
+(define (request-path)
+  (uri-path->string (uri-path (request-uri (current-request)))))
+
+(define (append-url-query-string vars/vals)
+  (sprintf "~a?~a"
+           (request-path)
+           (parameterize ((form-urlencoded-separator "&"))
+             (form-urlencode (append (query-string) vars/vals)))))
+
+(define (update-url-query-string vars/vals)
+  (let ((vars (query-string)))
+    (for-each
+     (lambda (var/val)
+       (set! vars (alist-update (car vars/vals) (cdr vars/vals) vars)))
+     vars/vals)
+    (sprintf "~a?~a"
+             (request-path)
+             (parameterize ((form-urlencoded-separator "&"))
+               (form-urlencode vars/vals)))))
 
 (define (path-split path)
   (string-split path (if (eq? (software-type) 'windows)

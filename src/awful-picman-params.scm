@@ -13,6 +13,7 @@
  thumbnails/zoom-dimension
  thumbnails/default-extension
  thumbnails/page
+ thumbnails/page-steps
  thumbnails/auto-rotate-based-on-exif-info?
 
  ;; i18n
@@ -87,9 +88,17 @@
   ;; For when converting non-web image files to web image files
   (make-parameter "jpg"))
 
-(define thumbnails/page
+(define *thumbnails/page* 50)
+(define (thumbnails/page #!optional val)
   ;; Max number of thumbnails per page.
-  (make-parameter 50))
+  (cond (val
+         (set! *thumbnails/page* val)
+         val)
+        (else *thumbnails/page*)))
+
+(define thumbnails/page-steps
+  (make-parameter
+   '(50 100 200 300 500 700 1000 1500 2000)))
 
 (define thumbnails/auto-rotate-based-on-exif-info?
   ;; If non-#f, auto rotate thumbnails based on exif information.

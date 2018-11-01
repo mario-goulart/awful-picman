@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: awful-picman\n"
-"PO-Revision-Date: 2018-11-01 21:31+0100\n"
+"PO-Revision-Date: 2018-11-01 21:44+0100\n"
 "Last-Translator: Mario Domenech Goulart\n"
 "Language-Team: Portuguese\n"
 "Language: \n"
@@ -197,6 +197,10 @@ msgstr "Fotos que não contêm marcadores"
 #: src/awful-picman-renderers.scm
 msgid "Pics without tags"
 msgstr "Fotos que não contêm marcadores"
+
+#: src/awful-picman-renderers.scm
+msgid "Pics/page"
+msgstr "Fotos/página"
 
 #: src/awful-picman-renderers.scm
 msgid "Previous"
