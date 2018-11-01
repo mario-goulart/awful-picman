@@ -40,6 +40,7 @@
    db-get-pic-by-id
    db-get-pics-id/path-by-album-id
    db-get-pics-id/path-by-directory
+   db-get-pics-id/path-by-date-range
    db-dir-pics-count
    get-pic-from-db
    insert/update-pic!
@@ -307,6 +308,47 @@ create table albums_pics (
                               (list (thumbnails/page)
                                     (* (thumbnails/page) pagenum))
                               '())))))
+
+(define (db-get-pics-id/path-by-date-range start end #!optional pagenum)
+  (let ((start (fill-date start #t))
+        (end (fill-date end #f)))
+    (if (or (> (date-decade start) (date-decade end))
+            (and (= (date-year start) (date-year end))
+                 (> (date-year start) (date-year end)))
+            (and (= (date-year start) (date-year end))
+                 (= (date-month start) (date-month end))
+                 (> (date-day start) (date-day end))))
+        '()
+        (let ((data
+               ($db ;; This is probably wrong
+                (string-append
+                 "select pic_id, dir, filename from pics where "
+                 "(365 * (decade + year)) + (month * 12) + day >= ? and "
+                 "(365 * (decade + year)) + (month * 12) + day <= ? "
+                 (if pagenum
+                     "limit ? offset ?"
+                     ""))
+                values: (append
+                         (list (+ (* 365
+                                     (+ (date-decade start)
+                                        (date-year start)))
+                                  (* 12 (date-month start))
+                                  (date-day start))
+                               (+ (* 365
+                                     (+ (date-decade end)
+                                        (date-year end)))
+                                  (* 12 (date-month end))
+                                  (date-day end)))
+                         (if pagenum
+                             (list
+                              (thumbnails/page)
+                              (* (thumbnails/page) pagenum))
+                             '())))))
+          (debug 2 "db-get-pics-id/path-by-date-range: start: ~S  end: ~S"
+                 start end)
+          (map (lambda (d)
+                 (cons (car d) (make-pathname (cadr d) (caddr d))))
+               data)))))
 
 (define (db-get-pic-by-id id)
   ;; Return #f if there's no pic with the given id in the database.

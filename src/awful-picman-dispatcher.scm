@@ -411,23 +411,42 @@ $(document)
       (list
        (ajax-spinner)
        (render-navbar #f)
-       (with-request-variables (include-tags exclude-tags (pagenum as-number))
+       (with-request-variables ((pagenum as-number))
          (match (cdr (path-split path))
            (("by-tags")
-            (let* ((parse-tags
-                    (lambda (tag-val)
-                      (if tag-val
-                          (delete "" (map string-trim-both
-                                          (string-split tag-val "\t"))
-                                  equal?)
-                          '())))
-                   (include-tags (parse-tags include-tags))
-                   (exclude-tags (parse-tags exclude-tags)))
-              (debug 1 "include-tags: ~S" include-tags)
-              (render-pics 'filter/by-tags
-                           tags: (cons include-tags exclude-tags)
-                           pagenum: pagenum)))
-
+            (with-request-variables (include-tags exclude-tags)
+              (let* ((parse-tags
+                      (lambda (tag-val)
+                        (if tag-val
+                            (delete "" (map string-trim-both
+                                            (string-split tag-val "\t"))
+                                    equal?)
+                            '())))
+                     (include-tags (parse-tags include-tags))
+                     (exclude-tags (parse-tags exclude-tags)))
+                (debug 1 "include-tags: ~S" include-tags)
+                (render-pics 'filter/by-tags
+                             tags: (cons include-tags exclude-tags)
+                             pagenum: pagenum))))
+           (("by-date")
+            (with-request-variables ((start-decade as-number)
+                                     (start-year as-number)
+                                     (start-month as-number)
+                                     (start-day as-number)
+                                     (end-decade as-number)
+                                     (end-year as-number)
+                                     (end-month as-number)
+                                     (end-day as-number))
+              (render-pics 'filter/by-date
+                           pagenum: pagenum
+                           start-date: (make-date start-decade
+                                                  start-year
+                                                  start-month
+                                                  start-day)
+                           end-date: (make-date end-decade
+                                                end-year
+                                                end-month
+                                                end-day))))
            (("without-album")
             (render-pics 'filter/without-album
                          pagenum: pagenum))

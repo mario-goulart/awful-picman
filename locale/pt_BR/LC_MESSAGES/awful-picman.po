@@ -1,9 +1,18 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
 #: src/awful-picman-db.scm
 msgid ""
 msgstr ""
+"Project-Id-Version: awful-picman\n"
+"PO-Revision-Date: 2018-11-01 20:37+0100\n"
 "Last-Translator: Mario Domenech Goulart\n"
+"Language-Team: Portuguese\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
 
 #: src/awful-picman-gc.scm
 msgid " records have been removed."
@@ -43,6 +52,10 @@ msgid "Batch edit"
 msgstr "Edição em massa"
 
 #: src/awful-picman-renderers.scm
+msgid "By date"
+msgstr "Por data"
+
+#: src/awful-picman-renderers.scm
 msgid "By tags"
 msgstr "Por marcadores"
 
@@ -62,6 +75,14 @@ msgstr "Data"
 #: src/renderers/common.scm
 msgid "Date (decade/year/month/day)"
 msgstr "Data (década/ano/mês/dia)"
+
+#: src/renderers/filter.scm
+msgid "Day"
+msgstr "Dia"
+
+#: src/renderers/filter.scm
+msgid "Decade"
+msgstr "Década"
 
 #: src/renderers/common.scm src/renderers/album.scm
 #: src/awful-picman-renderers.scm
@@ -88,6 +109,10 @@ msgstr "Editar dados a serem aplicados a fotos selecionadas"
 msgid "Edit tag"
 msgstr "Editar marcador"
 
+#: src/renderers/filter.scm
+msgid "End date"
+msgstr "Data de fim"
+
 #: src/awful-picman-renderers.scm
 msgid "Export album"
 msgstr "Exportar álbum"
@@ -112,6 +137,10 @@ msgstr "Pastas"
 #: src/renderers/common.scm
 msgid "Language: "
 msgstr "Língua: "
+
+#: src/renderers/filter.scm
+msgid "Month"
+msgstr "Mês"
 
 #: src/awful-picman-renderers.scm
 msgid "Next"
@@ -209,6 +238,10 @@ msgstr "Selecionar todas"
 msgid "Select from/to"
 msgstr "Selecionar de/até"
 
+#: src/renderers/filter.scm
+msgid "Start date"
+msgstr "Data de início"
+
 #: src/renderers/tag.scm src/renderers/common.scm src/renderers/album.scm
 #: src/awful-picman-renderers.scm
 msgid "Submit"
@@ -241,6 +274,10 @@ msgstr "Desselecionar todas"
 #: src/renderers/common.scm
 msgid "Warning:"
 msgstr "Atenção:"
+
+#: src/renderers/filter.scm
+msgid "Year"
+msgstr "Ano"
 
 #: src/renderers/common.scm
 msgid "Zoom in"

@@ -30,3 +30,53 @@
            `((div (@ (id "filter-matches"))
                   ,(render-filter-matches filtered-pic-paths))
              ,(render-thumbnails filtered-pic-paths pagenum))))))
+
+(define (render-filter/by-date items start end pagenum)
+  (let* ((decade-range
+          (iota (+ 1 (/ (- (current-decade) (start-decade)) 10))
+                (start-decade)
+                10))
+         (year-range (iota 10))
+         (month-range (iota 12 1))
+         (day-range (iota 31 1)))
+    `((form (@ (method "get")
+               (action ,(make-pathname (filters-web-dir) "by-date")))
+            ((p ,(_ "Start date") ": "
+                ,(combo-box "start-decade" decade-range
+                            default: (and start (date-decade start)))
+                " "
+                ,(combo-box "start-year" year-range
+                            default: (and start (date-year start)))
+                " "
+                ,(combo-box "start-month" month-range
+                            default: (and start (date-month start)))
+                " "
+                ,(combo-box "start-day" day-range
+                            default: (and start (date-day start)))
+                " (" ,(_"Decade") "/" ,(_ "Year") "/" ,(_ "Month") "/" ,(_ "Day") ")")
+             (p ,(_ "End date") ": "
+                ,(combo-box "end-decade" decade-range
+                            default: (if end
+                                         (date-decade end)
+                                         (current-decade)))
+                " "
+                ,(combo-box "end-year" year-range
+                            default: (if end
+                                         (date-year end)
+                                         (- (current-year) (current-decade))))
+                " "
+                ,(combo-box "end-month" month-range
+                            default: (if end
+                                         (date-month end)
+                                         (current-month)))
+                " "
+                ,(combo-box "end-day" day-range
+                            default: (if end
+                                         (date-day end)
+                                         (current-day)))
+                " (" ,(_"Decade") "/" ,(_ "Year") "/" ,(_ "Month") "/" ,(_ "Day") ")")
+             (p (input (@ (type "submit"))))))
+      ,(if (and end (not (date-decade end)))
+           '()
+           (render-filter-matches items))
+      ,(render-thumbnails items pagenum))))

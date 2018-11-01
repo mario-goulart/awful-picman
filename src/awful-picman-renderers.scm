@@ -48,6 +48,9 @@
                           (ul (@ (class "dropdown-menu")
                                  (role "menu"))
                               (li (a (@ (href ,(make-absolute-pathname (filters-web-dir)
+                                                                       "by-date")))
+                                     ,(_ "By date")))
+                              (li (a (@ (href ,(make-absolute-pathname (filters-web-dir)
                                                                        "by-tags")))
                                      ,(_ "By tags")))
                               ;(li (a (@ (href "#")) ,(_ "Pics not in albums")))
@@ -334,6 +337,15 @@
                  (render-filter/by-tags (db-tag-filter include-tags exclude-tags)
                                         include-tags
                                         exclude-tags
-                                        pagenum))))))))
+                                        pagenum)))
+
+              ((filter/by-date)
+               (render-filter/by-date
+                (if (and end-date (date-decade end-date))
+                    (db-get-pics-id/path-by-date-range start-date end-date)
+                    '())
+                start-date
+                end-date
+                pagenum)))))))
 
 ) ;; end module

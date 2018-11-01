@@ -28,9 +28,18 @@
    find-root-dir
    list-directory
 
-   ;; Time
-   current-year
+   ;; Date/time
    current-decade
+   current-year
+   current-month
+   current-day
+   ;; date record
+   make-date
+   date-decade
+   date-year
+   date-month
+   date-day
+   fill-date
 
    ;; URIs
    uri-path->string
@@ -162,6 +171,27 @@
 
 (define (current-decade)
   (- (current-year) (modulo (current-year) 10)))
+
+(define (current-month)
+  (+ 1 (vector-ref (seconds->local-time) 4)))
+
+(define (current-day)
+  (vector-ref (seconds->local-time) 3))
+
+(define-record date decade year month day)
+
+(define-record-printer (date obj out)
+  (fprintf out "#<date decade=~a year=~a month=~a day=~a>"
+           (date-decade obj)
+           (date-year obj)
+           (date-month obj)
+           (date-day obj)))
+
+(define (fill-date date-obj start?)
+  (make-date (or (date-decade date-obj) (if start? 0 (current-decade)))
+             (or (date-year date-obj) (if start? 0 (current-year)))
+             (or (date-month date-obj) (if start? 1 (current-month)))
+             (or (date-day date-obj) (if start? 1 (current-day)))))
 
 (define (maybe-string-null->false str)
   (if (equal? str "")
