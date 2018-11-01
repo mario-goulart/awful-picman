@@ -269,11 +269,20 @@ create table albums_pics (
 (define (db-pic-path db-pic)
   (make-pathname (db-pic-dir db-pic) (db-pic-filename db-pic)))
 
-(define (db-get-pics-id/path-by-directory dir pagenum)
-  (let ((data ($db "select pic_id, dir, filename from pics where dir=? limit ? offset ?"
-                   values: (list dir
-                                 (thumbnails/page)
-                                 (* (thumbnails/page) pagenum)))))
+(define (db-get-pics-id/path-by-directory dir #!optional pagenum)
+  (let ((data
+         ($db
+          (string-append
+           "select pic_id, dir, filename from pics where dir=? "
+           (if pagenum
+               "limit ? offset ?"
+               ""))
+          values: (cons dir
+                        (if pagenum
+                            (list
+                             (thumbnails/page)
+                             (* (thumbnails/page) pagenum))
+                            '())))))
     (map (lambda (d)
            (cons (car d) (make-pathname (cadr d) (caddr d))))
          data)))

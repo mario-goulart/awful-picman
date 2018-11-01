@@ -210,21 +210,27 @@
            (img (@ (src "/assets/awful-picman/img/unknown.png") (alt ,filename)))
            (p ,filename)))))
 
-(define (render-thumbnails pics-id/path
+(define (render-thumbnails pics-id/path pagenum
                            #!key (folders '())
                                  (video-files '())
                                  (other-files '()))
-  `(div (@ (id "thumbnails"))
-        (ul (@ (class "thumbnail-list"))
-            ,@(append
-               (map render-folder (sort folders string<?))
-               (map (lambda (id/path)
-                      (render-thumbnail (car id/path) (cdr id/path)))
-                    (sort pics-id/path
-                          (lambda (p1 p2)
-                            (string<? (cdr p1) (cdr p2)))))
-               (map render-video-file video-files)
-               (map render-other-file-type other-files)))))
+  (let* ((pics-slice (* (thumbnails/page) pagenum))
+         (items-to-show
+          (slice pics-id/path
+                 pics-slice
+                 (+ pics-slice (thumbnails/page)))))
+    `((div (@ (id "thumbnails"))
+           (ul (@ (class "thumbnail-list"))
+               ,@(append
+                  (map render-folder (sort folders string<?))
+                  (map (lambda (id/path)
+                         (render-thumbnail (car id/path) (cdr id/path)))
+                       (sort items-to-show
+                             (lambda (p1 p2)
+                               (string<? (cdr p1) (cdr p2)))))
+                  (map render-video-file video-files)
+                  (map render-other-file-type other-files))))
+      ,(render-pager (length pics-id/path) pagenum))))
 
 (define (render-modal id #!key (title "") (body '()) (footer '()))
   `(div (@ (class "modal fade")
@@ -297,28 +303,18 @@
                                 (with-zoomed-area? #t)
                                 path
                                 album-id
-                                tags)
-  (let* ((pagenum (or pagenum 0))
-         (tag-filter-mode? (eq? mode 'filter/by-tags))
-         (include-tags (and tag-filter-mode? (car tags)))
-         (exclude-tags (and tag-filter-mode? (cdr tags)))
-         (filtered-pic-paths ;; hack
-          (if tag-filter-mode?
-              (db-tag-filter include-tags exclude-tags)
-              0))
-         (num-pics
-          (case mode
-            ((folder) (db-dir-pics-count path))
-            ((album)  (if album-id (db-album-pics-count album-id) 0))
-            ((filter/by-tags) (length filtered-pic-paths))
-            (else 0))))
+                                tags
+                                start-date
+                                end-date)
+  (let ((pagenum (or pagenum 0)))
     `(,(if with-zoomed-area? (zoomed-pic-area) '())
       (div (@ (id "content")) ;; FIXME: move to a more generic place
            ,(render-pic-template-modal)
            ,(case mode
               ((folder)
                (let ((all-files (glob (make-pathname path "*"))))
-                 (render-thumbnails (db-get-pics-id/path-by-directory path pagenum)
+                 (render-thumbnails (db-get-pics-id/path-by-directory path)
+                                    pagenum
                                     folders: (filter directory? all-files)
                                     video-files: (filter video-file? all-files)
                                     other-files: (remove (lambda (f)
@@ -328,13 +324,16 @@
                                                          all-files))))
               ((album)
                (if album-id
-                   (render-thumbnails (db-get-pics-id/path-by-album-id album-id pagenum))
+                   (render-thumbnails (db-get-pics-id/path-by-album-id album-id)
+                                      pagenum)
                    (render-albums)))
+
               ((filter/by-tags)
-               (render-filter/by-tags filtered-pic-paths
-                                      include-tags
-                                      exclude-tags
-                                      pagenum)))
-           ,(render-pager num-pics pagenum)))))
+               (let ((include-tags (car tags))
+                     (exclude-tags (cdr tags)))
+                 (render-filter/by-tags (db-tag-filter include-tags exclude-tags)
+                                        include-tags
+                                        exclude-tags
+                                        pagenum))))))))
 
 ) ;; end module

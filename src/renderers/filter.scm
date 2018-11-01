@@ -29,10 +29,4 @@
            (debug 2 "render-filtered-pictures: filter results: ~S" filtered-pic-paths)
            `((div (@ (id "filter-matches"))
                   ,(render-filter-matches filtered-pic-paths))
-             ;; Here we cheat at paginating (using slice).  SQL is hard.
-             ,(let ((pics-slice (* (thumbnails/page) pagenum))
-                    (num-pics (length filtered-pic-paths)))
-                (render-thumbnails (slice filtered-pic-paths
-                                          pics-slice
-                                          (+ pics-slice (thumbnails/page)))
-                                   num-pics)))))))
+             ,(render-thumbnails filtered-pic-paths pagenum))))))
