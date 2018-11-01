@@ -103,7 +103,8 @@
                                   (alist-update 'pagenum pagenum vars)))))))
     (if (< num-pages 2)
         '()
-        `(div (@ (id "pager"))
+        `(div (@ (id "pager")
+                 (class "text-center"))
               (ul (@ (class "pagination pagination-centered"))
                   ,@(map (lambda (i)
                            (let ((current-page? (= i pagenum)))
@@ -144,11 +145,6 @@
         (div (@ (id "zoomed-pic")))
         ,(pic-info-area)))
 
-(define (thumbnail-boilerplate thumbnail-markup)
-  `(div (@ (class "col-lg-2 col-md-3 col-sm-4 col-xs-6"))
-        (div (@ (class "thumbnail"))
-             ,thumbnail-markup)))
-
 (define (render-thumbnail pic-id pic-path)
   (let* ((pic-id (number->string pic-id))
          (thumbnail-path
@@ -161,15 +157,16 @@
            (make-pathname (list (thumbnails-web-dir)
                                 (number->string (thumbnails/zoom-dimension)))
                           pic-path))))
-    (thumbnail-boilerplate
-     `((img (@ (src ,thumbnail-path)
+    `(li
+      ((img (@ (src ,thumbnail-path)
                (id ,(string-append "pic-" pic-id))
                (tabindex ,pic-id)
                (data-zoomed ,zoomed-pic-path)
                (class "pic-thumbnail")))
-       (input (@ (class "pic-select")
-                 (data-pic-id ,pic-id)
-                 (type "checkbox")))))))
+       (span (@ (class "pic-select-container"))
+             (input (@ (class "pic-select")
+                       (data-pic-id ,pic-id)
+                       (type "checkbox"))))))))
 
 
 (define (render-dir-stat dir)
@@ -188,8 +185,8 @@
 (define (render-folder dir-path)
   (let* ((dirname (pathname-strip-directory dir-path))
          (web-path (make-pathname (folders-web-dir) dir-path)))
-    (thumbnail-boilerplate
-     `(div (@ (class "dir"))
+    `(li
+      (div (@ (class "dir"))
            (a (@ (href ,web-path))
               (img (@ (src "/assets/awful-picman/img/dir.png")
                       (alt ,dirname)
@@ -199,8 +196,8 @@
 
 (define (render-video-file file-path)
   (let ((filename (pathname-strip-directory file-path)))
-    (thumbnail-boilerplate
-     `(div (@ (class "video-file-type pic-thumbnail"))
+    `(li
+      (div (@ (class "video-file-type pic-thumbnail"))
            (a (@ (href ,(make-absolute-pathname #f file-path)))
               (img (@ (src "/assets/awful-picman/img/video.png")
                       (alt ,filename))))
@@ -208,8 +205,8 @@
 
 (define (render-other-file-type file-path)
   (let ((filename (pathname-strip-directory file-path)))
-    (thumbnail-boilerplate
-     `(div (@ (class "other-file-type pic-thumbnail"))
+    `(li
+      (div (@ (class "other-file-type pic-thumbnail"))
            (img (@ (src "/assets/awful-picman/img/unknown.png") (alt ,filename)))
            (p ,filename)))))
 
@@ -218,15 +215,16 @@
                                  (video-files '())
                                  (other-files '()))
   `(div (@ (id "thumbnails"))
-        ,@(append
-           (map render-folder (sort folders string<?))
-           (map (lambda (id/path)
-                  (render-thumbnail (car id/path) (cdr id/path)))
-                (sort pics-id/path
-                      (lambda (p1 p2)
-                        (string<? (cdr p1) (cdr p2)))))
-           (map render-video-file video-files)
-           (map render-other-file-type other-files))))
+        (ul (@ (class "thumbnail-list"))
+            ,@(append
+               (map render-folder (sort folders string<?))
+               (map (lambda (id/path)
+                      (render-thumbnail (car id/path) (cdr id/path)))
+                    (sort pics-id/path
+                          (lambda (p1 p2)
+                            (string<? (cdr p1) (cdr p2)))))
+               (map render-video-file video-files)
+               (map render-other-file-type other-files)))))
 
 (define (render-modal id #!key (title "") (body '()) (footer '()))
   `(div (@ (class "modal fade")
