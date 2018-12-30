@@ -184,6 +184,7 @@
                (id ,(string-append "pic-" pic-id))
                (tabindex ,pic-id)
                (data-zoomed ,zoomed-pic-path)
+               (width ,(thumbnails/small-dimension))
                (class "pic-thumbnail")))
        (span (@ (class "pic-select-container"))
              (input (@ (class "pic-select")
