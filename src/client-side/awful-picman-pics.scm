@@ -207,10 +207,10 @@
 (define (show-zoomed-pic)
   (let ((zoomed-pic-area-wrapper ($ "#zoomed-pic-area-wrapper"))
         (zoomed-pic-id (jattr ($ "#zoomed-pic img") "data-pic-id")))
-    (%inline .css zoomed-pic-area-wrapper
-             "top" (%host-ref "$(document).scrollTop()") "px;")
     (read&render-pic-info (get-zoomed-pic-id))
     (jshow zoomed-pic-area-wrapper)
+    (%inline .css zoomed-pic-area-wrapper
+             "top" (%host-ref "$(document).scrollTop()") "px;")
     (let ((window-width (%host-ref "$(window).width()"))
           (pic-width (%inline .width ($ "#zoomed-pic img")))
           (pic-height (%inline .height ($ "#zoomed-pic img"))))
