@@ -4,6 +4,9 @@
 ;; this list are strings "pic-<id>".
 (define *rotated-pics* '())
 
+;; Keep track of y position
+(define *y-position* 0)
+
 (define (was-rotated? pic-id)
   (member pic-id *rotated-pics*))
 
@@ -209,8 +212,6 @@
         (zoomed-pic-id (jattr ($ "#zoomed-pic img") "data-pic-id")))
     (read&render-pic-info (get-zoomed-pic-id))
     (jshow zoomed-pic-area-wrapper)
-    (%inline .css zoomed-pic-area-wrapper
-             "top" (%host-ref "$(document).scrollTop()") "px;")
     (let ((window-width (%host-ref "$(window).width()"))
           (pic-width (%inline .width ($ "#zoomed-pic img")))
           (pic-height (%inline .height ($ "#zoomed-pic img"))))
@@ -226,7 +227,10 @@
       (jhide ($ ".breadcrumb"))
       (unshade-icon ($ "#edit-pic-info"))
       (%inline .addClass ($ "body") "modal-open")
-      (jshow ($ "#pic-info-wrapper")))))
+      (jshow ($ "#pic-info-wrapper"))
+      (set! *y-position* (%host-ref "$(window).scrollTop()"))
+      (%inline .css zoomed-pic-area-wrapper
+               "top" (%host-ref "$(window).scrollTop()") "px;"))))
 
 (define-native loadImage)
 
@@ -298,6 +302,7 @@
     (%inline .css ($ "#thumbnails") (% "opacity" 1))
     (debug (string-append "focusing " pic-id))
     (jfocus ($ (string-append "#" pic-id)))
+    (%inline "$(window).scrollTop" (- *y-position* (%host-ref "window.innerHeight")))
     #f))
 
 (define (save-pic-info for-batch-edit?)
