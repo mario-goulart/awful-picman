@@ -492,6 +492,19 @@ $(document)
              (db-album-pics album-id)))))
 
   ;;;
+  ;;; Sexp output
+  ;;;
+  (define-data (irregex "/sexp/album-pic-files/[0-9]+")
+    (lambda (path)
+      (let* ((album-id (string->number (pathname-strip-directory path)))
+             (image-size ($ 'size as-number))) ;; #f => raw image
+        (map (lambda (path)
+               (make-absolute-pathname
+                (and image-size (list "thumbnails" (number->string image-size)))
+                path))
+             (db-album-pics album-id)))))
+
+  ;;;
   ;;; Set thumbnails per page
   ;;;
   (define-page "/set-thumbnails-per-page"
