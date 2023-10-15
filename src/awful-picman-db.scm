@@ -130,11 +130,12 @@ create table albums_pics (
                         (maybe-overwrite "day" overwrite?))
             values: (list (or day "") pic-id))
   ;; update tags
-  (debug 2 "update-pic-data!: pic-id: ~S tags: ~S" pic-id tags)
-  (when (and tags overwrite?)
-    (db-query db "delete from tags where pic_id=?"
-              values: (list pic-id)))
-  (insert-tags! db pic-id tags)
+  (let ((tags (delete-duplicates tags string=?)))
+    (debug 2 "update-pic-data!: pic-id: ~S tags: ~S" pic-id tags)
+    (when (and tags overwrite?)
+      (db-query db "delete from tags where pic_id=?"
+                values: (list pic-id)))
+    (insert-tags! db pic-id tags))
 
   ;; update albums
   (debug 2 "update-pic-data!: pic-id: ~S albums: ~S" pic-id albums)
@@ -183,7 +184,7 @@ create table albums_pics (
                         (update-pic-data! db pic-id descr decade year month day tags albums overwrite?))
                       ;; pic is NOT in db.  Add it.
                       (insert-pic-data! db dir filename descr decade year month day tags albums)))
-                ;; pid-id has been given.  Update pic.
+                ;; pic-id has been given.  Update pic.
                 (update-pic-data! db pic-id descr decade year month day tags albums overwrite?))
             #t))))))
 
